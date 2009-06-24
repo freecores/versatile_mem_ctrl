@@ -109,10 +109,10 @@ module wb_sdram_ctrl_top
    output reg ras_pad_o,
    output reg cas_pad_o,
    output reg we_pad_o,
-   output reg [15:0] dq_pad_o,
+   output reg [15:0] dq_o,
    output reg [1:0] dqm_pad_o,
-   input      [15:0] dq_pad_i,
-   output reg dq_pad_oe,
+   input      [15:0] dq_i,
+   output reg dq_oe,
    output     cke,
 `endif
    input wb_clk,
@@ -377,7 +377,7 @@ assign tx_fifo_dat_i
       );
 
 `ifdef SDR_16
-   reg dq_oe, dq_flag;
+   reg dq_flag;
    wire [2:0] cmd;
 
    ref_counter ref_counter0
@@ -413,12 +413,12 @@ assign tx_fifo_dat_i
 
    always @ (posedge sdram_clk or posedge wb_rst)
      if (wb_rst)
-       {dq_pad_o,dqm_pad_o,dq_oe,dq_flag} <= {16'h0000,2'b00,1'b0,1'b0};
+       {dq_o,dqm_pad_o,dq_oe,dq_flag} <= {16'h0000,2'b00,1'b0,1'b0};
      else
        if (cmd == `CMD_WRITE)
-	 {dq_pad_o,dqm_pad_o,dq_oe,dq_flag} <= {tx_fifo_dat_o[35:20],!tx_fifo_dat_o[3:2],1'b1,1'b1};
+	 {dq_o,dqm_pad_o,dq_oe,dq_flag} <= {tx_fifo_dat_o[35:20],!tx_fifo_dat_o[3:2],1'b1,1'b1};
        else if (dq_flag)
-	 {dq_pad_o,dqm_pad_o,dq_oe,dq_flag} <= {tx_fifo_dat_o[19: 4],!tx_fifo_dat_o[1:0],1'b1,1'b0};
+	 {dq_o,dqm_pad_o,dq_oe,dq_flag} <= {tx_fifo_dat_o[19: 4],!tx_fifo_dat_o[1:0],1'b1,1'b0};
        else
 	 {dq_oe,dq_flag} <= {1'b0,1'b0};
 
@@ -428,7 +428,7 @@ assign tx_fifo_dat_i
      else
        {ba_pad_o, a_pad_o, cs_n_pad_o, ras_pad_o, cas_pad_o, we_pad_o} <= {a,cs_n,cmd};
        	 
-   assign cke = 1'b1;
+   assign cke_pad_o = 1'b1;
    
 `endif //  `ifdef SDR_16
    

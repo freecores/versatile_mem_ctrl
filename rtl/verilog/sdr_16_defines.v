@@ -26,7 +26,7 @@
 `define SDRAM16
 `define BA tx_fifo_dat_o[28:27]
 `define ROW tx_fifo_dat_o[26:14]
-`define COL {4'b0000,tx_fifo_dat_o[14:10],burst_adr}
+`define COL {4'b0000,tx_fifo_dat_o[13:10],burst_adr,1'b0}
 `define WORD_SIZE 1
 `define WB_ADR_HI 24
 `define WB_ADR_LO 2
@@ -64,10 +64,10 @@
 // [6:4]   CAS Latency; 3'b010 - 2, 3'b011 - 3
 // [3]     BT, Burst Type; 1'b0 - sequential, 1'b1 - interleaved
 // [2:0]   Burst length; 3'b000 - 1, 3'b001 - 2, 3'b010 - 4, 3'b011 - 8, 3'b111 - full page
-`define WB 1'b1
+`define WB 1'b0
 `define CL 2
 `define BT 1'b0
-`define BL 3'b000
+`define BL 3'b001
 
 // Adr to SDRAM {ba[1:0],a[12:0]}
 `define A_LMR     {2'b00,3'b000,`WB,2'b00,3'd`CL,`BT,`BL}

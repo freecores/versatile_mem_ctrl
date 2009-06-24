@@ -26,7 +26,7 @@
 
 // wrap around creates shorter cycle than maximum length
 `define CNT_WRAP
-`define CNT_WRAP_VALUE `CNT_LENGTH'h3ffff
+`define CNT_WRAP_VALUE `CNT_LENGTH'h250
 
 // clock enable
 //`define CNT_CE
