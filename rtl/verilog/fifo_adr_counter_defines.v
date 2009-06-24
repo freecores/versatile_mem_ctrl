@@ -17,6 +17,8 @@
 // clear
 //`define CNT_CLEAR
 
+// async reset
+`define CNT_RESET_VALUE `CNT_LENGTH'h0
 // set
 //`define CNT_SET
 `define CNT_SET_VALUE `CNT_LENGTH'h0

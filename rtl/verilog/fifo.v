@@ -1,4 +1,5 @@
-`include "wb_sdram_ctrl_defines.v"
+`include "versatile_mem_ctrl_defines.v"
+
 module fifo
   (
    // A side
@@ -9,8 +10,6 @@ module fifo
    input 	 a_clk,
    // B side
    output [35:0] b_dat_o,
-   input [35:0]  b_dat_i,
-   input 	 b_we_i,
    input 	 b_re_i,
    input [2:0]   b_fifo_sel_i,
    output [7:0]  b_fifo_empty_o,
@@ -96,7 +95,7 @@ module fifo
    assign rptr0 = 5'h0;
    assign radr0 = 5'h0;
    assign a_fifo_full_o[0] = 1'b0;
-   assign b_fifo_empty_o[0] = 1'b0;
+   assign b_fifo_empty_o[0] = 1'b1;
 `endif // !`ifdef PORT0
    
    // WB#1
@@ -140,7 +139,7 @@ module fifo
    assign rptr1 = 5'h0;
    assign radr1 = 5'h0;
    assign a_fifo_full_o[1] = 1'b0;
-   assign b_fifo_empty_o[1] = 1'b0;
+   assign b_fifo_empty_o[1] = 1'b1;
 `endif // !`ifdef PORT1
    
    // WB#2
@@ -184,7 +183,7 @@ module fifo
    assign rptr2 = 5'h0;
    assign radr2 = 5'h0;
    assign a_fifo_full_o[2] = 1'b0;
-   assign b_fifo_empty_o[2] = 1'b0;
+   assign b_fifo_empty_o[2] = 1'b1;
 `endif // !`ifdef PORT2
    
    // WB#3
@@ -228,7 +227,7 @@ module fifo
    assign rptr3 = 5'h0;
    assign radr3 = 5'h0;
    assign a_fifo_full_o[3] = 1'b0;
-   assign b_fifo_empty_o[3] = 1'b0;
+   assign b_fifo_empty_o[3] = 1'b1;
 `endif // !`ifdef PORT3
    
    // WB#4
@@ -272,7 +271,7 @@ module fifo
    assign rptr4 = 5'h0;
    assign radr4 = 5'h0;
    assign a_fifo_full_o[4] = 1'b0;
-   assign b_fifo_empty_o[4] = 1'b0;
+   assign b_fifo_empty_o[4] = 1'b1;
 `endif // !`ifdef PORT4
    
    // WB#5
@@ -316,7 +315,7 @@ module fifo
    assign rptr5 = 5'h0;
    assign radr5 = 5'h0;
    assign a_fifo_full_o[5] = 1'b0;
-   assign b_fifo_empty_o[5] = 1'b0;
+   assign b_fifo_empty_o[5] = 1'b1;
 `endif // !`ifdef PORT5
    
    // WB#6
@@ -360,7 +359,7 @@ module fifo
    assign rptr6 = 5'h0;
    assign radr6 = 5'h0;
    assign a_fifo_full_o[6] = 1'b0;
-   assign b_fifo_empty_o[6] = 1'b0;
+   assign b_fifo_empty_o[6] = 1'b1;
 `endif // !`ifdef PORT6
    
    // WB#7
@@ -404,25 +403,25 @@ module fifo
    assign rptr7 = 5'h0;
    assign radr7 = 5'h0;
    assign a_fifo_full_o[7] = 1'b0;
-   assign b_fifo_empty_o[7] = 1'b0;
+   assign b_fifo_empty_o[7] = 1'b1;
 `endif // !`ifdef PORT7
    
-   assign dpram_a_a = (a_fifo_sel_i==2'd0) ? {a_fifo_sel_i,wadr0} :
-		      (a_fifo_sel_i==2'd1) ? {a_fifo_sel_i,wadr1} :
-		      (a_fifo_sel_i==2'd2) ? {a_fifo_sel_i,wadr2} :
-		      (a_fifo_sel_i==2'd3) ? {a_fifo_sel_i,wadr3} :
-		      (a_fifo_sel_i==2'd4) ? {a_fifo_sel_i,wadr4} :
-		      (a_fifo_sel_i==2'd5) ? {a_fifo_sel_i,wadr5} :
-		      (a_fifo_sel_i==2'd6) ? {a_fifo_sel_i,wadr6} :
+   assign dpram_a_a = (a_fifo_sel_i==3'd0) ? {a_fifo_sel_i,wadr0} :
+		      (a_fifo_sel_i==3'd1) ? {a_fifo_sel_i,wadr1} :
+		      (a_fifo_sel_i==3'd2) ? {a_fifo_sel_i,wadr2} :
+		      (a_fifo_sel_i==3'd3) ? {a_fifo_sel_i,wadr3} :
+		      (a_fifo_sel_i==3'd4) ? {a_fifo_sel_i,wadr4} :
+		      (a_fifo_sel_i==3'd5) ? {a_fifo_sel_i,wadr5} :
+		      (a_fifo_sel_i==3'd6) ? {a_fifo_sel_i,wadr6} :
 		                             {a_fifo_sel_i,wadr7} ;
 
-   assign dpram_a_b = (b_fifo_sel_i==2'd0) ? {b_fifo_sel_i,radr0} :
-		      (b_fifo_sel_i==2'd1) ? {b_fifo_sel_i,radr1} :
-		      (b_fifo_sel_i==2'd2) ? {b_fifo_sel_i,radr2} :
-		      (b_fifo_sel_i==2'd3) ? {b_fifo_sel_i,radr3} :
-		      (b_fifo_sel_i==2'd4) ? {b_fifo_sel_i,radr4} :
-		      (b_fifo_sel_i==2'd5) ? {b_fifo_sel_i,radr5} :
-		      (b_fifo_sel_i==2'd6) ? {b_fifo_sel_i,radr6} :
+   assign dpram_a_b = (b_fifo_sel_i==3'd0) ? {b_fifo_sel_i,radr0} :
+		      (b_fifo_sel_i==3'd1) ? {b_fifo_sel_i,radr1} :
+		      (b_fifo_sel_i==3'd2) ? {b_fifo_sel_i,radr2} :
+		      (b_fifo_sel_i==3'd3) ? {b_fifo_sel_i,radr3} :
+		      (b_fifo_sel_i==3'd4) ? {b_fifo_sel_i,radr4} :
+		      (b_fifo_sel_i==3'd5) ? {b_fifo_sel_i,radr5} :
+		      (b_fifo_sel_i==3'd6) ? {b_fifo_sel_i,radr6} :
 		                             {b_fifo_sel_i,radr7} ;
 		      
 		        
@@ -441,8 +440,8 @@ module fifo
       .clk_a(a_clk),
       .q_b(b_dat_o),
       .adr_b(dpram_a_b),
-      .d_b(b_dat_i), 
-      .we_b(b_we_i),
+      .d_b(36'h0), 
+      .we_b(1'b0),
       .clk_b(b_clk)
       );
 

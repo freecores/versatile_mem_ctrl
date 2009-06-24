@@ -1,3 +1,5 @@
+`define SDR_16
+
 `define PORT0
 `define PORT1
 //`define PORT2
