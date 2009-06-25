@@ -3,7 +3,6 @@ module inc_adr
    input  [3:0] adr_i,
    input  [2:0] cti_i,
    input  [1:0] bte_i,
-   input  [7:0] fifo_empty, 
    input  init,
    input  inc,
    output reg [3:0] adr_o,

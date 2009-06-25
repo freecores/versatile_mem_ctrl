@@ -424,7 +424,21 @@ module fifo
 		      (b_fifo_sel_i==3'd6) ? {b_fifo_sel_i,radr6} :
 		                             {b_fifo_sel_i,radr7} ;
 		      
-		        
+
+`ifdef ACTEL
+   TwoPortRAM_256x36 dpram
+     (
+      .WD(a_dat_i),
+      .RD(b_dat_o),
+      .WEN(a_we_i),
+      //.REN(b_re_i),
+      .REN(1'b1),
+      .WADDR(dpram_a_a),
+      .RADDR(dpram_a_b),
+      .WCLK(a_clk),
+      .RCLK(b_clk)
+      );   
+`else		        
    vfifo_dual_port_ram_dc_dw
 /*     #
      (
@@ -444,5 +458,5 @@ module fifo
       .we_b(1'b0),
       .clk_b(b_clk)
       );
-
+`endif
 endmodule // sd_fifo

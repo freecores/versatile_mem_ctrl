@@ -1,3 +1,4 @@
+`define ACTEL
 `define SDR_16
 
 `define PORT0

@@ -17,6 +17,9 @@ ctrl_counter:
 	vpp versatile_counter.v > tmp1.v
 	vppreproc --simple tmp1.v | cat copyright.v - > ctrl_counter.v
 
+fifo_fill_fsm:
+	perl fizzim.pl -encoding onehot < fifo_fill.fzm > fifo_fill.v
+
 sdr_16:
 	perl fizzim.pl -encoding onehot < sdr_16.fzm > tmp1.v
 	vppreproc --simple tmp1.v > sdr_16.v
@@ -27,6 +30,6 @@ ref_counter:
 	vppreproc --simple tmp1.v | cat copyright.v - > ref_counter.v
 
 versatile_mem_ctrl:
-	vppreproc --simple versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v fifo.v inc_adr.v ref_counter.v sdr_16.v versatile_mem_ctrl_top.v | cat copyright.v - > versatile_mem_ctrl_ip.v
+	vppreproc --simple versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v sdr_16.v delay.v versatile_mem_ctrl_top.v | cat copyright.v - > versatile_mem_ctrl_ip.v
 
-all:  ctrl_counter dual_port_ram fifo_adr_counter sdr_16 versatile_mem_ctrl
+all:  ctrl_counter dual_port_ram fifo_adr_counter fifo_fill_fsm sdr_16 versatile_mem_ctrl

@@ -1,4 +1,4 @@
-## File last modified by Fizzim: 14:45:36 on 2009-06-24
+## File last modified by Fizzim: 17:12:20 on 2009-06-25
 <version>
    8.04.05
 </version>
@@ -490,50 +490,6 @@
          -1
          </page>
       </fifo_sel[2:0]>
-      <we>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </value>
-         <vis>
-         0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         -1
-         </page>
-      </we>
       <done>
             <status>
             GLOBAL_FIXED
@@ -578,7 +534,7 @@
          -1
          </page>
       </done>
-      <ba[1:0]>
+      <tx_fifo_dat_o[35:0]>
             <status>
             GLOBAL_FIXED
             </status>
@@ -621,8 +577,8 @@
          <page>
          -1
          </page>
-      </ba[1:0]>
-      <col[12:0]>
+      </tx_fifo_dat_o[35:0]>
+      <burst_adr[3:0]>
             <status>
             GLOBAL_FIXED
             </status>
@@ -665,51 +621,7 @@
          <page>
          -1
          </page>
-      </col[12:0]>
-      <row[12:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </value>
-         <vis>
-         0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         -1
-         </page>
-      </row[12:0]>
+      </burst_adr[3:0]>
    </inputs>
    <outputs>
       <cs_n>
@@ -729,7 +641,7 @@
             </status>
          </vis>
          <type>
-         comb
+         regdp
             <status>
             GLOBAL_VAR
             </status>
@@ -805,7 +717,7 @@
             GLOBAL_FIXED
             </status>
          <value>
-         a
+         15'd0
             <status>
             GLOBAL_VAR
             </status>
@@ -1020,6 +932,182 @@
          -1
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         regdp
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         regdp
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         regdp
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         reg
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </read>
    </outputs>
    <state>
       <name>
@@ -1159,7 +1247,7 @@
             GLOBAL_FIXED
             </status>
          <value>
-         a
+         15'd0
             <status>
             GLOBAL_VAR
             </status>
@@ -1374,6 +1462,182 @@
          -1
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </read>
    </state>
    <trans>
       <name>
@@ -1520,7 +1784,7 @@
 46
 </SCounter>
 <TCounter>
-69
+72
 </TCounter>
 <TableVis>
 true
@@ -1697,7 +1961,7 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         a
+         15'd0
             <status>
             GLOBAL_VAR
             </status>
@@ -1912,6 +2176,182 @@ fzm_globalTable
          2
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </read>
    </attributes>
    <x0>
    117
@@ -2120,9 +2560,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         1'b0
+         1'b1
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -2291,6 +2731,182 @@ fzm_globalTable
          2
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </read>
    </attributes>
    <x0>
    426
@@ -2457,7 +3073,7 @@ fzm_globalTable
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -2499,9 +3115,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         1'b0
+         1'b1
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -2670,6 +3286,182 @@ fzm_globalTable
          2
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </read>
    </attributes>
    <x0>
    426
@@ -2820,10 +3612,10 @@ fzm_globalTable
             </status>
          </color>
          <x2Obj>
-         1
+         2
          </x2Obj>
          <y2Obj>
-         13
+         9
          </y2Obj>
          <page>
          2
@@ -2836,7 +3628,7 @@ fzm_globalTable
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -2878,9 +3670,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         1'b0
+         1'b1
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -2911,7 +3703,7 @@ fzm_globalTable
          0
          </x2Obj>
          <y2Obj>
-         0
+         15
          </y2Obj>
          <page>
          2
@@ -3049,6 +3841,182 @@ fzm_globalTable
          2
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </read>
    </attributes>
    <x0>
    427
@@ -3428,6 +4396,182 @@ fzm_globalTable
          2
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </read>
    </attributes>
    <x0>
    428
@@ -3813,7 +4957,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -4026,6 +5170,182 @@ Initialization of SDRAM
          2
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </read>
    </attributes>
    <x0>
    426
@@ -4192,7 +5512,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -4405,6 +5725,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    189
@@ -4571,7 +6067,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -4784,6 +6280,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    412
@@ -5745,6 +7417,182 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
+         1'b1
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
          1'b0
             <status>
             GLOBAL_VAR
@@ -5783,7 +7631,7 @@ Initialization of SDRAM
          <page>
          3
          </page>
-      </fifo_re>
+      </read>
    </attributes>
    <x0>
    189
@@ -5948,9 +7796,9 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         a
+         `A_READ
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -6124,9 +7972,9 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         1'b1
+         1'b0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -6163,6 +8011,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    198
@@ -6741,7 +8765,7 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         `A_READ
+         {a[14:5],burst_adr,1'b0}
             <status>
             LOCAL
             </status>
@@ -6873,9 +8897,9 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         1'b0
+         !done
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -6956,6 +8980,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b00
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b1
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    327
@@ -7327,9 +9527,9 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         a
+         {a[14:5],burst_adr,1'b0}
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -7360,7 +9560,7 @@ Initialization of SDRAM
          0
          </x2Obj>
          <y2Obj>
-         2
+         1
          </y2Obj>
          <page>
          3
@@ -7503,6 +9703,182 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
+         1'b1
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         tx_fifo_dat_o[35:20]
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         !tx_fifo_dat_o[3:2]
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b1
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
          1'b0
             <status>
             GLOBAL_VAR
@@ -7541,7 +9917,7 @@ Initialization of SDRAM
          <page>
          3
          </page>
-      </fifo_re>
+      </read>
    </attributes>
    <x0>
    325
@@ -7708,7 +10084,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -7838,9 +10214,9 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         !done
+         1'b0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -7868,10 +10244,10 @@ Initialization of SDRAM
             </status>
          </color>
          <x2Obj>
-         55
+         2
          </x2Obj>
          <y2Obj>
-         -56
+         33
          </y2Obj>
          <page>
          3
@@ -7921,6 +10297,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b00
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    477
@@ -8507,6 +11059,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    776
@@ -9087,7 +11815,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -9250,7 +11978,7 @@ Initialization of SDRAM
          102
          </x2Obj>
          <y2Obj>
-         69
+         106
          </y2Obj>
          <page>
          3
@@ -9300,6 +12028,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         tx_fifo_dat_o[19:4]
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         !tx_fifo_dat_o[1:0]
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b1
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    481
@@ -10294,7 +13198,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -10322,10 +13226,10 @@ Initialization of SDRAM
             </status>
          </color>
          <x2Obj>
-         0
+         -3
          </x2Obj>
          <y2Obj>
-         0
+         4
          </y2Obj>
          <page>
          3
@@ -10507,6 +13411,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    167
@@ -10583,7 +13663,7 @@ Initialization of SDRAM
             ABS
             </status>
          <value>
-         we
+         tx_fifo_dat_o[5]
             <status>
             LOCAL
             </status>
@@ -10613,10 +13693,10 @@ Initialization of SDRAM
             </status>
          </color>
          <x2Obj>
-         -57
+         -69
          </x2Obj>
          <y2Obj>
-         -39
+         -35
          </y2Obj>
          <page>
          3
@@ -11204,9 +14284,9 @@ Initialization of SDRAM
             ABS
             </status>
          <value>
-         1
+         ref_req
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -11501,7 +14581,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -11543,9 +14623,9 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         1'b1
+         1'b0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -11714,6 +14794,182 @@ Initialization of SDRAM
          2
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </read>
    </attributes>
    <x0>
    426
@@ -11880,7 +15136,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -11922,9 +15178,9 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         1'b1
+         1'b0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -12093,6 +15349,182 @@ Initialization of SDRAM
          2
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </read>
    </attributes>
    <x0>
    428
@@ -13087,7 +16519,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -13300,6 +16732,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    338
@@ -13847,9 +17455,9 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         1'b1
+         1'b0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -13886,6 +17494,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    51
@@ -14259,7 +18043,7 @@ Initialization of SDRAM
          <value>
          a
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -14345,9 +18129,9 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         1'b0
+         1'b1
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -14472,6 +18256,182 @@ Initialization of SDRAM
          3
          </page>
       </fifo_re>
+      <dq[15:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         16'h0000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq[15:0]>
+      <dqm[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b11
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dqm[1:0]>
+      <dq_oe>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </dq_oe>
+      <read>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </read>
    </attributes>
    <x0>
    649

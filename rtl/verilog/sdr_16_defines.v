@@ -72,9 +72,9 @@
 // Adr to SDRAM {ba[1:0],a[12:0]}
 `define A_LMR     {2'b00,3'b000,`WB,2'b00,3'd`CL,`BT,`BL}
 `define A_PRE     {2'b00,13'b0010000000000}
-`define A_ACT     {ba,row}
-`define A_READ    {ba,col}
-`define A_WRITE   {ba,col}
+`define A_ACT     {`BA,`ROW}
+`define A_READ    {`BA,`COL}
+`define A_WRITE   {`BA,`COL}
 `define A_DEFAULT {2'b00,13'b0000000000000}
 
 // command
