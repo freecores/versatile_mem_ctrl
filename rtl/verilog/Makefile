@@ -30,6 +30,6 @@ ref_counter:
 	vppreproc --simple tmp1.v | cat copyright.v - > ref_counter.v
 
 versatile_mem_ctrl:
-	vppreproc --simple versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v sdr_16.v delay.v versatile_mem_ctrl_top.v | cat copyright.v - > versatile_mem_ctrl_ip.v
+	cat versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v sdr_16.v delay.v versatile_mem_ctrl_top.v | cat copyright.v - > versatile_mem_ctrl_ip.v
 
 all:  ctrl_counter dual_port_ram fifo_adr_counter fifo_fill_fsm sdr_16 versatile_mem_ctrl
