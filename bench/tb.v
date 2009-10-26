@@ -1,3 +1,4 @@
+`include "tb_defines.v"
 `timescale 1ns/1ns
 module versatile_mem_ctrl_tb
   (
@@ -41,10 +42,12 @@ module versatile_mem_ctrl_tb
    wire [15:0] dq_i;
    wire [15:0] dq_o;
    wire [15:0] dq_io;
-   wire [1:0]  dqm, dqmd;
-   wire        dq_oe;
+   wire [1:0]  dqs, dqs_n, dqs_i, dqs_o, dqs_n_i, dqs_n_o, dqs_io, dqs_n_io;
+   wire [1:0]  dqm, dqmd, dm_rdqs;
+   wire        dq_oe, dqs_oe;
    wire        cs_n, cs_nd, ras, rasd, cas, casd, we, wed, cke, cked;
-   
+
+`ifdef SDR_16   
    wb0 wb0i
      (
       .adr(wb0_adr_i),
@@ -90,6 +93,55 @@ module versatile_mem_ctrl_tb
       .dat_i(wb4_dat_o),
       .reset(wb_rst) 
       );
+`endif
+
+`ifdef DDR_16
+   wb0_ddr wb0i
+     (
+      .adr(wb0_adr_i),
+      .bte(wb0_bte_i),
+      .cti(wb0_cti_i),
+      .cyc(wb0_cyc_i),
+      .dat(wb0_dat_i),
+      .sel(wb0_sel_i),
+      .stb(wb0_stb_i),
+      .we (wb0_we_i),
+      .ack(wb0_ack_o),
+      .clk(wb_clk),
+      .dat_i(wb0_dat_o),
+      .reset(wb_rst) 
+      );
+   wb1_ddr wb1i
+     (
+      .adr(wb1_adr_i),
+      .bte(wb1_bte_i),
+      .cti(wb1_cti_i),
+      .cyc(wb1_cyc_i),
+      .dat(wb1_dat_i),
+      .sel(wb1_sel_i),
+      .stb(wb1_stb_i),
+      .we (wb1_we_i),
+      .ack(wb1_ack_o),
+      .clk(wb_clk),
+      .dat_i(wb1_dat_o),
+      .reset(wb_rst) 
+      );
+   wb4_ddr wb4i
+     (
+      .adr(wb4_adr_i),
+      .bte(wb4_bte_i),
+      .cti(wb4_cti_i),
+      .cyc(wb4_cyc_i),
+      .dat(wb4_dat_i),
+      .sel(wb4_sel_i),
+      .stb(wb4_stb_i),
+      .we (wb4_we_i),
+      .ack(wb4_ack_o),
+      .clk(wb_clk),
+      .dat_i(wb4_dat_o),
+      .reset(wb_rst) 
+      );
+`endif
 
    wb_sdram_ctrl_top dut
   (
@@ -124,6 +176,7 @@ module versatile_mem_ctrl_tb
    .wbs4_stb_i(wb4_stb_i),      
    .wbs4_ack_o(wb4_ack_o),  
    // SDR SDRAM 16
+`ifdef SDR_16
    .ba_pad_o(ba),
    .a_pad_o(a),
    .cs_n_pad_o(cs_n),
@@ -135,6 +188,31 @@ module versatile_mem_ctrl_tb
    .dq_i(dq_i),
    .dq_oe(dq_oe),
    .cke_pad_o(cke),
+`endif
+`ifdef DDR_16
+   // DDR2 SDRAM 16
+   .ck_pad_o(ck),
+   .ck_n_pad_o(ck_n),
+   .cke_pad_o(cke),
+   .cs_n_pad_o(cs_n),
+   .ras_pad_o(ras),
+   .cas_pad_o(cas),
+   .we_pad_o(we),
+   .dm_rdqs_i(),
+   .dm_rdqs_o(dm_rdqs),
+   .ba_pad_o(ba),
+   .addr_pad_o(a),
+   .dq_i(dq_i),
+   .dq_o(dq_o),
+   .dq_oe(dq_oe),
+   .dqs_i(dqs_i),
+   .dqs_o(dqs_o),
+   .dqs_oe(dqs_oe),
+   .dqs_n_i(dqs_n_i),
+   .dqs_n_o(dqs_n_o),
+   .rdqs_n_pad_i(),
+   .odt_pad_o(),
+`endif
    // misc     
    .wb_clk(wb_clk),
    .wb_rst(wb_rst),
@@ -145,6 +223,10 @@ module versatile_mem_ctrl_tb
    assign #1 dq_i  = dq_io;
    assign #1 dqmd = dqm;
    
+   assign #1 dqs_io = dqs_oe ? dqs_o : {2{1'bz}};
+   assign #1 dqs_i  = dqs_io;
+   assign #1 dqs_n_io = dqs_oe ? dqs_n_o : {2{1'bz}};
+   assign #1 dqs_n_i  = dqs_n_io;
 
    assign #1 ad = a;
    assign #1 bad = ba;
@@ -154,6 +236,7 @@ module versatile_mem_ctrl_tb
    assign #1 casd = cas;
    assign #1 wed = we;
    
+`ifdef SDR_16
 mt48lc16m16a2 sdram
   (
    .Dq(dq_io), 
@@ -167,6 +250,27 @@ mt48lc16m16a2 sdram
    .We_n(wed), 
    .Dqm(dqmd)
    );
+`endif
+`ifdef DDR_16
+ddr2 ddr2_sdram
+  (
+   .ck(ck),
+   .ck_n(ck_n),
+   .cke(cke),
+   .cs_n(cs_n),
+   .ras_n(ras),
+   .cas_n(cas),
+   .we_n(we),
+   .dm_rdqs(dm_rdqs),
+   .ba(ba),
+   .addr(a),
+   .dq(dq_io),
+   .dqs(dqs_io),
+   .dqs_n(dqs_n_io),
+   .rdqs_n(),
+   .odt()
+   );
+`endif
    
    initial
      begin

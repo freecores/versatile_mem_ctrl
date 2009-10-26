@@ -1,3 +1,5 @@
+`include "versatile_mem_ctrl_defines.v"
+
 module inc_adr
   (
    input  [3:0] adr_i,
@@ -46,7 +48,7 @@ module inc_adr
 	     default: adr_o <= adr_o + 4'd1;
 	   endcase // case (bte)
    
-   
+`ifdef SDR_16   
    // done
    always @ (posedge clk or posedge rst)
      if (rst)
@@ -65,6 +67,30 @@ module inc_adr
        else
 	 if (inc)
 	   {done,cnt} <= cnt + 4'd1;
+`endif
+
+`ifdef DDR_16   
+   // done
+   always @ (posedge clk or posedge rst)
+     if (rst)
+       {done,cnt} <= {1'b0,4'd0};
+     else
+       if (init_i)
+	 begin
+	    done <= ({bte_i,cti_i} == {2'b00,3'b000});
+	    case (bte_i)
+	      2'b01: cnt <= 4'd12;
+	      2'b10: cnt <= 4'd8;
+	      2'b11: cnt <= 4'd0;
+	      default: cnt <= adr_i;
+	    endcase
+	 end
+       else
+	 if (inc)
+	   {done,cnt} <= cnt + 4'd1;
+`endif
+
+
 
 endmodule // inc_adr
 
