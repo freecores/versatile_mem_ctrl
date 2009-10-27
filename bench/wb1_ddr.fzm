@@ -1,4 +1,4 @@
-## File last modified by Fizzim: 7:22:40 AM on 10/26/09
+## File last modified by Fizzim: 9:12:10 AM on 10/27/09
 <version>
    8.04.05
 </version>
@@ -3158,7 +3158,7 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         1'b1
+         ack
             <status>
             LOCAL
             </status>
@@ -3202,7 +3202,7 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         1'b1
+         ack
             <status>
             LOCAL
             </status>
@@ -5176,7 +5176,7 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         1'b1
+         ack
             <status>
             LOCAL
             </status>
@@ -5220,7 +5220,7 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         1'b1
+         ack
             <status>
             LOCAL
             </status>
