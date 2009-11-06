@@ -194,6 +194,8 @@ module versatile_mem_ctrl_tb
    .ck_pad_o(ck),
    .ck_n_pad_o(ck_n),
    .cke_pad_o(cke),
+   .ck_fb_pad_o(ck_fb_o),
+   .ck_fb_pad_i(ck_fb_i),
    .cs_n_pad_o(cs_n),
    .ras_pad_o(ras),
    .cas_pad_o(cas),
@@ -202,14 +204,17 @@ module versatile_mem_ctrl_tb
    .dm_rdqs_o(dm_rdqs),
    .ba_pad_o(ba),
    .addr_pad_o(a),
-   .dq_i(dq_i),
-   .dq_o(dq_o),
-   .dq_oe(dq_oe),
-   .dqs_i(dqs_i),
-   .dqs_o(dqs_o),
+   //.dq_i(dq_i),
+   //.dq_o(dq_o),
+   .dq_pad_io(dq_io),
+   //.dq_oe(dq_oe),
+   //.dqs_i(dqs_i),
+   //.dqs_o(dqs_o),
+   .dqs_pad_io(dqs_io),
    .dqs_oe(dqs_oe),
-   .dqs_n_i(dqs_n_i),
-   .dqs_n_o(dqs_n_o),
+   //.dqs_n_i(dqs_n_i),
+   //.dqs_n_o(dqs_n_o),
+   .dqs_n_pad_io(dqs_n_io),
    .rdqs_n_pad_i(),
    .odt_pad_o(),
 `endif
@@ -219,14 +224,20 @@ module versatile_mem_ctrl_tb
    .sdram_clk(sdram_clk)
    );
 
+`ifdef SDR_16
    assign #1 dq_io = dq_oe ? dq_o : {16{1'bz}};
    assign #1 dq_i  = dq_io;
    assign #1 dqmd = dqm;
-   
    assign #1 dqs_io = dqs_oe ? dqs_o : {2{1'bz}};
    assign #1 dqs_i  = dqs_io;
    assign #1 dqs_n_io = dqs_oe ? dqs_n_o : {2{1'bz}};
    assign #1 dqs_n_i  = dqs_n_io;
+   assign    ck_fb_i = ck_fb_o;
+`endif
+
+`ifdef DDR_16
+   assign #1 dqmd = dqm;
+`endif
 
    assign #1 ad = a;
    assign #1 bad = ba;

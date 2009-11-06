@@ -52,7 +52,7 @@
 `define DLL 1'b0
 `define TM  1'b0
 `define CAS 1'b0
-`define CL  3'b100
+`define CL  3'b111
 `define BT  1'b0
 `define BL  3'b011
 
@@ -123,6 +123,14 @@
 `define CMD_READ  3'b101
 `define CMD_WRITE 3'b100
 `define CMD_BT    3'b110
+
+// AC Operating Specifications and Conditions
+//`define TWR  4'd2    // Write recovery time, tWR/tCLK=15/8=2 (tCLK)
+//`define TRFC 5'd10   // REFRESH-to-ACTIVATE/REFRESH interval (256Mb), tRFC/tCLK=75/8=10 (tCLK)
+//`define TRFC 5'd14   // REFRESH-to-ACTIVATE/REFRESH interval (512Mb), tRFC/tCLK=105/8=14 (tCLK)
+//`define TRFC 5'd16   // REFRESH-to-ACTIVATE/REFRESH interval (1Gb), tRFC/tCLK=127,5/8=16 (tCLK)
+//`define TRFC 5'd25   // REFRESH-to-ACTIVATE/REFRESH interval (2Gb), tRFC/tCLK=197,5/8=25 (tCLK)
+//`define TRCD 2'd2    // ACTIVATE-to-READ/WRITE delay, 12-15ns, tRCD/tCLK=15/8=2 (tCLK)
 
 `endif //  `ifdef MT47H32M16
 

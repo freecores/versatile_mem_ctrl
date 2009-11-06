@@ -122,6 +122,8 @@ module wb_sdram_ctrl_top
    output ck_pad_o,
    output ck_n_pad_o,
    output cke_pad_o,
+   output ck_fb_pad_o,
+   input  ck_fb_pad_i,
    output cs_n_pad_o,
    output ras_pad_o,
    output cas_pad_o,
@@ -130,14 +132,17 @@ module wb_sdram_ctrl_top
    output [1:0] dm_rdqs_o,
    output [1:0] ba_pad_o,
    output [12:0] addr_pad_o,
-   input  [15:0] dq_i,
-   output [15:0] dq_o,
-   output dq_oe,
-   input  [1:0] dqs_i,
-   output [1:0] dqs_o,
+   //input  [15:0] dq_i,
+   //output [15:0] dq_o,
+   inout  [15:0] dq_pad_io,
+   //output dq_oe,
+   //input  [1:0] dqs_i,
+   //output [1:0] dqs_o,
+   inout  [1:0] dqs_pad_io,
    output dqs_oe,
-   input  [1:0] dqs_n_i,
-   output [1:0] dqs_n_o,
+   //input  [1:0] dqs_n_i,
+   //output [1:0] dqs_n_o,
+   inout  [1:0] dqs_n_pad_io,
    input  [1:0] rdqs_n_pad_i,
    output odt_pad_o,
 `endif
@@ -564,7 +569,7 @@ assign tx_fifo_dat_i
       .bte_i(tx_fifo_dat_o[4:3]),
       .cti_i(tx_fifo_dat_o[2:0]),
       .init(adr_init),
-      .inc(adr_inc),
+      .inc(adr_inc | rx_fifo_we),
       .adr_o(burst_adr),
       .done(done),
       .clk(sdram_clk_0),
@@ -586,7 +591,7 @@ assign tx_fifo_dat_i
 	 ref_req <= 1'b1;
        else if (ref_ack)
 	 ref_req <= 1'b0;
-   
+
 
 `ifdef SDR_16
    wire read;
@@ -658,29 +663,36 @@ assign tx_fifo_dat_i
 
 
 `ifdef DDR_16
-   wire read, write;
+   wire        read, write;
    wire [15:0] dq_hi_reg, dq_lo_reg;   
-   wire sdram_clk_180, sdram_clk_90, sdram_clk_270;
-   wire sdram_bufg_clk_0, sdram_bufg_clk_180, sdram_bufg_clk_90, sdram_bufg_clk_270;
-   reg  cke_en;
-   reg  cke, ras, cas, we, cs_n;
-   wire ras_o, cas_o, we_o, cs_n_o;
-   wire [1:0] ba_o;
+   wire        sdram_clk_180, sdram_clk_90, sdram_clk_270;
+   wire        sdram_bufg_clk_0, sdram_bufg_clk_180, sdram_bufg_clk_90, sdram_bufg_clk_270;
+   wire        sdram_clk_ibufg;
+   wire        ck_fb, ck_fb_bufg, ck_fb_ibufg;
+   reg         cke_en;
+   reg         cke, ras, cas, we, cs_n;
+   wire        ras_o, cas_o, we_o, cs_n_o;
+   wire  [1:0] ba_o;
    wire [12:0] addr_o;
-   reg  [1:0] ba;
+   reg   [1:0] ba;
    reg  [12:0] addr;
    wire [14:0] cke_delay_cnt;
-   wire dq_en, dqs_en;
+   wire        dq_en, dqs_en;
    reg  [35:0] rx_fifo_dat_pipe;
    reg  [31:0] tx_fifo_dat_pipe;
-   genvar i;
+   wire [31:0] dq_o, dq_i;
+   wire        ref_delay, ref_delay_ack, pre_delay, pre_delay_ack;
+   wire        bl_en, bl_ack;
+   wire        tx_fifo_re_i, adr_init_delay;
+   reg         adr_init_delay_i;
+   genvar      i;
      
    // DDR SDRAM 16 FSM
    ddr_16 ddr_16_0
      (
-      .adr_inc(adr_inc),
+      .adr_inc(),
       .adr_init(adr_init),
-      .fifo_re(tx_fifo_re),
+      .fifo_re(tx_fifo_re_i),
       .tx_fifo_dat_o(tx_fifo_dat_o),
       .burst_adr(burst_adr),
       .done(done),
@@ -691,6 +703,15 @@ assign tx_fifo_dat_i
       // refresh
       .ref_req(ref_req),
       .ref_ack(ref_ack),
+      .ref_delay(ref_delay),
+      .ref_delay_ack(ref_delay_ack),
+      .adr_init_delay(adr_init_delay),
+      // 
+      .pre_delay(pre_delay),
+      .pre_delay_ack(pre_delay_ack),
+       // burst latency
+      .bl_en(bl_en),
+      .bl_ack(bl_ack),
       // sdram
       .dqm(dm_rdqs_o),
       .a({ba_o,addr_o}),
@@ -717,6 +738,33 @@ assign tx_fifo_dat_i
        if (cke_delay_cnt == 15'h6300)
          cke_en <= 1'b1;
 
+   // refresh to activate/refresh delay
+   ref_delay_counter ref_delay_counter0
+     (
+      .cke(ref_delay),
+      .zq(ref_delay_ack),
+      .clk(sdram_clk_0),
+      .rst(wb_rst)
+      );
+   
+   // write recovery time
+   pre_delay_counter pre_delay_counter0
+     (
+      .cke(pre_delay),
+      .zq(pre_delay_ack),
+      .clk(sdram_clk_0),
+      .rst(wb_rst)
+      );
+
+   // burst length
+   burst_length_counter burst_length_counter0
+     (
+      .cke(bl_en),
+      .zq(bl_ack),
+      .clk(sdram_clk_0),
+      .rst(wb_rst)
+      );
+   
    always @ (posedge sdram_clk_180 or posedge wb_rst)
      if (wb_rst) begin
        cs_n <= 1'b0;
@@ -743,11 +791,11 @@ assign tx_fifo_dat_i
    assign we_pad_o   = we;
    assign ba_pad_o   = ba;
    assign addr_pad_o = addr;
-   assign cs_n_pad_o  = cs_n;
+   assign cs_n_pad_o = cs_n;
 
 
-   // 
-   defparam delay0.depth=`CL+2;   
+   // read latency
+   defparam delay0.depth=`CL+`AL+2;   
    delay delay0
      (
       .d({read,tx_fifo_b_sel_i_cur}),
@@ -756,17 +804,39 @@ assign tx_fifo_dat_i
       .rst(wb_rst)
       );
    
-   // 
-   defparam delay1.depth=3;
+   // write latency
+   defparam delay1.depth=`CL+`AL-1;
    delay delay1
      (
-      .d({write, write, write, 1'b0}),
-      .q({dq_en, dq_oe, dqs_en, open}),
+      .d({write, write, write, write}),
+      .q({dq_en, dq_oe, dqs_en, adr_inc}),
       .clk(sdram_clk_0),
       .rst(wb_rst)
       );
 
-   // TX DCM
+   // if CL>4 delay read from Tx FIFO
+   defparam delay2.depth=`CL+`AL-4;
+   delay delay2
+     (
+      .d({tx_fifo_re_i, tx_fifo_re_i, 2'b00}),
+      .q({tx_fifo_re, adr_init_delay, open, open}),
+      .clk(sdram_clk_0),
+      .rst(wb_rst)
+      );
+/*   // if CL=4, no delay
+   assign tx_fifo_re = tx_fifo_re_i;
+   always @ (posedge sdram_clk_0 or posedge wb_rst)
+     if (wb_rst)
+       adr_init_delay_i <= 1'b0;
+     else
+       adr_init_delay_i <= tx_fifo_re_i;
+   assign adr_init_delay = adr_init_delay_i;*/
+
+   // CL=3, not supported
+
+
+   // DCM with internal feedback
+   // Remove skew from internal clock
    DCM #(
       .CLKDV_DIVIDE(2.0),
       .CLKFX_DIVIDE(1),
@@ -780,7 +850,7 @@ assign tx_fifo_dat_i
       .DUTY_CYCLE_CORRECTION("TRUE"), 
       .PHASE_SHIFT(0), 
       .STARTUP_WAIT("FALSE") 
-   ) DCM_inst (
+   ) DCM_internal (
       .CLK0(sdram_bufg_clk_0),
       .CLK180(sdram_bufg_clk_180),
       .CLK270(sdram_bufg_clk_270),
@@ -794,7 +864,43 @@ assign tx_fifo_dat_i
       .PSDONE(),
       .STATUS(),
       .CLKFB(sdram_clk_0),
-      .CLKIN(sdram_clk),
+      .CLKIN(sdram_clk_ibufg),
+      .DSSEN(),
+      .PSCLK(),
+      .PSEN(),
+      .PSINCDEC(),
+      .RST(wb_rst)
+   );
+   // DCM with external feedback
+   // Remove skew from external clock
+   DCM #(
+      .CLKDV_DIVIDE(2.0),
+      .CLKFX_DIVIDE(1),
+      .CLKFX_MULTIPLY(4),
+      .CLKIN_DIVIDE_BY_2("FALSE"), 
+      .CLKIN_PERIOD(8.0),
+      .CLKOUT_PHASE_SHIFT("NONE"), 
+      .CLK_FEEDBACK("1X"), 
+      .DESKEW_ADJUST("SYSTEM_SYNCHRONOUS"), 
+      .DLL_FREQUENCY_MODE("LOW"), 
+      .DUTY_CYCLE_CORRECTION("TRUE"), 
+      .PHASE_SHIFT(0), 
+      .STARTUP_WAIT("FALSE") 
+   ) DCM_external (
+      .CLK0(ck_fb_bufg),
+      .CLK180(),
+      .CLK270(),
+      .CLK2X(),
+      .CLK2X180(),
+      .CLK90(),
+      .CLKDV(),
+      .CLKFX(),
+      .CLKFX180(),
+      .LOCKED(),
+      .PSDONE(),
+      .STATUS(),
+      .CLKFB(ck_fb_ibufg),
+      .CLKIN(sdram_clk_ibufg),
       .DSSEN(),
       .PSCLK(),
       .PSEN(),
@@ -802,8 +908,7 @@ assign tx_fifo_dat_i
       .RST(wb_rst)
    );
 
-   // Global buffers on DCM clock outputs
-   // Internal feedback to DCM
+   // Global buffers on DCM generated clocks
    BUFG BUFG_0 (
      .I (sdram_bufg_clk_0),
      .O (sdram_clk_0));
@@ -816,6 +921,17 @@ assign tx_fifo_dat_i
    BUFG BUFG_270 (
      .I (sdram_bufg_clk_270),
      .O (sdram_clk_270));
+   // Internal feedback to DCM
+   IBUFG IBUFG_clk (
+     .I (sdram_clk),
+     .O (sdram_clk_ibufg));
+   // External feedback to DCM
+   OBUF OBUF_ck_fb (
+     .I (ck_fb_bufg),
+     .O (ck_fb));
+   IBUFG IBUFG_ck_fb (
+     .I (ck_fb_pad_i),
+     .O (ck_fb_ibufg));
 
    // Pipeline the data path from Tx FIFO to ODDR output registers
    always @ (posedge sdram_clk_0 or posedge wb_rst)
@@ -845,6 +961,42 @@ assign tx_fifo_dat_i
    end
    endgenerate
 
+   assign dq_pad_io = dq_oe ? dq_o : {16{1'bz}};
+   
+   // Use ODDR FF to generate clock with equal delay as data
+   ODDR2 #(
+     .DDR_ALIGNMENT("NONE"),
+     .INIT(1'b0),
+     .SRTYPE("SYNC"))
+   ODDR2_inst_1
+     (
+      .Q(ck_pad_o),
+      .C0(sdram_clk_270),
+      .C1(sdram_clk_90),
+      .CE(1'b1),
+      .D0(1'b1),
+      .D1(1'b0),
+      .R(wb_rst),
+      .S(1'b0)
+      );
+
+   // Use ODDR FF to generate clock with equal delay as data
+   ODDR2 #(
+     .DDR_ALIGNMENT("NONE"),
+     .INIT(1'b0),
+     .SRTYPE("SYNC"))
+   ODDR2_inst_2
+     (
+      .Q(ck_n_pad_o),
+      .C0(sdram_clk_270),
+      .C1(sdram_clk_90),
+      .CE(1'b1),
+      .D0(1'b0),
+      .D1(1'b1),
+      .R(wb_rst),
+      .S(1'b0)
+      );
+
    // IDDR2 (Double Data Rate Input D Flip-Flop)
    generate
    for (i=0; i<16; i=i+1) begin:iddr2gen
@@ -860,9 +1012,9 @@ assign tx_fifo_dat_i
         .C0(sdram_clk_270), 
         .C1(sdram_clk_90), 
         .CE(1'b1), 
-        .D(dq_i[i]),   
+        .D(dq_pad_io[i]),   
         .R(wb_rst),  
-        .S(1'b0)   
+        .S(1'b0)
         );
    end
    endgenerate
@@ -877,11 +1029,10 @@ assign tx_fifo_dat_i
    assign rx_fifo_dat_i = rx_fifo_dat_pipe;
 
    // Assing outputs
-   assign ck_pad_o = sdram_clk_270;
-   assign ck_n_pad_o = sdram_clk_90;
-   assign dqs_o   = dqs_en ? {sdram_clk_270, sdram_clk_270} : 2'bz;
-   assign dqs_n_o = dqs_en ? {sdram_clk_90, sdram_clk_90} : 2'bz;
-   assign dqs_oe  = dqs_en;
+   assign dqs_pad_io   = dqs_en ? {sdram_clk_270, sdram_clk_270} : 2'bz;
+   assign dqs_n_pad_io = dqs_en ? {sdram_clk_90, sdram_clk_90} : 2'bz;
+   assign dqs_oe       = dqs_en;
+   assign ck_fb_pad_o  = ck_fb;
 
 `endif //  `ifdef DDR_16
 
