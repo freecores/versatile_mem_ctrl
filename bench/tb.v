@@ -46,6 +46,7 @@ module versatile_mem_ctrl_tb
    wire [1:0]  dqm, dqmd, dm_rdqs;
    wire        dq_oe, dqs_oe;
    wire        cs_n, cs_nd, ras, rasd, cas, casd, we, wed, cke, cked;
+   wire        ck_fb_i, ck_fb_o;
 
 `ifdef SDR_16   
    wb0 wb0i
@@ -232,11 +233,11 @@ module versatile_mem_ctrl_tb
    assign #1 dqs_i  = dqs_io;
    assign #1 dqs_n_io = dqs_oe ? dqs_n_o : {2{1'bz}};
    assign #1 dqs_n_i  = dqs_n_io;
-   assign    ck_fb_i = ck_fb_o;
 `endif
 
 `ifdef DDR_16
    assign #1 dqmd = dqm;
+   assign #1 ck_fb_i = ck_fb_o;
 `endif
 
    assign #1 ad = a;
