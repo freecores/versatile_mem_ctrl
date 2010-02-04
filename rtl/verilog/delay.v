@@ -1,21 +1,22 @@
 `timescale 1ns/1ns
-module delay
-  (
-   input  [3:0] d,
-   output [3:0] q,
-   input        clk,
-   input 	rst
-   );
+module delay (d, q, clk, rst);
 
+   parameter width = 4;
    parameter depth = 3;
-   reg [3:0] dffs [1:depth];
+
+   input  [width-1:0] d;
+   output [width-1:0] q;
+   input              clk;
+   input 	      rst;
+
+   reg [width-1:0] dffs [1:depth];
 
    integer i;
    
    always @ (posedge clk or posedge rst)
      if (rst)
        for ( i=1; i <= depth; i=i+1)
-	 dffs[i] <= 4'h0;
+	 dffs[i] <= {width{1'b0}};
      else
        begin
 	  dffs[1] <= d;

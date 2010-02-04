@@ -1,3 +1,2 @@
-`define DDR_16
-//`define SDR_16
-
+//`define DDR_16
+`define SDR_16

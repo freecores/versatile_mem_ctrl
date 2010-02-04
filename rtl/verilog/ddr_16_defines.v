@@ -52,7 +52,7 @@
 `define DLL 1'b0
 `define TM  1'b0
 `define CAS 1'b0
-`define CL  3'b111
+`define CL  3'b100
 `define BT  1'b0
 `define BL  3'b011
 
@@ -97,8 +97,9 @@
 `define MRS3 2'b11
 
 // Addr to SDRAM {ba[1:0],a[12:0]}
-`define A_LMR     {`MR,`PD,`WR,`DLL,`TM,`CAS,`CL,`BT,`BL}
-`define A_LMR_DLL_RST {2'b00,4'b0000,1'b1,8'b00000000}
+`define A_LMR         {`MR,`PD,`WR,`DLL,`TM,`CAS,`CL,`BT,`BL}
+`define A_LMR_DLL_RST {2'b00,1'b0,`WR,1'b0,1'b1,1'b0,`CL,1'b0,`BL}
+//`define A_LMR_DLL_RST {2'b00,4'b0000,1'b1,8'b00000000}
 `define A_LMR     {`MR,`PD,`WR,`DLL,`TM,`CAS,`CL,`BT,`BL}
 `define A_LEMR    {`MRS,`OUT,`RDQS,`DQS,`OCD,`RTT6,`AL,`RTT2,`ODS,`DLL_EN}
 `define A_LEMR_OCD_DEFAULT    {`MRS,`OUT,`RDQS,`DQS,3'b111,`RTT6,`AL,`RTT2,`ODS,`DLL}

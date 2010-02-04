@@ -48,7 +48,7 @@ module versatile_mem_ctrl_tb
    wire        cs_n, cs_nd, ras, rasd, cas, casd, we, wed, cke, cked;
    wire        ck_fb_i, ck_fb_o;
 
-`ifdef SDR_16   
+`ifdef SDR_16          // SDR SDRAM
    wb0 wb0i
      (
       .adr(wb0_adr_i),
@@ -96,7 +96,7 @@ module versatile_mem_ctrl_tb
       );
 `endif
 
-`ifdef DDR_16
+`ifdef DDR_16          // DDR2 SDRAM
    wb0_ddr wb0i
      (
       .adr(wb0_adr_i),
@@ -201,20 +201,12 @@ module versatile_mem_ctrl_tb
    .ras_pad_o(ras),
    .cas_pad_o(cas),
    .we_pad_o(we),
-   .dm_rdqs_i(),
-   .dm_rdqs_o(dm_rdqs),
+   .dm_rdqs_pad_io(dm_rdqs),
    .ba_pad_o(ba),
    .addr_pad_o(a),
-   //.dq_i(dq_i),
-   //.dq_o(dq_o),
    .dq_pad_io(dq_io),
-   //.dq_oe(dq_oe),
-   //.dqs_i(dqs_i),
-   //.dqs_o(dqs_o),
    .dqs_pad_io(dqs_io),
    .dqs_oe(dqs_oe),
-   //.dqs_n_i(dqs_n_i),
-   //.dqs_n_o(dqs_n_o),
    .dqs_n_pad_io(dqs_n_io),
    .rdqs_n_pad_i(),
    .odt_pad_o(),
@@ -237,7 +229,7 @@ module versatile_mem_ctrl_tb
 
 `ifdef DDR_16
    assign #1 dqmd = dqm;
-   assign #1 ck_fb_i = ck_fb_o;
+   assign    ck_fb_i = ck_fb_o;
 `endif
 
    assign #1 ad = a;
@@ -248,7 +240,7 @@ module versatile_mem_ctrl_tb
    assign #1 casd = cas;
    assign #1 wed = we;
    
-`ifdef SDR_16
+`ifdef SDR_16          // SDR SDRAM Simulation model
 mt48lc16m16a2 sdram
   (
    .Dq(dq_io), 
@@ -263,7 +255,7 @@ mt48lc16m16a2 sdram
    .Dqm(dqmd)
    );
 `endif
-`ifdef DDR_16
+`ifdef DDR_16          // DDR2 SDRAM Simulation model
 ddr2 ddr2_sdram
   (
    .ck(ck),
@@ -288,7 +280,7 @@ ddr2 ddr2_sdram
      begin
 	#0 wb_rst = 1'b1;
 	#200 wb_rst = 1'b1;	
-	#400 wb_rst = 1'b0;	
+	#200000 wb_rst = 1'b0;	
      end
    
    initial

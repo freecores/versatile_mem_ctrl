@@ -1,4 +1,4 @@
-## File last modified by Fizzim: 9:12:10 AM on 10/27/09
+## File last modified by Fizzim: 2:03:15 PM on 1/18/10
 <version>
    8.04.05
 </version>
@@ -1251,10 +1251,10 @@
 </tabs>
 ## START PREFERENCES
 <SCounter>
-13
+14
 </SCounter>
 <TCounter>
-13
+14
 </TCounter>
 <TableVis>
 true
@@ -1766,7 +1766,7 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         32'h1000
+         32'h2000
             <status>
             LOCAL
             </status>
@@ -2308,7 +2308,7 @@ fzm_globalTable
             ABS
             </status>
          <value>
-         state5
+         state6
             <status>
             LOCAL
             </status>
@@ -2352,7 +2352,7 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         32'h1004
+         32'h2000
             <status>
             LOCAL
             </status>
@@ -2894,7 +2894,7 @@ fzm_globalTable
             ABS
             </status>
          <value>
-         state6
+         state7
             <status>
             LOCAL
             </status>
@@ -2938,7 +2938,7 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         32'h1004
+         32'h2000
             <status>
             LOCAL
             </status>
@@ -3402,10 +3402,10 @@ fzm_globalTable
       </equation>
    </attributes>
    <startState>
-   state5
+   state6
    </startState>
    <endState>
-   state6
+   state7
    </endState>
    <startPtX>
    615.0
@@ -3480,7 +3480,7 @@ fzm_globalTable
             ABS
             </status>
          <value>
-         state7
+         state8
             <status>
             LOCAL
             </status>
@@ -3988,10 +3988,10 @@ fzm_globalTable
       </equation>
    </attributes>
    <startState>
-   state6
+   state7
    </startState>
    <endState>
-   state7
+   state8
    </endState>
    <startPtX>
    615.0
@@ -4066,7 +4066,7 @@ fzm_globalTable
             ABS
             </status>
          <value>
-         state8
+         state9
             <status>
             LOCAL
             </status>
@@ -4110,9 +4110,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         32'h0
+         32'h2004
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -4242,9 +4242,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         2'b00
+         2'b01
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -4286,9 +4286,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         3'b000
+         3'b010
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -4330,9 +4330,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         1'b0
+         1'b1
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -4374,9 +4374,432 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
+         1'b1
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </stb>
+      <we>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
          1'b0
             <status>
             GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </we>
+   </attributes>
+   <x0>
+   550
+   </x0>
+   <y0>
+   1025
+   </y0>
+   <x1>
+   680
+   </x1>
+   <y1>
+   1155
+   </y1>
+   <reset>
+   false
+   </reset>
+   <page>
+   1
+   </page>
+   <color>
+   -16777216
+   </color>
+</state>
+## END STATE OBJECT
+## START STATE OBJECT
+<state>
+   <attributes>
+      <name>
+            <status>
+            ABS
+            </status>
+         <value>
+         state10
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         def_type
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </name>
+      <adr[31:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         32'h2004
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </adr[31:0]>
+      <dat[31:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         32'h0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </dat[31:0]>
+      <sel[3:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         4'b1111
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </sel[3:0]>
+      <bte[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b01
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </bte[1:0]>
+      <cti[2:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         3'b010
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </cti[2:0]>
+      <cyc>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         ack
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </cyc>
+      <stb>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         ack
+            <status>
+            LOCAL
             </status>
          </value>
          <vis>
@@ -4469,852 +4892,6 @@ fzm_globalTable
    </x1>
    <y1>
    155
-   </y1>
-   <reset>
-   false
-   </reset>
-   <page>
-   1
-   </page>
-   <color>
-   -16777216
-   </color>
-</state>
-## END STATE OBJECT
-## START STATE OBJECT
-<state>
-   <attributes>
-      <name>
-            <status>
-            ABS
-            </status>
-         <value>
-         state9
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         def_type
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </name>
-      <adr[31:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         32'h1004
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </adr[31:0]>
-      <dat[31:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         32'h0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </dat[31:0]>
-      <sel[3:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         4'b1111
-            <status>
-            GLOBAL_VAR
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </sel[3:0]>
-      <bte[1:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         2'b01
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </bte[1:0]>
-      <cti[2:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         3'b010
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </cti[2:0]>
-      <cyc>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         1'b1
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </cyc>
-      <stb>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         1'b1
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </stb>
-      <we>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         1'b0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </we>
-   </attributes>
-   <x0>
-   775
-   </x0>
-   <y0>
-   275
-   </y0>
-   <x1>
-   905
-   </x1>
-   <y1>
-   405
-   </y1>
-   <reset>
-   false
-   </reset>
-   <page>
-   1
-   </page>
-   <color>
-   -16777216
-   </color>
-</state>
-## END STATE OBJECT
-## START STATE OBJECT
-<state>
-   <attributes>
-      <name>
-            <status>
-            ABS
-            </status>
-         <value>
-         state10
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         def_type
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </name>
-      <adr[31:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         32'h1004
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </adr[31:0]>
-      <dat[31:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         32'h0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </dat[31:0]>
-      <sel[3:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         4'b1111
-            <status>
-            GLOBAL_VAR
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </sel[3:0]>
-      <bte[1:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         2'b01
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </bte[1:0]>
-      <cti[2:0]>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         3'b010
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </cti[2:0]>
-      <cyc>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         ack
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </cyc>
-      <stb>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         ack
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </stb>
-      <we>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         1'b0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         output
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </we>
-   </attributes>
-   <x0>
-   775
-   </x0>
-   <y0>
-   525
-   </y0>
-   <x1>
-   905
-   </x1>
-   <y1>
-   655
    </y1>
    <reset>
    false
@@ -5731,13 +5308,13 @@ fzm_globalTable
    775
    </x0>
    <y0>
-   775
+   275
    </y0>
    <x1>
    905
    </x1>
    <y1>
-   905
+   405
    </y1>
    <reset>
    false
@@ -5832,10 +5409,10 @@ fzm_globalTable
             </status>
          </color>
          <x2Obj>
-         15
+         8
          </x2Obj>
          <y2Obj>
-         5
+         44
          </y2Obj>
          <page>
          1
@@ -5843,40 +5420,40 @@ fzm_globalTable
       </equation>
    </attributes>
    <startState>
-   state7
+   state8
    </startState>
    <endState>
-   state8
+   state9
    </endState>
    <startPtX>
-   647.0
+   615.0
    </startPtX>
    <startPtY>
-   783.0
+   905.0
    </startPtY>
    <endPtX>
-   807.0
+   615.0
    </endPtX>
    <endPtY>
-   146.0
+   1025.0
    </endPtY>
    <startCtrlPtX>
-   672.0
+   615.0
    </startCtrlPtX>
    <startCtrlPtY>
-   697.0
+   930.0
    </startCtrlPtY>
    <endCtrlPtY>
-   791.0
+   615.0
    </endCtrlPtY>
    <endCtrlPtY>
-   202.0
+   999.0
    </endCtrlPtY>
    <startStateIndex>
-   30
+   9
    </startStateIndex>
    <endStateIndex>
-   12
+   27
    </endStateIndex>
    <page>
    1
@@ -5965,9 +5542,9 @@ fzm_globalTable
             ABS
             </status>
          <value>
-         1
+         ack
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>
@@ -6006,40 +5583,40 @@ fzm_globalTable
       </equation>
    </attributes>
    <startState>
-   state8
+   state9
    </startState>
    <endState>
-   state9
+   state10
    </endState>
    <startPtX>
-   840.0
+   656.0
    </startPtX>
    <startPtY>
-   155.0
+   1040.0
    </startPtY>
    <endPtX>
-   840.0
+   790.0
    </endPtX>
    <endPtY>
-   275.0
+   131.0
    </endPtY>
    <startCtrlPtX>
-   840.0
+   702.0
    </startCtrlPtX>
    <startCtrlPtY>
-   180.0
+   979.0
    </startCtrlPtY>
    <endCtrlPtY>
-   840.0
+   759.0
    </endCtrlPtY>
    <endCtrlPtY>
-   249.0
+   193.0
    </endCtrlPtY>
    <startStateIndex>
-   9
+   31
    </startStateIndex>
    <endStateIndex>
-   27
+   14
    </endStateIndex>
    <page>
    1
@@ -6128,7 +5705,7 @@ fzm_globalTable
             ABS
             </status>
          <value>
-         ack
+         !ack
             <status>
             LOCAL
             </status>
@@ -6169,169 +5746,6 @@ fzm_globalTable
       </equation>
    </attributes>
    <startState>
-   state9
-   </startState>
-   <endState>
-   state10
-   </endState>
-   <startPtX>
-   840.0
-   </startPtX>
-   <startPtY>
-   405.0
-   </startPtY>
-   <endPtX>
-   840.0
-   </endPtX>
-   <endPtY>
-   525.0
-   </endPtY>
-   <startCtrlPtX>
-   840.0
-   </startCtrlPtX>
-   <startCtrlPtY>
-   430.0
-   </startCtrlPtY>
-   <endCtrlPtY>
-   840.0
-   </endCtrlPtY>
-   <endCtrlPtY>
-   499.0
-   </endCtrlPtY>
-   <startStateIndex>
-   9
-   </startStateIndex>
-   <endStateIndex>
-   27
-   </endStateIndex>
-   <page>
-   1
-   </page>
-   <color>
-   -16777216
-   </color>
-   <pageSX>
-   0.0
-   </PageSX>
-   <pageSY>
-   0.0
-   </pageSY>
-   <pageSCX>
-   0.0
-   </PageSCX>
-   <pageSCY>
-   0.0
-   </pageSCY>
-   <pageEX>
-   0.0
-   </PageEX>
-   <pageEY>
-   0.0
-   </pageEY>
-   <pageECX>
-   0.0
-   </PageECX>
-   <pageECY>
-   0.0
-   </pageECY>
-   <stub>
-   false
-   </stub>
-</transition>
-## END STATE TRANSITION OBJECT
-## START STATE TRANSITION OBJECT
-<transition>
-   <attributes>
-      <name>
-            <status>
-            ABS
-            </status>
-         <value>
-         trans9
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         def_type
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </name>
-      <equation>
-            <status>
-            ABS
-            </status>
-         <value>
-         !ack
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         def_type
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         13
-         </x2Obj>
-         <y2Obj>
-         44
-         </y2Obj>
-         <page>
-         1
-         </page>
-      </equation>
-   </attributes>
-   <startState>
    state10
    </startState>
    <endState>
@@ -6341,25 +5755,25 @@ fzm_globalTable
    840.0
    </startPtX>
    <startPtY>
-   655.0
+   155.0
    </startPtY>
    <endPtX>
    840.0
    </endPtX>
    <endPtY>
-   775.0
+   275.0
    </endPtY>
    <startCtrlPtX>
    840.0
    </startCtrlPtX>
    <startCtrlPtY>
-   666.0
+   180.0
    </startCtrlPtY>
    <endCtrlPtY>
    840.0
    </endCtrlPtY>
    <endCtrlPtY>
-   763.0
+   249.0
    </endCtrlPtY>
    <startStateIndex>
    9
@@ -7649,16 +7063,16 @@ fzm_globalTable
       </we>
    </attributes>
    <x0>
-   550
+   325
    </x0>
    <y0>
-   25
+   1025
    </y0>
    <x1>
-   680
+   455
    </x1>
    <y1>
-   155
+   1155
    </y1>
    <reset>
    false
@@ -7916,10 +7330,10 @@ fzm_globalTable
             </status>
          </color>
          <x2Obj>
-         9
+         13
          </x2Obj>
          <y2Obj>
-         18
+         45
          </y2Obj>
          <page>
          1
@@ -7933,34 +7347,34 @@ fzm_globalTable
    state4
    </endState>
    <startPtX>
-   412.0
+   390.0
    </startPtX>
    <startPtY>
-   778.0
+   905.0
    </startPtY>
    <endPtX>
-   592.0
+   390.0
    </endPtX>
    <endPtY>
-   151.0
+   1025.0
    </endPtY>
    <startCtrlPtX>
-   439.0
+   390.0
    </startCtrlPtX>
    <startCtrlPtY>
-   704.0
+   930.0
    </startCtrlPtY>
    <endCtrlPtY>
-   576.0
+   390.0
    </endCtrlPtY>
    <endCtrlPtY>
-   199.0
+   999.0
    </endCtrlPtY>
    <startStateIndex>
-   29
+   9
    </startStateIndex>
    <endStateIndex>
-   11
+   27
    </endStateIndex>
    <page>
    1
@@ -8049,7 +7463,126 @@ fzm_globalTable
             ABS
             </status>
          <value>
-         ack
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         def_type
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         17
+         </x2Obj>
+         <y2Obj>
+         -15
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </equation>
+   </attributes>
+   <startState>
+   state4
+   </startState>
+   <endState>
+   state5
+   </endState>
+   <startPtX>
+   431.0
+   </startPtX>
+   <startPtY>
+   1040.0
+   </startPtY>
+   <endPtX>
+   569.0
+   </endPtX>
+   <endPtY>
+   136.0
+   </endPtY>
+   <startCtrlPtX>
+   494.0
+   </startCtrlPtX>
+   <startCtrlPtY>
+   834.0
+   </startCtrlPtY>
+   <endCtrlPtY>
+   524.0
+   </endCtrlPtY>
+   <endCtrlPtY>
+   254.0
+   </endCtrlPtY>
+   <startStateIndex>
+   31
+   </startStateIndex>
+   <endStateIndex>
+   13
+   </endStateIndex>
+   <page>
+   1
+   </page>
+   <color>
+   -16777216
+   </color>
+   <pageSX>
+   0.0
+   </PageSX>
+   <pageSY>
+   0.0
+   </pageSY>
+   <pageSCX>
+   0.0
+   </PageSCX>
+   <pageSCY>
+   0.0
+   </pageSCY>
+   <pageEX>
+   0.0
+   </PageEX>
+   <pageEY>
+   0.0
+   </pageEY>
+   <pageECX>
+   0.0
+   </PageECX>
+   <pageECY>
+   0.0
+   </pageECY>
+   <stub>
+   false
+   </stub>
+</transition>
+## END STATE TRANSITION OBJECT
+## START STATE OBJECT
+<state>
+   <attributes>
+      <name>
+            <status>
+            ABS
+            </status>
+         <value>
+         state5
             <status>
             LOCAL
             </status>
@@ -8079,10 +7612,477 @@ fzm_globalTable
             </status>
          </color>
          <x2Obj>
-         13
+         0
          </x2Obj>
          <y2Obj>
-         45
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </name>
+      <adr[31:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         32'h0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </adr[31:0]>
+      <dat[31:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         32'h0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </dat[31:0]>
+      <sel[3:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         4'b1111
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </sel[3:0]>
+      <bte[1:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         2'b00
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </bte[1:0]>
+      <cti[2:0]>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         3'b000
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </cti[2:0]>
+      <cyc>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </cyc>
+      <stb>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </stb>
+      <we>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </we>
+   </attributes>
+   <x0>
+   546
+   </x0>
+   <y0>
+   22
+   </y0>
+   <x1>
+   676
+   </x1>
+   <y1>
+   152
+   </y1>
+   <reset>
+   false
+   </reset>
+   <page>
+   1
+   </page>
+   <color>
+   -16777216
+   </color>
+</state>
+## END STATE OBJECT
+## START STATE TRANSITION OBJECT
+<transition>
+   <attributes>
+      <name>
+            <status>
+            ABS
+            </status>
+         <value>
+         trans13
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         def_type
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         1
+         </page>
+      </name>
+      <equation>
+            <status>
+            ABS
+            </status>
+         <value>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         1
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         def_type
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         9
+         </x2Obj>
+         <y2Obj>
+         47
          </y2Obj>
          <page>
          1
@@ -8090,16 +8090,16 @@ fzm_globalTable
       </equation>
    </attributes>
    <startState>
-   state4
+   state5
    </startState>
    <endState>
-   state5
+   state6
    </endState>
    <startPtX>
-   615.0
+   611.0
    </startPtX>
    <startPtY>
-   155.0
+   152.0
    </startPtY>
    <endPtX>
    615.0
@@ -8108,16 +8108,16 @@ fzm_globalTable
    275.0
    </endPtY>
    <startCtrlPtX>
-   615.0
+   611.0
    </startCtrlPtX>
    <startCtrlPtY>
-   224.0
+   177.0
    </startCtrlPtY>
    <endCtrlPtY>
    615.0
    </endCtrlPtY>
    <endCtrlPtY>
-   205.0
+   248.0
    </endCtrlPtY>
    <startStateIndex>
    9
@@ -8160,4 +8160,52 @@ fzm_globalTable
    </stub>
 </transition>
 ## END STATE TRANSITION OBJECT
+<textObj>
+(NOP)
+   <x>
+   528
+   </x>
+   <y>
+   35
+   </y>
+   <page>
+   1
+   </page>
+</textObj>
+<textObj>
+(NOP)
+   <x>
+   531
+   </x>
+   <y>
+   797
+   </y>
+   <page>
+   1
+   </page>
+</textObj>
+<textObj>
+(NOP)
+   <x>
+   781
+   </x>
+   <y>
+   279
+   </y>
+   <page>
+   1
+   </page>
+</textObj>
+<textObj>
+(NOP)
+   <x>
+   311
+   </x>
+   <y>
+   33
+   </y>
+   <page>
+   1
+   </page>
+</textObj>
 ## END OBJECTS

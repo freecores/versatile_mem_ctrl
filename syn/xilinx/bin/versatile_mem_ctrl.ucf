@@ -1,5 +1,0 @@
-NET "sdram_clk" TNM_NET = sdram_clk;
-TIMESPEC TS_sdram_clk = PERIOD "sdram_clk" 8 ns HIGH 50%;
-NET "wb_clk" TNM_NET = wb_clk;
-TIMESPEC TS_wb_clk = PERIOD "wb_clk" 40 ns HIGH 50%;
-NET "ck_fb_pad_i" FEEDBACK = 2 ns NET "ck_fb_pad_o";

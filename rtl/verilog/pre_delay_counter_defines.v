@@ -12,7 +12,7 @@
 //`define CNT_Q_BIN
 
 // number of CNT bins
-`define CNT_LENGTH 4
+`define CNT_LENGTH 2
 
 // clear
 //`define CNT_CLEAR

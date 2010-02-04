@@ -1,7 +1,9 @@
 //`define ACTEL
 //`define XILINX
-//`define SDR_16
-`define DDR_16
+//`define ALTERA
+//`define GENERIC_PRIMITIVES
+`define SDR_16
+//`define DDR_16
 
 `define PORT0
 `define PORT1
