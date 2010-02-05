@@ -47,5 +47,6 @@ delay_counter:
 versatile_mem_ctrl:
 	cat versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v sdr_16.v ddr_16.v delay.v ddr_ff.v dcm_pll.v versatile_mem_ctrl_top.v | cat copyright.v - > versatile_mem_ctrl_ip.v
 
-all:  ctrl_counter dual_port_ram fifo_adr_counter fifo_fill_fsm sdr_16 ddr_16 delay_counter versatile_mem_ctrl
+all:  dual_port_ram fifo_adr_counter ctrl_counter fifo_fill_fsm sdr_16 ddr_16 ref_counter delay_counter versatile_mem_ctrl
+
 
