@@ -3,7 +3,7 @@
 # vsim -gui -do ../bin/sim_altera.tcl
 
 set DESIGN_NAME "versatile_memory_controller"
-set WAVE_FILE wave_ddr.do
+set WAVE_FILE ../bin/wave_ddr.do
 set FORCE_LIBRARY_RECOMPILE 0
 
 # Quit simulation if you are running one
@@ -53,7 +53,7 @@ view wave -title "${DESIGN_NAME}"
 view signals
 
 # Run the .do file to load signals to the waveform viewer
-#do $WAVE_FILE
+do $WAVE_FILE
 
 # Run the simulation
 run 330 us

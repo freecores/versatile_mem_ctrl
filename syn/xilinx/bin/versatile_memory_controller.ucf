@@ -22,9 +22,9 @@ TIMESPEC TS_wb_clk = PERIOD "wb_clk" 40 ns HIGH 50%;   # 25 MHz
 NET "ck_fb_pad_i" FEEDBACK = 2 ns NET "ck_fb_pad_o";
 
 # 
-NET "sdram_clk" CLOCK_DEDICATED_ROUTE = FALSE;
-PIN "dcm_pll_o/DCM_external/DCM_SP.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "wb_clk" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "sdram_clk" CLOCK_DEDICATED_ROUTE = FALSE;
+PIN "dcm_pll_0/DCM_external/DCM_SP.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
 
 #**************************************************************
 # DDR2 IF

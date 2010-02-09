@@ -668,40 +668,32 @@ assign tx_fifo_dat_i
 
 `ifdef DDR_16
    wire        read, write;
-   wire        sdram_clk_180, sdram_clk_90, sdram_clk_270;
-   wire        sdram_bufg_clk_0, sdram_bufg_clk_180, sdram_bufg_clk_90, sdram_bufg_clk_270;
-   wire        sdram_clk_ibufg;
-   wire        ck_fb, ck_fb_bufg, ck_fb_ibufg;
+   wire        sdram_clk_90, sdram_clk_180, sdram_clk_270;
+   wire        ck_fb;
    reg         cke, ras, cas, we, cs_n;
    wire        ras_o, cas_o, we_o, cs_n_o;
    wire  [1:0] ba_o;
    wire [12:0] addr_o;
    reg   [1:0] ba;
    reg  [12:0] addr;
-   wire        dq_en, dqs_en, dqm_en;
-   wire        dqm_en_i;
-   reg  [31:0] dq_tx_reg;
+   wire        dq_en, dqs_en, dqm_en, dqm_en_i;
+   reg  [15:0] dq_tx_reg;
    wire [15:0] dq_tx;
    reg  [31:0] dq_rx_reg;
    wire [31:0] dq_rx;
    wire [15:0] dq_o;
    reg   [3:0] dqm_tx_reg;
    wire  [3:0] dqm_tx;
-   wire  [1:0] dqm_o;
-   wire  [1:0] dqs_o, dqs_n_o;
+   wire  [1:0] dqm_o, dqs_o, dqs_n_o;
    wire        ref_delay, ref_delay_ack;
    wire        bl_en, bl_ack;
    wire        tx_fifo_re_i, adr_init_delay;
    reg         adr_init_delay_i;
-   reg   [3:0] wr_burst_cnt;
-   wire  [3:0] wr_burst_next_cnt, wb_burst_length;
-   wire        wr_burst_mask;
-   reg   [3:0] rd_burst_cnt;
-   wire  [3:0] rd_burst_next_cnt;
-   wire        rd_burst_mask;
-   genvar      i;
-   wire [15:0] dq_tmp;
+   reg   [3:0] wr_burst_cnt, rd_burst_cnt;
+   wire  [3:0] wr_burst_next_cnt, rd_burst_next_cnt, wb_burst_length;
+   wire        wr_burst_mask, rd_burst_mask;
    wire [12:0] cur_row;
+   genvar      i;
 
    // DDR SDRAM 16 FSM
    ddr_16 ddr_16_0
