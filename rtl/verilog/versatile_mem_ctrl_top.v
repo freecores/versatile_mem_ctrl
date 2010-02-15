@@ -827,18 +827,28 @@ assign tx_fifo_dat_i
    
    // write latency, delay the control signals to fit latency of the DDR2 SDRAM
    defparam delay1.depth=`CL+`AL-1;
-   defparam delay1.width=4;
+   defparam delay1.width=3;
    delay delay1 (
-      .d({write, write, write, dqm_en_i}),
-      .q({dq_en, dq_oe, dqs_en, dqm_en}),
+      .d({write, write, dqm_en_i}),
+      .q({dq_en, dq_oe, dqm_en}),
       .clk(sdram_clk_270),
       .rst(wb_rst)
       );
 
-   // if CL>4 delay read from Tx FIFO
-   defparam delay2.depth=`CL+`AL-3;
-   defparam delay2.width=2;
+   // write latency, delay the control signals to fit latency of the DDR2 SDRAM
+   defparam delay2.depth=`CL+`AL-1;
+   defparam delay2.width=1;
    delay delay2 (
+      .d(write),
+      .q(dqs_en),
+      .clk(sdram_clk_0),
+      .rst(wb_rst)
+      );
+
+   // if CL>4 delay read from Tx FIFO
+   defparam delay3.depth=`CL+`AL-3;
+   defparam delay3.width=2;
+   delay delay3 (
       .d({tx_fifo_re_i && !wr_burst_mask, tx_fifo_re_i && !wr_burst_mask}),
       .q({tx_fifo_re, adr_init_delay}),
       .clk(sdram_clk_0),
@@ -856,9 +866,9 @@ assign tx_fifo_dat_i
    // CL=3, not supported
 
    // Increment address
-   defparam delay3.depth=`CL+`AL-1;
-   defparam delay3.width=1;
-   delay delay3 (
+   defparam delay4.depth=`CL+`AL-1;
+   defparam delay4.width=1;
+   delay delay4 (
       .d({write|read}),
       .q({adr_inc}),
       .clk(sdram_clk_0),

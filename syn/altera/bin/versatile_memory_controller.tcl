@@ -1,22 +1,6 @@
-# Copyright (C) 1991-2009 Altera Corporation
-# Your use of Altera Corporation's design tools, logic functions 
-# and other software and tools, and its AMPP partner logic 
-# functions, and any output files from any of the foregoing 
-# (including device programming or simulation files), and any 
-# associated documentation or information are expressly subject 
-# to the terms and conditions of the Altera Program License 
-# Subscription Agreement, Altera MegaCore Function License 
-# Agreement, or other applicable license agreement, including, 
-# without limitation, that your use is for the sole purpose of 
-# programming logic devices manufactured by Altera and sold by 
-# Altera or its authorized distributors.  Please refer to the 
-# applicable agreement for further details.
-
-# Quartus II: Generate Tcl File for Project
-# File: versatile_memory_controller.tcl
-# Generated on: Mon Feb  1 15:14:07 2010
-
-# Usage: quartus_sh -t versatile_memory_controller.tcl
+# Usage: 
+# cd /versatile_mem_ctrl/trunk/syn/altera/run/
+# quartus_sh -t ../bin/versatile_memory_controller.tcl
 
 # Load Quartus II Tcl Project package
 package require ::quartus::project

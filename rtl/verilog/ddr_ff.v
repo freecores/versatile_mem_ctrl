@@ -34,7 +34,7 @@ module ddr_ff_in
    altddio_in #(
      .WIDTH(1),
      .POWER_UP_HIGH("OFF"),
-     .INTENDED_DEVICE_FAMILY())
+     .INTENDED_DEVICE_FAMILY("Stratix III"))
    altddio_in_inst (
      .aset(),
      .datain(D),
@@ -101,7 +101,7 @@ module ddr_ff_out
    altddio_out #(
      .WIDTH(1),
      .POWER_UP_HIGH("OFF"),
-     .INTENDED_DEVICE_FAMILY(),
+     .INTENDED_DEVICE_FAMILY("Stratix III"),
      .OE_REG("UNUSED"))
    altddio_out_inst (
      .aset(),

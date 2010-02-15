@@ -1038,8 +1038,6 @@ module fifo_fill (
   
 endmodule
 
-`include "versatile_mem_ctrl_defines.v"
-
 module inc_adr
   (
    input  [3:0] adr_i,
@@ -1088,7 +1086,6 @@ module inc_adr
 	     default: adr_o <= adr_o + 4'd1;
 	   endcase // case (bte)
    
-`ifdef SDR_16   
    // done
    always @ (posedge clk or posedge rst)
      if (rst)
@@ -1107,30 +1104,6 @@ module inc_adr
        else
 	 if (inc)
 	   {done,cnt} <= cnt + 4'd1;
-`endif
-
-`ifdef DDR_16   
-   // done
-   always @ (posedge clk or posedge rst)
-     if (rst)
-       {done,cnt} <= {1'b0,4'd0};
-     else
-       if (init_i)
-	 begin
-	    done <= ({bte_i,cti_i} == {2'b00,3'b000});
-	    case (bte_i)
-	      2'b01: cnt <= 4'd12;
-	      2'b10: cnt <= 4'd8;
-	      2'b11: cnt <= 4'd0;
-	      default: cnt <= adr_i;
-	    endcase
-	 end
-       else
-	 if (inc)
-	   {done,cnt} <= cnt + 4'd1;
-`endif
-
-
 
 endmodule // inc_adr
 
@@ -2476,7 +2449,7 @@ module ddr_ff_in
    altddio_in #(
      .WIDTH(1),
      .POWER_UP_HIGH("OFF"),
-     .INTENDED_DEVICE_FAMILY())
+     .INTENDED_DEVICE_FAMILY("Stratix III"))
    altddio_in_inst (
      .aset(),
      .datain(D),
@@ -2543,7 +2516,7 @@ module ddr_ff_out
    altddio_out #(
      .WIDTH(1),
      .POWER_UP_HIGH("OFF"),
-     .INTENDED_DEVICE_FAMILY(),
+     .INTENDED_DEVICE_FAMILY("Stratix III"),
      .OE_REG("UNUSED"))
    altddio_out_inst (
      .aset(),
@@ -2717,20 +2690,20 @@ module dcm_pll
      .clk1_divide_by(1),
      .clk1_duty_cycle(50),
      .clk1_multiply_by(1),
-     .clk1_phase_shift("2000"),
+     .clk1_phase_shift("1250"),
      .clk2_divide_by(1),
      .clk2_duty_cycle(50),
      .clk2_multiply_by(1),
-     .clk2_phase_shift("4000"),
+     .clk2_phase_shift("2500"),
      .clk3_divide_by(1),
      .clk3_duty_cycle(50),
      .clk3_multiply_by(1),
-     .clk3_phase_shift("6000"),
-     .inclk0_input_frequency(8000),
+     .clk3_phase_shift("3750"),
+     .inclk0_input_frequency(5000),
      .intended_device_family("Stratix III"),
      .lpm_hint("CBX_MODULE_PREFIX=tmp_pll"),
      .lpm_type("altpll"),
-     .operation_mode("EXTERNAL_FEEDBACK"),
+     .operation_mode("NORMAL"),
      .pll_type("AUTO"),
      .port_activeclock("PORT_UNUSED"),
      .port_areset("PORT_USED"),
@@ -2777,11 +2750,11 @@ module dcm_pll
      .using_fbmimicbidir_port("OFF"),
      .width_clock(10))
    altpll_internal (
-     .fbin (clkfb_in),
+     .fbin (),//(clkfb_in),
      .inclk (sub_wire7),
      .areset (rst),
      .clk (sub_wire0),
-     .fbout (clkfb_out),
+     .fbout (),//(clkfb_out),
      .activeclock (),
      .clkbad (),
      .clkena ({6{1'b1}}),
@@ -3651,18 +3624,28 @@ assign tx_fifo_dat_i
    
    // write latency, delay the control signals to fit latency of the DDR2 SDRAM
    defparam delay1.depth=`CL+`AL-1;
-   defparam delay1.width=4;
+   defparam delay1.width=3;
    delay delay1 (
-      .d({write, write, write, dqm_en_i}),
-      .q({dq_en, dq_oe, dqs_en, dqm_en}),
+      .d({write, write, dqm_en_i}),
+      .q({dq_en, dq_oe, dqm_en}),
       .clk(sdram_clk_270),
       .rst(wb_rst)
       );
 
-   // if CL>4 delay read from Tx FIFO
-   defparam delay2.depth=`CL+`AL-3;
-   defparam delay2.width=2;
+   // write latency, delay the control signals to fit latency of the DDR2 SDRAM
+   defparam delay2.depth=`CL+`AL-1;
+   defparam delay2.width=1;
    delay delay2 (
+      .d(write),
+      .q(dqs_en),
+      .clk(sdram_clk_0),
+      .rst(wb_rst)
+      );
+
+   // if CL>4 delay read from Tx FIFO
+   defparam delay3.depth=`CL+`AL-3;
+   defparam delay3.width=2;
+   delay delay3 (
       .d({tx_fifo_re_i && !wr_burst_mask, tx_fifo_re_i && !wr_burst_mask}),
       .q({tx_fifo_re, adr_init_delay}),
       .clk(sdram_clk_0),
@@ -3680,9 +3663,9 @@ assign tx_fifo_dat_i
    // CL=3, not supported
 
    // Increment address
-   defparam delay3.depth=`CL+`AL-1;
-   defparam delay3.width=1;
-   delay delay3 (
+   defparam delay4.depth=`CL+`AL-1;
+   defparam delay4.width=1;
+   delay delay4 (
       .d({write|read}),
       .q({adr_inc}),
       .clk(sdram_clk_0),
