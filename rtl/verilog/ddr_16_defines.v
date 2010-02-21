@@ -42,16 +42,15 @@
 // [11:9]  (A11-9) Write Recovery (WR): 3'b000 - reserved, 3b'001 - 2, ... , 3b'111 - 8
 // [8]     (A8)    DLL Reset (DLL): 1'b0 - No, 1'b1 - Yes
 // [7]     (A7)    Mode (TM): 1'b0 - Normal, 1'b1 - Test
-// [6]     (A6)    CAS#
-// [5:4]   (A5-4)  CAS Latency (CL): 3'b011 - 3, ... , 3'b111 - 7
+// [6:4]   (A5-4)  CAS Latency (CL): 3'b011 - 3, ... , 3'b111 - 7
 // [3]     (A3)    Burst Type (BT): 1'b0 - Sequential, 1'b1 - Interleaved
 // [2:0]   (A2-0)  Burst Length (BL): 3'b010 - 4, 3'b011 - 8
 `define MR  2'b00
 `define PD  1'b0
 `define WR  3'b001
 `define DLL 1'b0
+`define DLL_RST 1'b1
 `define TM  1'b0
-`define CAS 1'b0
 `define CL  3'b100
 `define BT  1'b0
 `define BL  3'b011
@@ -74,6 +73,7 @@
 `define RDQS   1'b0
 `define DQS    1'b0
 `define OCD    3'b000
+`define OCD_DEFAULT 3'b111
 `define RTT6   1'b0
 `define RTT2   1'b0
 `define AL     3'b000
@@ -97,12 +97,10 @@
 `define MRS3 2'b11
 
 // Addr to SDRAM {ba[1:0],a[12:0]}
-`define A_LMR         {`MR,`PD,`WR,`DLL,`TM,`CAS,`CL,`BT,`BL}
-`define A_LMR_DLL_RST {2'b00,1'b0,`WR,1'b0,1'b1,1'b0,`CL,1'b0,`BL}
-//`define A_LMR_DLL_RST {2'b00,4'b0000,1'b1,8'b00000000}
-`define A_LMR     {`MR,`PD,`WR,`DLL,`TM,`CAS,`CL,`BT,`BL}
+`define A_LMR     {`MR,`PD,`WR,`DLL,`TM,`CL,`BT,`BL}
+`define A_LMR_DLL_RST {`MR,`PD,`WR,`DLL_RST,`TM,`CL,`BT,`BL}
 `define A_LEMR    {`MRS,`OUT,`RDQS,`DQS,`OCD,`RTT6,`AL,`RTT2,`ODS,`DLL_EN}
-`define A_LEMR_OCD_DEFAULT    {`MRS,`OUT,`RDQS,`DQS,3'b111,`RTT6,`AL,`RTT2,`ODS,`DLL}
+`define A_LEMR_OCD_DEFAULT {`MRS,`OUT,`RDQS,`DQS,`OCD_DEFAULT,`RTT6,`AL,`RTT2,`ODS,`DLL}
 `define A_LEMR2   {`MRS2,5'b00000,`SRT,7'b0000000}
 `define A_LEMR3   {`MRS3,13'b0000000000000}
 `define A_PRE     {2'b00,13'b0010000000000}

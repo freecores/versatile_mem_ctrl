@@ -2186,11 +2186,11 @@ module ddr_16 (
           cmd[2:0] <= 3'b000;
         end
         nextstate[LMR_0]      : begin
-          a[14:0] <= {2'b00,1'b0,3'b001,1'b0,1'b1,1'b0,3'b100,1'b0,3'b011};
+          a[14:0] <= {2'b00,1'b0,3'b001,1'b1,1'b0,3'b100,1'b0,3'b011};
           cmd[2:0] <= 3'b000;
         end
         nextstate[LMR_1]      : begin
-          a[14:0] <= {2'b00,1'b0,3'b001,1'b0,1'b0,1'b0,3'b100,1'b0,3'b011};
+          a[14:0] <= {2'b00,1'b0,3'b001,1'b0,1'b0,3'b100,1'b0,3'b011};
           cmd[2:0] <= 3'b000;
         end
         nextstate[NOP0]       : begin
@@ -3488,8 +3488,8 @@ assign tx_fifo_dat_i
    wire        bl_en, bl_ack;
    wire        tx_fifo_re_i, adr_init_delay;
    reg         adr_init_delay_i;
-   reg   [3:0] wr_burst_cnt, rd_burst_cnt;
-   wire  [3:0] wr_burst_next_cnt, rd_burst_next_cnt, wb_burst_length;
+   reg   [3:0] wr_burst_cnt, rd_burst_cnt, wb_burst_length;
+   wire  [3:0] wr_burst_next_cnt, rd_burst_next_cnt;
    wire        wr_burst_mask, rd_burst_mask;
    wire [12:0] cur_row;
    genvar      i;
@@ -3552,10 +3552,19 @@ assign tx_fifo_dat_i
       .rst(wb_rst)
       );
 
-   // Wishbone burst length
+/*   // Wishbone burst length
    assign wb_burst_length = (adr_init && tx_fifo_dat_o[2:0] == 3'b000) ? 4'd1 :   // classic cycle
                             (adr_init && tx_fifo_dat_o[2:0] == 3'b010) ? 4'd4 :   // incremental burst cycle
-                             wb_burst_length;
+                             4'd4;   //wb_burst_length;
+*/
+   always @ (posedge sdram_clk_0 or posedge wb_rst)
+     if (wb_rst)
+       wb_burst_length <= 4'd0;
+     else
+       if (adr_init && tx_fifo_dat_o[2:0] == 3'b000)
+         wb_burst_length <= 4'd1;
+       else if (adr_init && tx_fifo_dat_o[2:0] == 3'b010)
+         wb_burst_length <= 4'd4;
 
    // Burst mask - write
    // Burst length counter

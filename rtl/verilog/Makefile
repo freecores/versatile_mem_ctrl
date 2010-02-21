@@ -29,11 +29,11 @@ ctrl_counter.v: versatile_counter.v ctrl_counter_defines.v
 fifo_fill.v: fifo_fill.fzm
 	perl fizzim.pl -encoding onehot < fifo_fill.fzm > fifo_fill.v
 
-sdr_16.v: sdr_16.fzm
+sdr_16.v: sdr_16.fzm sdr_16_defines.v
 	perl fizzim.pl -encoding onehot < sdr_16.fzm > tmp1.v
 	vppreproc --simple tmp1.v > sdr_16.v
 
-ddr_16.v: ddr_16.fzm
+ddr_16.v: ddr_16.fzm ddr_16_defines.v
 	perl fizzim.pl -encoding onehot < ddr_16.fzm > tmp1.v
 	vppreproc --simple tmp1.v > ddr_16.v
 
