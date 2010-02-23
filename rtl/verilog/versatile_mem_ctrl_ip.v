@@ -1749,7 +1749,6 @@ module ddr_16 (
   output reg ref_ack,
   output reg ref_delay,
   output reg write,
-  input wire adr_init_delay,
   input wire bl_ack,
   input wire [3:0] burst_adr,
   input wire [7:0] fifo_empty,
@@ -3349,22 +3348,7 @@ assign tx_fifo_dat_i
      else if (adr_init)
        tx_fifo_b_sel_i_cur <= tx_fifo_b_sel_i;
    
-/*   
-   inc_adr inc_adr0
-     (
-      .adr_i(tx_fifo_dat_o[9:6]),
-      .bte_i(tx_fifo_dat_o[4:3]),
-      .cti_i(tx_fifo_dat_o[2:0]),
-      .init(adr_init),
-      .inc(adr_inc | rx_fifo_we),
-      .inc(),
-      .adr_o(burst_adr),
-      .done(done),
-      .clk(sdram_clk_0),
-      .rst(wb_rst)
-      );
-*/
-
+   // Refresh interval counter
    ref_counter ref_counter0
      (
       .zq(ref_zf),
@@ -3475,7 +3459,7 @@ assign tx_fifo_dat_i
    wire [12:0] addr_o;
    reg   [1:0] ba;
    reg  [12:0] addr;
-   wire        dq_en, dqs_en, dqm_en, dqm_en_i;
+   wire        dq_en, dqm_en;
    reg  [15:0] dq_tx_reg;
    wire [15:0] dq_tx;
    reg  [31:0] dq_rx_reg;
@@ -3486,11 +3470,12 @@ assign tx_fifo_dat_i
    wire  [1:0] dqm_o, dqs_o, dqs_n_o;
    wire        ref_delay, ref_delay_ack;
    wire        bl_en, bl_ack;
-   wire        tx_fifo_re_i, adr_init_delay;
+   wire        tx_fifo_re_i;
+   wire        adr_init_delay;
    reg         adr_init_delay_i;
-   reg   [3:0] wr_burst_cnt, rd_burst_cnt, wb_burst_length;
-   wire  [3:0] wr_burst_next_cnt, rd_burst_next_cnt;
-   wire        wr_burst_mask, rd_burst_mask;
+   reg   [3:0] burst_cnt;
+   wire  [3:0] burst_next_cnt, burst_length;
+   wire        burst_mask;
    wire [12:0] cur_row;
    genvar      i;
 
@@ -3510,7 +3495,6 @@ assign tx_fifo_dat_i
       .ref_ack(ref_ack),
       .ref_delay(ref_delay),
       .ref_delay_ack(ref_delay_ack),
-      .adr_init_delay(adr_init_delay),
       .bl_en(bl_en),
       .bl_ack(bl_ack),
       .a({ba_o,addr_o}),
@@ -3552,46 +3536,22 @@ assign tx_fifo_dat_i
       .rst(wb_rst)
       );
 
-/*   // Wishbone burst length
-   assign wb_burst_length = (adr_init && tx_fifo_dat_o[2:0] == 3'b000) ? 4'd1 :   // classic cycle
-                            (adr_init && tx_fifo_dat_o[2:0] == 3'b010) ? 4'd4 :   // incremental burst cycle
-                             4'd4;   //wb_burst_length;
-*/
-   always @ (posedge sdram_clk_0 or posedge wb_rst)
-     if (wb_rst)
-       wb_burst_length <= 4'd0;
-     else
-       if (adr_init && tx_fifo_dat_o[2:0] == 3'b000)
-         wb_burst_length <= 4'd1;
-       else if (adr_init && tx_fifo_dat_o[2:0] == 3'b010)
-         wb_burst_length <= 4'd4;
+   // Wishbone burst length
+   assign burst_length = (adr_init && tx_fifo_dat_o[2:0] == 3'b000) ? 4'd1 :   // classic cycle
+                         (adr_init && tx_fifo_dat_o[2:0] == 3'b010) ? 4'd4 :   // incremental burst cycle
+                          burst_length;
 
-   // Burst mask - write
+   // Burst mask
    // Burst length counter
-   assign wr_burst_next_cnt = (wr_burst_cnt == 3) ? 4'd0 : wr_burst_cnt + 4'd1;
+   assign burst_next_cnt = (burst_cnt == 3) ? 4'd0 : burst_cnt + 4'd1;
    always @ (posedge sdram_clk_0 or posedge wb_rst)
      if (wb_rst)
-       wr_burst_cnt <= 4'h0;
+       burst_cnt <= 4'h0;
      else
        if (bl_en)
-         wr_burst_cnt <= wr_burst_next_cnt;
-   // Write Burst Mask
-   assign wr_burst_mask = (wr_burst_cnt >= wb_burst_length) ? 1'b1 : 1'b0;
-
-   // DQ Mask
-   assign dqm_en_i = wr_burst_mask;
-
-   // Burst Mask - read
-   // Burst length counter
-   assign rd_burst_next_cnt = (rd_burst_cnt == 3) ? 4'd0 : rd_burst_cnt + 4'd1;
-   always @ (posedge sdram_clk_0 or posedge wb_rst)
-     if (wb_rst)
-       rd_burst_cnt <= 4'h0;
-     else
-       if (bl_en)
-         rd_burst_cnt <= rd_burst_next_cnt;
-   // Read Burst Mask
-   assign rd_burst_mask = (rd_burst_cnt >= wb_burst_length) ? 1'b1 : 1'b0;
+         burst_cnt <= burst_next_cnt;
+   // Burst Mask
+   assign burst_mask = (burst_cnt >= burst_length) ? 1'b1 : 1'b0;
 
    // Control outports, DDR2 SDRAM
    always @ (posedge sdram_clk_180 or posedge wb_rst)
@@ -3627,7 +3587,7 @@ assign tx_fifo_dat_i
    defparam delay0.depth=`CL+`AL+2; 
    defparam delay0.width=4;
    delay delay0 (
-      .d({read && !rd_burst_mask,tx_fifo_b_sel_i_cur}),
+      .d({read && !burst_mask,tx_fifo_b_sel_i_cur}),
       .q({rx_fifo_we,rx_fifo_a_sel_i}),
       .clk(sdram_clk_0),
       .rst(wb_rst)
@@ -3635,48 +3595,31 @@ assign tx_fifo_dat_i
    
    // write latency, delay the control signals to fit latency of the DDR2 SDRAM
    defparam delay1.depth=`CL+`AL-1;
-   defparam delay1.width=3;
+   defparam delay1.width=2;
    delay delay1 (
-      .d({write, write, dqm_en_i}),
-      .q({dq_en, dq_oe, dqm_en}),
+      .d({write, burst_mask}),
+      .q({dq_en, dqm_en}),
       .clk(sdram_clk_270),
       .rst(wb_rst)
       );
 
-   // write latency, delay the control signals to fit latency of the DDR2 SDRAM
-   defparam delay2.depth=`CL+`AL-1;
+   // if CL>3 delay read from Tx FIFO
+   defparam delay2.depth=`CL+`AL-3;
    defparam delay2.width=1;
    delay delay2 (
-      .d(write),
-      .q(dqs_en),
+      .d(tx_fifo_re_i && !burst_mask),
+      .q(tx_fifo_re),
       .clk(sdram_clk_0),
       .rst(wb_rst)
       );
 
-   // if CL>4 delay read from Tx FIFO
-   defparam delay3.depth=`CL+`AL-3;
-   defparam delay3.width=2;
-   delay delay3 (
-      .d({tx_fifo_re_i && !wr_burst_mask, tx_fifo_re_i && !wr_burst_mask}),
-      .q({tx_fifo_re, adr_init_delay}),
-      .clk(sdram_clk_0),
-      .rst(wb_rst)
-      );
-/*   // if CL=4, no delay
-   assign tx_fifo_re = tx_fifo_re_i;
-   always @ (posedge sdram_clk_0 or posedge wb_rst)
-     if (wb_rst)
-       adr_init_delay_i <= 1'b0;
-     else
-       adr_init_delay_i <= tx_fifo_re_i;
-   assign adr_init_delay = adr_init_delay_i;*/
-
-   // CL=3, not supported
+   // if CL=3, no delay
+   //assign tx_fifo_re = tx_fifo_re_i && !burst_mask;
 
    // Increment address
-   defparam delay4.depth=`CL+`AL-1;
-   defparam delay4.width=1;
-   delay delay4 (
+   defparam delay3.depth=`CL+`AL-1;
+   defparam delay3.width=1;
+   delay delay3 (
       .d({write|read}),
       .q({adr_inc}),
       .clk(sdram_clk_0),
@@ -3805,7 +3748,7 @@ assign tx_fifo_dat_i
    end
    endgenerate
 
-   assign dq_pad_io = dq_oe ? dq_o : {16{1'bz}};
+   assign dq_pad_io = dq_en ? dq_o : {16{1'bz}};
 
    // Data mask
    generate
@@ -3823,7 +3766,7 @@ assign tx_fifo_dat_i
    end
    endgenerate
 
-   assign dm_rdqs_pad_io = dq_oe ? dqm_o : 2'bzz;
+   assign dm_rdqs_pad_io = dq_en ? dqm_o : 2'bzz;
 `endif   // XILINX   
 
 `ifdef ALTERA
@@ -3843,7 +3786,7 @@ assign tx_fifo_dat_i
    end
    endgenerate
 
-   assign dq_pad_io = dq_oe ? dq_o : {16{1'bz}};
+   assign dq_pad_io = dq_en ? dq_o : {16{1'bz}};
 
    assign dqm_tx = dqm_en ? {4{1'b0}} : tx_fifo_dat_o[3:0];
 
@@ -3863,7 +3806,7 @@ assign tx_fifo_dat_i
    end
    endgenerate
 
-   assign dm_rdqs_pad_io = dq_oe ? dqm_o : 2'bzz;
+   assign dm_rdqs_pad_io = dq_en ? dqm_o : 2'bzz;
 `endif   // ALTERA
 
    // DDR data in
@@ -3904,9 +3847,9 @@ assign tx_fifo_dat_i
    assign rx_fifo_dat_i = {dq_rx_reg, 4'h0};
 
    // Assing outputs
-   assign dqs_pad_io   = dqs_en ? dqs_o : 2'bz;
-   assign dqs_n_pad_io = dqs_en ? dqs_n_o : 2'bz;
-   assign dqs_oe       = dqs_en;
+   assign dqs_pad_io   = dq_en ? dqs_o : 2'bz;
+   assign dqs_n_pad_io = dq_en ? dqs_n_o : 2'bz;
+   assign dqs_oe       = dq_en;
    assign ck_fb_pad_o  = ck_fb;
 
 `endif //  `ifdef DDR_16

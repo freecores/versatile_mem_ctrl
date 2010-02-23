@@ -1,4 +1,4 @@
-## File last modified by Fizzim: 4:01:47 PM on 1/21/10
+## File last modified by Fizzim: 3:40:29 PM on 2/23/10
 <version>
    8.04.05
 </version>
@@ -666,50 +666,6 @@
          -1
          </page>
       </bl_ack>
-      <adr_init_delay>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </value>
-         <vis>
-         0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         -1
-         </page>
-      </adr_init_delay>
       <fifo_re_d>
             <status>
             GLOBAL_FIXED
