@@ -1,23 +1,16 @@
-svn_export: versatile_fifo_dual_port_ram.v versatile_fifo_async_cmp.v lfsr_polynom.v versatile_counter.v
+svn_export: versatile_fifo_dual_port_ram_dc_sw.v versatile_fifo_async_cmp.v versatile_counter_generator.php
 
-versatile_fifo_dual_port_ram.v:
-	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_dual_port_ram.v
+versatile_fifo_dual_port_ram_dc_sw.v:
+	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_dual_port_ram_dc_sw.v
 
 versatile_fifo_async_cmp.v:
 	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_async_cmp.v
 
-lfsr_polynom.v:
-	svn export http://opencores.org/ocsvn/versatile_counter/versatile_counter/trunk/rtl/verilog/lfsr_polynom.v
-
-versatile_counter.v:
-	svn export http://opencores.org/ocsvn/versatile_counter/versatile_counter/trunk/rtl/verilog/versatile_counter.v
+versatile_counter_generator.php:
 	svn export http://opencores.org/ocsvn/versatile_counter/versatile_counter/trunk/rtl/verilog/versatile_counter_generator.php
 	svn export http://opencores.org/ocsvn/versatile_counter/versatile_counter/trunk/rtl/verilog/CSV.class.php
 
-versatile_fifo_dual_port_ram_dc_dw.v: versatile_fifo_dual_port_ram.v
-	vppreproc +define+TYPE+"dc_dw" +define+DC +define+DW +define+DATA_WIDTH+36 +define+ADDR_WIDTH+8 --simple versatile_fifo_dual_port_ram.v > versatile_fifo_dual_port_ram_dc_dw.v
-
-versatile_counter: versatile_counter.xls versatile_counter.v versatile_counter_generator.php
+versatile_counter: versatile_counter_generator.php
 	excel2csv versatile_counter.xls -S ,
 	./versatile_counter_generator.php fifo_adr_counter.csv > fifo_adr_counter.v
 	./versatile_counter_generator.php ctrl_counter.csv > ctrl_counter.v
@@ -48,4 +41,3 @@ clean:
 	rm -rf *_counter.v
 	rm -rf *.csv
 	rm -rf *~
-
