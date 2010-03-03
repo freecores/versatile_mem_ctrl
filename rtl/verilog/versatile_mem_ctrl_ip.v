@@ -149,14 +149,14 @@ module vfifo_dual_port_ram_dc_dw
 endmodule 
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
-////  Versatile memory controller                                 ////
+////  Versatile counter                                           ////
 ////                                                              ////
 ////  Description                                                 ////
-////  A modular wishbone compatible memory controller with support////
-////  for various types of memory configurations                  ////
+////  Versatile counter, a reconfigurable binary, gray or LFSR    ////
+////  counter                                                     ////
 ////                                                              ////
 ////  To Do:                                                      ////
-////   - add support for additional SDRAM variants                ////
+////   - add LFSR with more taps                                  ////
 ////                                                              ////
 ////  Author(s):                                                  ////
 ////      - Michael Unneback, unneback@opencores.org              ////
@@ -188,42 +188,52 @@ endmodule
 //// from http://www.opencores.org/lgpl.shtml                     ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
-module fifo_adr_counter
-  (
-    output reg [5:1] q,
-    output [5:1]    q_bin,
-    input cke,
-    input clk,
-    input rst
-   );
-   reg [5:1] qi;
-   wire [5:1] q_next;   
-   assign q_next =
-   qi + 5'd1;
+
+// GRAY counter
+module vcnt ( cke, q, q_bin, rst, clk);
+
+   parameter length = 5;
+   input cke;
+   output reg [length:1] q;
+   output [length:1] q_bin;
+   input rst;
+   input clk;
+
+   parameter clear_value = 0;
+   parameter set_value = 0;
+   parameter wrap_value = 9;
+
+   reg  [length:1] qi;
+   wire [length:1] q_next;
+   assign q_next = qi + 1;
+
    always @ (posedge clk or posedge rst)
      if (rst)
-       qi <= 5'd0;
+       qi <= {length{1'b0}};
      else
-   if (cke)
-     qi <= q_next;
+     if (cke)
+       qi <= q_next;
+
    always @ (posedge clk or posedge rst)
      if (rst)
-       q <= 5'h0;
+       q <= {length{1'b0}};
      else
        if (cke)
-	 q <= (q_next>>1) ^ q_next;
+         q <= (q_next>>1) ^ q_next;
+
    assign q_bin = qi;
+
 endmodule
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
-////  Versatile memory controller                                 ////
+////  Versatile counter                                           ////
 ////                                                              ////
 ////  Description                                                 ////
-////  A modular wishbone compatible memory controller with support////
-////  for various types of memory configurations                  ////
+////  Versatile counter, a reconfigurable binary, gray or LFSR    ////
+////  counter                                                     ////
 ////                                                              ////
 ////  To Do:                                                      ////
-////   - add support for additional SDRAM variants                ////
+////   - add LFSR with more taps                                  ////
 ////                                                              ////
 ////  Author(s):                                                  ////
 ////      - Michael Unneback, unneback@opencores.org              ////
@@ -255,33 +265,86 @@ endmodule
 //// from http://www.opencores.org/lgpl.shtml                     ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
-module ctrl_counter
-  (
-    input clear,
-    input cke,
-    output reg zq,
-    input clk,
-    input rst
-   );
-   parameter wrap_value = 5'h1f;
-   reg [5:1] qi;
-   wire [5:1] q_next;   
-   assign q_next =
-       clear ? 5'd0 :
-	   (qi == wrap_value) ? 5'd0 :
-	     {qi[4:1],~(qi[5]^qi[1])};
+
+// LFSR counter
+module vcnt ( clear, cke, zq, rst, clk);
+
+   parameter length = 5;
+   input clear;
+   input cke;
+   output reg zq;
+   input rst;
+   input clk;
+
+   parameter clear_value = 0;
+   parameter set_value = 0;
+   parameter wrap_value = 31;
+
+   reg  [length:1] qi;
+   reg lfsr_fb;
+   wire [length:1] q_next;
+   reg [32:1] polynom;
+   integer i;
+
+   always @ (qi)
+   begin
+        case (length) 
+         2: polynom = 32'b11;                               // 0x3
+         3: polynom = 32'b110;                              // 0x6
+         4: polynom = 32'b1100;                             // 0xC
+         5: polynom = 32'b10100;                            // 0x14
+         6: polynom = 32'b110000;                           // 0x30
+         7: polynom = 32'b1100000;                          // 0x60
+         8: polynom = 32'b10111000;                         // 0xb8
+         9: polynom = 32'b100010000;                        // 0x110
+        10: polynom = 32'b1001000000;                       // 0x240
+        11: polynom = 32'b10100000000;                      // 0x500
+        12: polynom = 32'b100000101001;                     // 0x829
+        13: polynom = 32'b1000000001100;                    // 0x100C
+        14: polynom = 32'b10000000010101;                   // 0x2015
+        15: polynom = 32'b110000000000000;                  // 0x6000
+        16: polynom = 32'b1101000000001000;                 // 0xD008
+        17: polynom = 32'b10010000000000000;                // 0x12000
+        18: polynom = 32'b100000010000000000;               // 0x20400
+        19: polynom = 32'b1000000000000100011;              // 0x40023
+        20: polynom = 32'b10000010000000000000;             // 0x82000
+        21: polynom = 32'b101000000000000000000;            // 0x140000
+        22: polynom = 32'b1100000000000000000000;           // 0x300000
+        23: polynom = 32'b10000100000000000000000;          // 0x420000
+        24: polynom = 32'b111000010000000000000000;         // 0xE10000
+        25: polynom = 32'b1001000000000000000000000;        // 0x1200000
+        26: polynom = 32'b10000000000000000000100011;       // 0x2000023
+        27: polynom = 32'b100000000000000000000010011;      // 0x4000013
+        28: polynom = 32'b1100100000000000000000000000;     // 0xC800000
+        29: polynom = 32'b10100000000000000000000000000;    // 0x14000000
+        30: polynom = 32'b100000000000000000000000101001;   // 0x20000029
+        31: polynom = 32'b1001000000000000000000000000000;  // 0x48000000
+        32: polynom = 32'b10000000001000000000000000000011; // 0x80200003
+        default: polynom = 32'b0;
+        endcase
+        lfsr_fb = qi[length];
+        for (i=length-1; i>=1; i=i-1) begin
+            if (polynom[i])
+                lfsr_fb = lfsr_fb  ~^ qi[i];
+        end
+    end
+   assign q_next =  clear ? {length{1'b0}} :{qi[length-1:1],lfsr_fb};
+
    always @ (posedge clk or posedge rst)
      if (rst)
-       qi <= 5'd0;
+       qi <= {length{1'b0}};
      else
-   if (cke)
-     qi <= q_next;
+     if (cke)
+       qi <= q_next;
+
+
+
    always @ (posedge clk or posedge rst)
      if (rst)
        zq <= 1'b1;
      else
-       if (cke)
-	 zq <= q_next == 5'd0;
+     if (cke)
+       zq <= q_next == {length{1'b0}};
 endmodule
 `include "versatile_mem_ctrl_defines.v"
 
@@ -1110,14 +1173,14 @@ endmodule // inc_adr
    
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
-////  Versatile memory controller                                 ////
+////  Versatile counter                                           ////
 ////                                                              ////
 ////  Description                                                 ////
-////  A modular wishbone compatible memory controller with support////
-////  for various types of memory configurations                  ////
+////  Versatile counter, a reconfigurable binary, gray or LFSR    ////
+////  counter                                                     ////
 ////                                                              ////
 ////  To Do:                                                      ////
-////   - add support for additional SDRAM variants                ////
+////   - add LFSR with more taps                                  ////
 ////                                                              ////
 ////  Author(s):                                                  ////
 ////      - Michael Unneback, unneback@opencores.org              ////
@@ -1149,39 +1212,93 @@ endmodule // inc_adr
 //// from http://www.opencores.org/lgpl.shtml                     ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
-module ref_counter
-  (
-    output reg zq,
-    input clk,
-    input rst
-   );
-   parameter wrap_value = 10'h250;
-   reg [10:1] qi;
-   wire [10:1] q_next;   
-   assign q_next =
-	   (qi == wrap_value) ? 10'd0 :
-	     {qi[9:1],~(qi[10]^qi[1])};
+
+// LFSR counter
+module vcnt ( zq, rst, clk);
+
+   parameter length = 10;
+   output reg zq;
+   input rst;
+   input clk;
+
+   parameter clear_value = 0;
+   parameter set_value = 0;
+   parameter wrap_value = 592;
+
+   reg  [length:1] qi;
+   reg lfsr_fb;
+   wire [length:1] q_next;
+   reg [32:1] polynom;
+   integer i;
+
+   always @ (qi)
+   begin
+        case (length) 
+         2: polynom = 32'b11;                               // 0x3
+         3: polynom = 32'b110;                              // 0x6
+         4: polynom = 32'b1100;                             // 0xC
+         5: polynom = 32'b10100;                            // 0x14
+         6: polynom = 32'b110000;                           // 0x30
+         7: polynom = 32'b1100000;                          // 0x60
+         8: polynom = 32'b10111000;                         // 0xb8
+         9: polynom = 32'b100010000;                        // 0x110
+        10: polynom = 32'b1001000000;                       // 0x240
+        11: polynom = 32'b10100000000;                      // 0x500
+        12: polynom = 32'b100000101001;                     // 0x829
+        13: polynom = 32'b1000000001100;                    // 0x100C
+        14: polynom = 32'b10000000010101;                   // 0x2015
+        15: polynom = 32'b110000000000000;                  // 0x6000
+        16: polynom = 32'b1101000000001000;                 // 0xD008
+        17: polynom = 32'b10010000000000000;                // 0x12000
+        18: polynom = 32'b100000010000000000;               // 0x20400
+        19: polynom = 32'b1000000000000100011;              // 0x40023
+        20: polynom = 32'b10000010000000000000;             // 0x82000
+        21: polynom = 32'b101000000000000000000;            // 0x140000
+        22: polynom = 32'b1100000000000000000000;           // 0x300000
+        23: polynom = 32'b10000100000000000000000;          // 0x420000
+        24: polynom = 32'b111000010000000000000000;         // 0xE10000
+        25: polynom = 32'b1001000000000000000000000;        // 0x1200000
+        26: polynom = 32'b10000000000000000000100011;       // 0x2000023
+        27: polynom = 32'b100000000000000000000010011;      // 0x4000013
+        28: polynom = 32'b1100100000000000000000000000;     // 0xC800000
+        29: polynom = 32'b10100000000000000000000000000;    // 0x14000000
+        30: polynom = 32'b100000000000000000000000101001;   // 0x20000029
+        31: polynom = 32'b1001000000000000000000000000000;  // 0x48000000
+        32: polynom = 32'b10000000001000000000000000000011; // 0x80200003
+        default: polynom = 32'b0;
+        endcase
+        lfsr_fb = qi[length];
+        for (i=length-1; i>=1; i=i-1) begin
+            if (polynom[i])
+                lfsr_fb = lfsr_fb  ~^ qi[i];
+        end
+    end
+   assign q_next = {qi[length-1:1],lfsr_fb};
+
    always @ (posedge clk or posedge rst)
      if (rst)
-       qi <= 10'd0;
+       qi <= {length{1'b0}};
      else
-     qi <= q_next;
+       qi <= q_next;
+
+
+
    always @ (posedge clk or posedge rst)
      if (rst)
        zq <= 1'b1;
      else
-	 zq <= q_next == 10'd0;
+       zq <= q_next == {length{1'b0}};
 endmodule
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
-////  Versatile memory controller                                 ////
+////  Versatile counter                                           ////
 ////                                                              ////
 ////  Description                                                 ////
-////  A modular wishbone compatible memory controller with support////
-////  for various types of memory configurations                  ////
+////  Versatile counter, a reconfigurable binary, gray or LFSR    ////
+////  counter                                                     ////
 ////                                                              ////
 ////  To Do:                                                      ////
-////   - add support for additional SDRAM variants                ////
+////   - add LFSR with more taps                                  ////
 ////                                                              ////
 ////  Author(s):                                                  ////
 ////      - Michael Unneback, unneback@opencores.org              ////
@@ -1213,42 +1330,50 @@ endmodule
 //// from http://www.opencores.org/lgpl.shtml                     ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
-module ref_delay_counter
-  (
-    input cke,
-    output reg zq,
-    input clk,
-    input rst
-   );
-   parameter wrap_value = 6'd12;
-   reg [6:1] qi;
-   wire [6:1] q_next;   
-   assign q_next =
-	   (qi == wrap_value) ? 6'd0 :
-   qi + 6'd1;
+
+// BINARY counter
+module vcnt ( cke, zq, rst, clk);
+
+   parameter length = 6;
+   input cke;
+   output reg zq;
+   input rst;
+   input clk;
+
+   parameter clear_value = 0;
+   parameter set_value = 0;
+   parameter wrap_value = 12;
+
+   reg  [length:1] qi;
+   wire [length:1] q_next;
+   assign q_next = qi + 1;
+
    always @ (posedge clk or posedge rst)
      if (rst)
-       qi <= 6'd0;
+       qi <= {length{1'b0}};
      else
-   if (cke)
-     qi <= q_next;
+     if (cke)
+       qi <= q_next;
+
+
+
    always @ (posedge clk or posedge rst)
      if (rst)
        zq <= 1'b1;
      else
-       if (cke)
-	 zq <= q_next == 6'd0;
+     if (cke)
+       zq <= q_next == {length{1'b0}};
 endmodule
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
-////  Versatile memory controller                                 ////
+////  Versatile counter                                           ////
 ////                                                              ////
 ////  Description                                                 ////
-////  A modular wishbone compatible memory controller with support////
-////  for various types of memory configurations                  ////
+////  Versatile counter, a reconfigurable binary, gray or LFSR    ////
+////  counter                                                     ////
 ////                                                              ////
 ////  To Do:                                                      ////
-////   - add support for additional SDRAM variants                ////
+////   - add LFSR with more taps                                  ////
 ////                                                              ////
 ////  Author(s):                                                  ////
 ////      - Michael Unneback, unneback@opencores.org              ////
@@ -1280,42 +1405,50 @@ endmodule
 //// from http://www.opencores.org/lgpl.shtml                     ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
-module pre_delay_counter
-  (
-    input cke,
-    output reg zq,
-    input clk,
-    input rst
-   );
-   parameter wrap_value = 2'd2;
-   reg [2:1] qi;
-   wire [2:1] q_next;   
-   assign q_next =
-	   (qi == wrap_value) ? 2'd0 :
-   qi + 2'd1;
+
+// BINARY counter
+module vcnt ( cke, zq, rst, clk);
+
+   parameter length = 2;
+   input cke;
+   output reg zq;
+   input rst;
+   input clk;
+
+   parameter clear_value = 0;
+   parameter set_value = 0;
+   parameter wrap_value = 2;
+
+   reg  [length:1] qi;
+   wire [length:1] q_next;
+   assign q_next = qi + 1;
+
    always @ (posedge clk or posedge rst)
      if (rst)
-       qi <= 2'd0;
+       qi <= {length{1'b0}};
      else
-   if (cke)
-     qi <= q_next;
+     if (cke)
+       qi <= q_next;
+
+
+
    always @ (posedge clk or posedge rst)
      if (rst)
        zq <= 1'b1;
      else
-       if (cke)
-	 zq <= q_next == 2'd0;
+     if (cke)
+       zq <= q_next == {length{1'b0}};
 endmodule
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
-////  Versatile memory controller                                 ////
+////  Versatile counter                                           ////
 ////                                                              ////
 ////  Description                                                 ////
-////  A modular wishbone compatible memory controller with support////
-////  for various types of memory configurations                  ////
+////  Versatile counter, a reconfigurable binary, gray or LFSR    ////
+////  counter                                                     ////
 ////                                                              ////
 ////  To Do:                                                      ////
-////   - add support for additional SDRAM variants                ////
+////   - add LFSR with more taps                                  ////
 ////                                                              ////
 ////  Author(s):                                                  ////
 ////      - Michael Unneback, unneback@opencores.org              ////
@@ -1347,31 +1480,39 @@ endmodule
 //// from http://www.opencores.org/lgpl.shtml                     ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
-module burst_length_counter
-  (
-    input cke,
-    output reg zq,
-    input clk,
-    input rst
-   );
-   parameter wrap_value = 3'd3;
-   reg [3:1] qi;
-   wire [3:1] q_next;   
-   assign q_next =
-	   (qi == wrap_value) ? 3'd0 :
-   qi + 3'd1;
+
+// BINARY counter
+module vcnt ( cke, zq, rst, clk);
+
+   parameter length = 3;
+   input cke;
+   output reg zq;
+   input rst;
+   input clk;
+
+   parameter clear_value = 0;
+   parameter set_value = 0;
+   parameter wrap_value = 3;
+
+   reg  [length:1] qi;
+   wire [length:1] q_next;
+   assign q_next = qi + 1;
+
    always @ (posedge clk or posedge rst)
      if (rst)
-       qi <= 3'd0;
+       qi <= {length{1'b0}};
      else
-   if (cke)
-     qi <= q_next;
+     if (cke)
+       qi <= q_next;
+
+
+
    always @ (posedge clk or posedge rst)
      if (rst)
        zq <= 1'b1;
      else
-       if (cke)
-	 zq <= q_next == 3'd0;
+     if (cke)
+       zq <= q_next == {length{1'b0}};
 endmodule
  `timescale 1ns/1ns
 module sdr_16 (
