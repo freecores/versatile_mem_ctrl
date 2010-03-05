@@ -6,567 +6,225 @@
  `include "ddr_16_defines.v"
 `endif
 
-module wb_sdram_ctrl_top
+module versatile_mem_ctrl_top
   (
-   // wishbone i/f
-`ifdef PORT0
-   input  [31:0] wbs0_dat_i,
-   output [31:0] wbs0_dat_o,
-   input  [31:2] wbs0_adr_i,
-   input  [3:0]  wbs0_sel_i,
-   input  [2:0]  wbs0_cti_i,
-   input  [1:0]  wbs0_bte_i,
-   input         wbs0_we_i,
-   input         wbs0_cyc_i,
-   input         wbs0_stb_i,
-   output        wbs0_ack_o,
-`endif
-`ifdef PORT1
-   input  [31:0] wbs1_dat_i,
-   output [31:0] wbs1_dat_o,
-   input  [31:2] wbs1_adr_i,
-   input  [3:0]  wbs1_sel_i,
-   input  [2:0]  wbs1_cti_i,
-   input  [1:0]  wbs1_bte_i,
-   input         wbs1_we_i,
-   input         wbs1_cyc_i,
-   input         wbs1_stb_i,
-   output        wbs1_ack_o,
-`endif
-`ifdef PORT2
-   input  [31:0] wbs2_dat_i,
-   output [31:0] wbs2_dat_o,
-   input  [31:2] wbs2_adr_i,
-   input  [3:0]  wbs2_sel_i,
-   input  [2:0]  wbs2_cti_i,
-   input  [1:0]  wbs2_bte_i,
-   input         wbs2_we_i,
-   input         wbs2_cyc_i,
-   input         wbs2_stb_i,
-   output        wbs2_ack_o,
-`endif
-`ifdef PORT3
-   input  [31:0] wbs3_dat_i,
-   output [31:0] wbs3_dat_o,
-   input  [31:2] wbs3_adr_i,
-   input  [3:0]  wbs3_sel_i,
-   input  [2:0]  wbs3_cti_i,
-   input  [1:0]  wbs3_bte_i,
-   input         wbs3_we_i,
-   input         wbs3_cyc_i,
-   input         wbs3_stb_i,
-   output        wbs3_ack_o,
-`endif
-`ifdef PORT4
-   input  [31:0] wbs4_dat_i,
-   output [31:0] wbs4_dat_o,
-   input  [31:2] wbs4_adr_i,
-   input  [3:0]  wbs4_sel_i,
-   input  [2:0]  wbs4_cti_i,
-   input  [1:0]  wbs4_bte_i,
-   input         wbs4_we_i,
-   input         wbs4_cyc_i,
-   input         wbs4_stb_i,
-   output        wbs4_ack_o,
-`endif
-`ifdef PORT5
-   input  [31:0] wbs5_dat_i,
-   output [31:0] wbs5_dat_o,
-   input  [31:2] wbs5_adr_i,
-   input  [3:0]  wbs5_sel_i,
-   input  [2:0]  wbs5_cti_i,
-   input  [1:0]  wbs5_bte_i,
-   input         wbs5_we_i,
-   input         wbs5_cyc_i,
-   input         wbs5_stb_i,
-   output        wbs5_ack_o,
-`endif
-`ifdef PORT6
-   input  [31:0] wbs6_dat_i,
-   output [31:0] wbs6_dat_o,
-   input  [31:2] wbs6_adr_i,
-   input  [3:0]  wbs6_sel_i,
-   input  [2:0]  wbs6_cti_i,
-   input  [1:0]  wbs6_bte_i,
-   input         wbs6_we_i,
-   input         wbs6_cyc_i,
-   input         wbs6_stb_i,
-   output        wbs6_ack_o,
-`endif
-`ifdef PORT7
-   input  [31:0] wbs7_dat_i,
-   output [31:0] wbs7_dat_o,
-   input  [31:2] wbs7_adr_i,
-   input  [3:0]  wbs7_sel_i,
-   input  [2:0]  wbs7_cti_i,
-   input  [1:0]  wbs7_bte_i,
-   input         wbs7_we_i,
-   input         wbs7_cyc_i,
-   input         wbs7_stb_i,
-   output        wbs7_ack_o,
-`endif //  `ifdef PORT7
+    // wishbone side
+    wb_adr_i_0, wb_dat_i_0, wb_dat_o_0,
+    wb_stb_i_0, wb_cyc_i_0, wb_ack_o_0,
+    wb_adr_i_1, wb_dat_i_1, wb_dat_o_1,
+    wb_stb_i_1, wb_cyc_i_1, wb_ack_o_1,
+    wb_adr_i_2, wb_dat_i_2, wb_dat_2,
+    wb_stb_i_2, wb_cyc_i_2, wb_ack_o_2,
+    wb_adr_i_3, wb_dat_i_3, wb_dat_o_3,
+    wb_stb_i_3, wb_cyc_i_3, wb_ack_o_3,
+    wb_clk, wb_rst,
+
 `ifdef SDR_16
-   output  [1:0] ba_pad_o,
-   output [12:0] a_pad_o,
-   output        cs_n_pad_o,
-   output        ras_pad_o,
-   output        cas_pad_o,
-   output        we_pad_o,
-   output [15:0] dq_o,
-   output  [1:0] dqm_pad_o,
-   input  [15:0] dq_i,
-   output        dq_oe,
-   output        cke_pad_o,
+    ba_pad_o, a_pad_o, cs_n_pad_o, ras_pad_o, cas_pad_o, we_pad_o, dq_o, dqm_pad_o, dq_i, dq_oe, cke_pad_o,
+`endif
+
+`ifdef DDR_16
+    ck_pad_o, ck_n_pad_o, cke_pad_o, ck_fb_pad_o, ck_fb_pad_i,
+    cs_n_pad_o, ras_pad_o, cas_pad_o,  we_pad_o,
+    dm_rdqs_pad_io,  ba_pad_o, addr_pad_o, dq_pad_io, dqs_pad_io, dqs_oe, dqs_n_pad_io, rdqs_n_pad_i, odt_pad_o,
+`endif
+   // SDRAM signals
+   sdram_clk
+   );
+
+    // number of wb clock domains
+    parameter nr_of_wb_clk_domains = 1;
+    // number of wb ports in each wb clock domain
+    parameter nr_of_wb_ports_clk0  = 3;
+    parameter nr_of_wb_ports_clk1  = 0;
+    parameter nr_of_wb_ports_clk2  = 0;
+    parameter nr_of_wb_ports_clk3  = 0;
+    
+    parameter tot_nr_of_wb_ports = nr_of_wb_ports_clk0 + nr_of_wb_ports_clk1 + nr_of_wb_ports_clk2 + nr_of_wb_ports_clk3;
+
+    input  [36*nr_of_wb_ports_clk0-1:0] wb_adr_i_0;
+    input  [36*nr_of_wb_ports_clk0-1:0] wb_dat_i_0;
+    output [31:0]                       wb_dat_o_0;
+    input  [0:nr_of_wb_ports_clk0-1]    wb_stb_i_0, wb_cyc_i_0, wb_ack_o_0;
+    
+    input  [36*nr_of_wb_ports_clk1-1:0] wb_adr_i_1;
+    input  [36*nr_of_wb_ports_clk1-1:0] wb_dat_i_1;
+    output [31:0]                       wb_dat_o_1;
+    input  [0:nr_of_wb_ports_clk1-1]    wb_stb_i_1, wb_cyc_i_1, wb_ack_o_1;
+    
+    input  [36*nr_of_wb_ports_clk2-1:0] wb_adr_i_v2;
+    input  [36*nr_of_wb_ports_clk2-1:0] wb_dat_i_v2;
+    output [31:0]                       wb_dat_o_2;
+    input  [0:nr_of_wb_ports_clk2-1]    wb_stb_i_2, wb_cyc_i_2, wb_ack_o_2;
+    
+    input  [36*nr_of_wb_ports_clk3-1:0] wb_adr_i_3;
+    input  [36*nr_of_wb_ports_clk3-1:0] wb_dat_i_3;
+    output [31:0]                       wb_dat_o_3;
+    input  [0:nr_of_wb_ports_clk3-1]    wb_stb_i_3, wb_cyc_i_3, wb_ack_o_3;
+        
+    input  [0:nr_of_wb_clk_domains-1]   wb_clk;
+    input  [0:nr_of_wb_clk_domains-1]   wb_rst;
+    
+`ifdef SDR_16
+   output  [1:0] ba_pad_o;
+   output [12:0] a_pad_o;
+   output        cs_n_pad_o;
+   output        ras_pad_o;
+   output        cas_pad_o;
+   output        we_pad_o;
+   output [15:0] dq_o;
+   output  [1:0] dqm_pad_o;
+   input  [15:0] dq_i;
+   output        dq_oe;
+   output        cke_pad_o;
 `endif
 `ifdef DDR_16
-   output        ck_pad_o,
-   output        ck_n_pad_o,
-   output        cke_pad_o,
-   output        ck_fb_pad_o,
-   input         ck_fb_pad_i,
-   output        cs_n_pad_o,
-   output        ras_pad_o,
-   output        cas_pad_o,
-   output        we_pad_o,
-   inout   [1:0] dm_rdqs_pad_io,
-   output  [1:0] ba_pad_o,
-   output [12:0] addr_pad_o,
-   inout  [15:0] dq_pad_io,
-   inout   [1:0] dqs_pad_io,
-   output        dqs_oe,
-   inout   [1:0] dqs_n_pad_io,
-   input   [1:0] rdqs_n_pad_i,
-   output        odt_pad_o,
+   output        ck_pad_o;
+   output        ck_n_pad_o;
+   output        cke_pad_o;
+   output        ck_fb_pad_o;
+   input         ck_fb_pad_i;
+   output        cs_n_pad_o;
+   output        ras_pad_o;
+   output        cas_pad_o;
+   output        we_pad_o;
+   inout   [1:0] dm_rdqs_pad_io;
+   output  [1:0] ba_pad_o;
+   output [12:0] addr_pad_o;
+   inout  [15:0] dq_pad_io;
+   inout   [1:0] dqs_pad_io;
+   output        dqs_oe;
+   inout   [1:0] dqs_n_pad_io;
+   input   [1:0] rdqs_n_pad_i;
+   output        odt_pad_o;
 `endif
-   input         wb_clk,
-   input         wb_rst,
-   // SDRAM signals
-   input         sdram_clk
-   );
+    input        sdram_clk;
 
-   wire [35:0] tx_fifo_dat_i, tx_fifo_dat_o;
-   wire        tx_fifo_we, tx_fifo_re;
-   wire  [2:0] tx_fifo_a_sel_i, tx_fifo_b_sel_i;
-   reg   [2:0] tx_fifo_b_sel_i_cur;
-   wire  [7:0] tx_fifo_full, tx_fifo_empty;
-   wire [35:0] rx_fifo_dat_i, rx_fifo_dat_o;
-   wire        rx_fifo_we, rx_fifo_re;
-   wire  [2:0] rx_fifo_a_sel_i, rx_fifo_b_sel_i;
-   wire  [7:0] rx_fifo_full, rx_fifo_empty;
-   wire  [3:0] burst_adr;
-   wire        adr_init, adr_inc;
-   wire        ref_zf, ref_ack;
-   reg 	       ref_req;
-   wire        sdram_clk_0;
-   
-`ifdef PORT0
-   reg 	       wbs0_ack_re;
-`endif
-`ifdef PORT1
-   reg 	       wbs1_ack_re;
-`endif
-`ifdef PORT2
-   reg 	       wbs2_ack_re;
-`endif
-`ifdef PORT3
-   reg 	       wbs3_ack_re;
-`endif
-`ifdef PORT4
-   reg 	       wbs4_ack_re;
-`endif
-`ifdef PORT5
-   reg 	       wbs5_ack_re;
-`endif
-`ifdef PORT6
-   reg 	       wbs6_ack_re;
-`endif
-`ifdef PORT7
-   reg 	       wbs7_ack_re;
-`endif
-   
-// counters to keep track of fifo fill
-
-`ifdef PORT0
-   wire wbs0_flag, we_req0;
-   fifo_fill cnt0
-     (
-      .wbs_flag(wbs0_flag),
-      .we_req(we_req0),
-      .bte(wbs0_bte_i),
-      .cti(wbs0_cti_i),
-      .cyc(wbs0_cyc_i),
-      .stb(wbs0_stb_i),
-      .we(wbs0_we_i),
-      .we_ack((tx_fifo_a_sel_i==3'd0) & tx_fifo_we),
-      .ack(wbs0_ack_o),
-      .clk(wb_clk),
-      .rst(wb_rst)
-      );
-   
-   /*
-ctrl_counter cnt0
-  (
-   .clear((&wbs0_cti_i | !(|wbs0_cti_i)) & (!wbs0_flag | !wbs0_we_i)),
-   .cke(((tx_fifo_a_sel_i==3'd0)&tx_fifo_we) | wbs0_ack_o),
-   .zq(wbs0_flag),
-   .clk(wb_clk),
-   .rst(wb_rst)
-   );
-    */
-`endif
-
-`ifdef PORT1
-   wire wbs1_flag, we_req1;
-   fifo_fill cnt1
-     (
-      .wbs_flag(wbs1_flag),
-      .we_req(we_req1),
-      .bte(wbs1_bte_i),
-      .cti(wbs1_cti_i),
-      .cyc(wbs1_cyc_i),
-      .stb(wbs1_stb_i),
-      .we(wbs1_we_i),
-      .we_ack((tx_fifo_a_sel_i==3'd1) & tx_fifo_we),
-      .ack(wbs1_ack_o),
-      .clk(wb_clk),
-      .rst(wb_rst)
-      );
- /*
-   wire wbs1_flag;
-ctrl_counter cnt1
-  (
-   .clear((&wbs1_cti_i | !(|wbs1_cti_i)) & (!wbs1_flag | !wbs1_we_i)),
-   .cke(((tx_fifo_a_sel_i==3'd1)&tx_fifo_we) | wbs1_ack_o),
-   .zq(wbs1_flag),
-   .clk(wb_clk),
-   .rst(wb_rst)
-   );
- */
-`endif
-
-`ifdef PORT2
-   wire wbs2_flag, we_req2;
-   fifo_fill cnt2
-     (
-      .wbs_flag(wbs2_flag),
-      .we_req(we_req2),
-      .bte(wbs2_bte_i),
-      .cti(wbs2_cti_i),
-      .cyc(wbs2_cyc_i),
-      .stb(wbs2_stb_i),
-      .we(wbs2_we_i),
-      .we_ack((tx_fifo_a_sel_i==3'd2) & tx_fifo_we),
-      .ack(wbs2_ack_o),
-      .clk(wb_clk),
-      .rst(wb_rst)
-      );
+    wire [1:0] fifo_empty[0:15];
+    wire [1:0] fifo_rd[0:15];
+    wire [1:0] fifo_dat_o[35:0];
+    wire [1:0] fifo_dat_i[31:0];
+    wire [1:0] fifo_wr[0:15];
     
-   /*
-   wire wbs2_flag;
-ctrl_counter cnt2
-  (
-   .clear((&wbs2_cti_i | !(|wbs2_cti_i)) & (!wbs2_flag | !wbs2_we_i)),
-   .cke(((tx_fifo_a_sel_i==3'd2)&tx_fifo_we) | wbs2_ack_o),
-   .zq(wbs2_flag),
-   .clk(wb_clk),
-   .rst(wb_rst)
-   );
-    */
-`endif
+genvar i;
 
-`ifdef PORT3
-   wire wbs3_flag, we_req3;
-   fifo_fill cnt3
-     (
-      .wbs_flag(wbs3_flag),
-      .we_req(we_req3),
-      .bte(wbs3_bte_i),
-      .cti(wbs3_cti_i),
-      .cyc(wbs3_cyc_i),
-      .stb(wbs3_stb_i),
-      .we(wbs3_we_i),
-      .we_ack((tx_fifo_a_sel_i==3'd3) & tx_fifo_we),
-      .ack(wbs3_ack_o),
-      .clk(wb_clk),
-      .rst(wb_rst)
-      );
-    /*
-   wire wbs3_flag;
-ctrl_counter cnt3
-  (
-   .clear((&wbs3_cti_i | !(|wbs3_cti_i)) & (!wbs3_flag | !wbs3_we_i)),
-   .cke(((tx_fifo_a_sel_i==3'd3)&tx_fifo_we) | wbs3_ack_o),
-   .zq(wbs0_flag),
-   .clk(wb_clk),
-   .rst(wb_rst)
-   );
-    */
-`endif
+generate   
+    if (nr_of_wb_clk_domains > 0) begin    
+        versatile_mem_ctrl_wb
+        # (.nr_of_wb_ports(nr_of_wb_ports_clk0))
+        wb0(
+            // wishbone side
+            .wb_adr_i_v(wb_adr_i_0),
+            .wb_dat_i_v(wb_dat_i_0),
+            .wb_dat_o(wb_dat_o_0),
+            .wb_stb_i(wb_stb_i_0),
+            .wb_cyc_i(wb_cyc_i_0),
+            .wb_ack_o(wb_ack_o_0),
+            .wb_clk(wb_clk[0]),
+            .wb_rst(wb_rst[0]),
+            // SDRAM controller interface
+            .sdram_dat_o(),
+            .sdram_fifo_empty(fifo_empty[0][0:nr_of_wb_ports_clk0-1]),
+            .sdram_fifo_rd(),
+            .sdram_dat_i(),
+            .sdram_fifo_wr(),
+            .sdram_clk(sdram_clk),
+            .sdram_rst(sdram_rst) );
+    end
+    if (nr_of_wb_ports_clk0 < 16) begin
+        assign fifo_empty[0][nr_of_wb_ports_clk0:15] = {(16-nr_of_wb_ports_clk0){1'b1}};
+    end
+endgenerate
 
-`ifdef PORT4
-   
-   wire wbs4_flag, we_req4;
-   fifo_fill cnt4
-     (
-      .wbs_flag(wbs4_flag),
-      .we_req(we_req4),
-      .bte(wbs4_bte_i),
-      .cti(wbs4_cti_i),
-      .cyc(wbs4_cyc_i),
-      .stb(wbs4_stb_i),
-      .we(wbs4_we_i),
-      .we_ack((tx_fifo_a_sel_i==3'd4) & tx_fifo_we),
-      .ack(wbs4_ack_o),
-      .clk(wb_clk),
-      .rst(wb_rst)
-      );
-/*
-   wire wbs4_flag;
-ctrl_counter cnt4
-  (
-   .clear((&wbs4_cti_i | !(|wbs4_cti_i)) & (!wbs4_flag | !wbs4_we_i)),
-   .cke(((tx_fifo_a_sel_i==3'd4)&tx_fifo_we) | wbs4_ack_o),
-   .zq(wbs4_flag),
-   .clk(wb_clk),
-   .rst(wb_rst)
-   );
- */
-`endif
+generate   
+    if (nr_of_wb_clk_domains > 1) begin    
+        versatile_mem_ctrl_wb
+        # (.nr_of_wb_ports(nr_of_wb_ports_clk1))
+        wb0(
+            // wishbone side
+            .wb_adr_i_v(wb_adr_i_1),
+            .wb_dat_i_v(wb_dat_i_1),
+            .wb_dat_o(wb_dat_o_1),
+            .wb_stb_i(wb_stb_i_1),
+            .wb_cyc_i(wb_cyc_i_1),
+            .wb_ack_o(wb_ack_o_1),
+            .wb_clk(wb_clk[1]),
+            .wb_rst(wb_rst[1]),
+            // SDRAM controller interface
+            .sdram_dat_o(),
+            .sdram_fifo_empty(),
+            .sdram_fifo_rd(),
+            .sdram_dat_i(),
+            .sdram_fifo_wr(),
+            .sdram_clk(sdram_clk),
+            .sdram_rst(sdram_rst) );
+        if (nr_of_wb_ports_clk1 < 16) begin
+            assign fifo_empty[1][nr_of_wb_ports_clk1:15] = {(16-nr_of_wb_ports_clk1){1'b1}};
+        end
+    end else begin
+        assign fifo_empty[1] = {16{1'b1}};
+    end
+endgenerate
 
-`ifdef PORT5
-   wire wbs5_flag, we_req5;
-   fifo_fill cnt0
-     (
-      .wbs_flag(wbs5_flag),
-      .we_req(we_req5),
-      .bte(wbs5_bte_i),
-      .cti(wbs5_cti_i),
-      .cyc(wbs5_cyc_i),
-      .stb(wbs5_stb_i),
-      .we(wbs5_we_i),
-      .we_ack((tx_fifo_a_sel_i==3'd5) & tx_fifo_we),
-      .ack(wbs5_ack_o),
-      .clk(wb_clk),
-      .rst(wb_rst)
-      );
-    /*
-   wire wbs5_flag;
-ctrl_counter cnt5
-  (
-   .clear((&wbs5_cti_i | !(|wbs5_cti_i)) & (!wbs5_flag | !wbs5_we_i)),
-   .cke(((tx_fifo_a_sel_i==3'd5)&tx_fifo_we) | wbs5_ack_o),
-   .zq(wbs5_flag),
-   .clk(wb_clk),
-   .rst(wb_rst)
-   );
-    */
-`endif
+generate   
+    if (nr_of_wb_clk_domains > 2) begin    
+        versatile_mem_ctrl_wb
+        # (.nr_of_wb_ports(nr_of_wb_ports_clk1))
+        wb0(
+            // wishbone side
+            .wb_adr_i_v(wb_adr_i_2),
+            .wb_dat_i_v(wb_dat_i_2),
+            .wb_dat_o(wb_dat_o_2),
+            .wb_stb_i(wb_stb_i_2),
+            .wb_cyc_i(wb_cyc_i_2),
+            .wb_ack_o(wb_ack_o_2),
+            .wb_clk(wb_clk[2]),
+            .wb_rst(wb_rst[2]),
+            // SDRAM controller interface
+            .sdram_dat_o(),
+            .sdram_fifo_empty(),
+            .sdram_fifo_rd(),
+            .sdram_dat_i(),
+            .sdram_fifo_wr(),
+            .sdram_clk(sdram_clk),
+            .sdram_rst(sdram_rst) );
+        if (nr_of_wb_ports_clk2 < 16) begin
+            assign fifo_empty[2][nr_of_wb_ports_clk2:15] = {(16-nr_of_wb_ports_clk2){1'b1}};
+        end
+    end else begin
+        assign fifo_empty[2] = {16{1'b1}};
+    end
+endgenerate
 
-`ifdef PORT6
-   wire wbs6_flag, we_req6;
-   fifo_fill cnt6
-     (
-      .wbs_flag(wbs6_flag),
-      .we_req(we_req6),
-      .bte(wbs6_bte_i),
-      .cti(wbs6_cti_i),
-      .cyc(wbs6_cyc_i),
-      .stb(wbs6_stb_i),
-      .we(wbs6_we_i),
-      .we_ack((tx_fifo_a_sel_i==3'd6) & tx_fifo_we),
-      .ack(wbs6_ack_o),
-      .clk(wb_clk),
-      .rst(wb_rst)
-      );
-    
-   /*
-   wire wbs6_flag;
-ctrl_counter cnt6
-  (
-   .clear((&wbs6_cti_i | !(|wbs6_cti_i)) & (!wbs6_flag | !wbs6_we_i)),
-   .cke(((tx_fifo_a_sel_i==3'd6)&tx_fifo_we) | wbs6_ack_o),
-   .zq(wbs6_flag),
-   .clk(wb_clk),
-   .rst(wb_rst)
-   );
-    */
-`endif
-
-`ifdef PORT7
-   wire wbs7_flag, we_req7;
-   fifo_fill cnt7
-     (
-      .wbs_flag(wbs7_flag),
-      .we_req(we_req7),
-      .bte(wbs7_bte_i),
-      .cti(wbs7_cti_i),
-      .cyc(wbs7_cyc_i),
-      .stb(wbs7_stb_i),
-      .we(wbs7_we_i),
-      .we_ack((tx_fifo_a_sel_i==3'd7) & tx_fifo_we),
-      .ack(wbs7_ack_o),
-      .clk(wb_clk),
-      .rst(wb_rst)
-      );
-    
-   /*
-   wire wbs7_flag;
-ctrl_counter cnt7
-  (
-   .clear((&wbs7_cti_i | !(|wbs7_cti_i)) & (!wbs7_flag | !wbs7_we_i)),
-   .cke(((tx_fifo_a_sel_i==3'd7)&tx_fifo_we) | wbs7_ack_o),
-   .zq(wbs7_flag),
-   .clk(wb_clk),
-   .rst(wb_rst)
-   );
-    */
-`endif
-
-// priority order - ongoing,4,5,6,7,0,1,2,3
-assign {tx_fifo_a_sel_i,tx_fifo_we} 
-  =
-	      /*
-`ifdef PORT4 
-    (!wbs4_flag & wbs4_stb_i & !tx_fifo_full[4]) ? {3'd4,1'b1} :
-`endif
-`ifdef PORT5
-    (!wbs5_flag & wbs5_stb_i & !tx_fifo_full[5]) ? {3'd5,1'b1} :
-`endif
-`ifdef PORT6
-    (!wbs6_flag & wbs6_stb_i & !tx_fifo_full[6]) ? {3'd6,1'b1} :
-`endif
-`ifdef PORT7
-    (!wbs7_flag & wbs7_stb_i & !tx_fifo_full[7]) ? {3'd7,1'b1} :
-`endif
-`ifdef PORT0
-    (!wbs0_flag & we_req0 & !tx_fifo_full[0]) ? {3'd0,1'b1} :
-`endif
-`ifdef PORT1
-    (!wbs1_flag & wbs1_stb_i & !tx_fifo_full[1]) ? {3'd1,1'b1} :
-`endif
-`ifdef PORT2
-    (!wbs2_flag & wbs2_stb_i & !tx_fifo_full[2]) ? {3'd2,1'b1} :
-`endif
-`ifdef PORT3
-    (!wbs3_flag & wbs3_stb_i & !tx_fifo_full[3]) ? {3'd3,1'b1} :
-`endif
-	       */
-`ifdef PORT4 
-    (we_req4 & !tx_fifo_full[4]) ? {3'd4,1'b1} :
-`endif
-`ifdef PORT5
-    (we_req5 & !tx_fifo_full[5]) ? {3'd5,1'b1} :
-`endif
-`ifdef PORT6
-    (we_req6 & !tx_fifo_full[6]) ? {3'd6,1'b1} :
-`endif
-`ifdef PORT7
-    (we_req7 & !tx_fifo_full[7]) ? {3'd7,1'b1} :
-`endif
-`ifdef PORT0
-    (we_req0 & !tx_fifo_full[0]) ? {3'd0,1'b1} :
-`endif
-`ifdef PORT1
-    (we_req1 & !tx_fifo_full[1]) ? {3'd1,1'b1} :
-`endif
-`ifdef PORT2
-    (we_req2 & !tx_fifo_full[2]) ? {3'd2,1'b1} :
-`endif
-`ifdef PORT3
-    (we_req3 & !tx_fifo_full[3]) ? {3'd3,1'b1} :
-`endif
-    {3'd0,1'b0};
-
-// tx_fifo dat_i mux
-assign tx_fifo_dat_i
-  =
-`ifdef PORT0
-   (tx_fifo_a_sel_i==3'd0) &  wbs0_flag ? {wbs0_adr_i,wbs0_we_i,wbs0_bte_i,wbs0_cti_i} :
-   (tx_fifo_a_sel_i==3'd0) & !wbs0_flag ? {wbs0_dat_i,wbs0_sel_i} :
-`endif
-`ifdef PORT1
-   (tx_fifo_a_sel_i==3'd1) &  wbs1_flag ? {wbs1_adr_i,wbs1_we_i,wbs1_bte_i,wbs1_cti_i} :
-   (tx_fifo_a_sel_i==3'd1) & !wbs1_flag ? {wbs1_dat_i,wbs1_sel_i} :
-`endif
-`ifdef PORT2
-   (tx_fifo_a_sel_i==3'd2) &  wbs2_flag ? {wbs2_adr_i,wbs2_we_i,wbs2_bte_i,wbs2_cti_i} :
-   (tx_fifo_a_sel_i==3'd2) & !wbs2_flag ? {wbs2_dat_i,wbs2_sel_i} :
-`endif
-`ifdef PORT3
-   (tx_fifo_a_sel_i==3'd3) &  wbs3_flag ? {wbs3_adr_i,wbs3_we_i,wbs3_bte_i,wbs3_cti_i} :
-   (tx_fifo_a_sel_i==3'd3) & !wbs3_flag ? {wbs3_dat_i,wbs3_sel_i} :
-`endif
-`ifdef PORT4
-   (tx_fifo_a_sel_i==3'd4) &  wbs4_flag ? {wbs4_adr_i,wbs4_we_i,wbs4_bte_i,wbs4_cti_i} :
-   (tx_fifo_a_sel_i==3'd4) & !wbs4_flag ? {wbs4_dat_i,wbs4_sel_i} :
-`endif
-`ifdef PORT5
-   (tx_fifo_a_sel_i==3'd5) &  wbs5_flag ? {wbs5_adr_i,wbs5_we_i,wbs5_bte_i,wbs5_cti_i} :
-   (tx_fifo_a_sel_i==3'd5) & !wbs5_flag ? {wbs5_dat_i,wbs5_sel_i} :
-`endif
-`ifdef PORT6
-   (tx_fifo_a_sel_i==3'd6) &  wbs6_flag ? {wbs6_adr_i,wbs6_we_i,wbs6_bte_i,wbs6_cti_i} :
-   (tx_fifo_a_sel_i==3'd6) & !wbs6_flag ? {wbs6_dat_i,wbs6_sel_i} :
-`endif
-`ifdef PORT7
-   (tx_fifo_a_sel_i==3'd7) &  wbs7_flag ? {wbs7_adr_i,wbs7_we_i,wbs7_bte_i,wbs7_cti_i} :
-   (tx_fifo_a_sel_i==3'd7) & !wbs7_flag ? {wbs7_dat_i,wbs7_sel_i} :
-`endif
-   {wbs0_adr_i,wbs0_we_i,wbs0_bte_i,wbs0_cti_i};
-
-   fifo tx_fifo
-     (
-      // A side (wb)
-      .a_dat_i(tx_fifo_dat_i),
-      .a_we_i(tx_fifo_we),
-      .a_fifo_sel_i(tx_fifo_a_sel_i),
-      .a_fifo_full_o(tx_fifo_full),
-      .a_clk(wb_clk),
-      // B side (sdram)
-      .b_dat_o(tx_fifo_dat_o),
-      .b_re_i(tx_fifo_re),
-      .b_fifo_sel_i(tx_fifo_b_sel_i),
-      .b_fifo_empty_o(tx_fifo_empty),
-      .b_clk(sdram_clk_0),
-      // misc
-      .rst(wb_rst) 	 
-      );
-   
-   assign tx_fifo_b_sel_i
-     = 
-       (adr_init & !tx_fifo_empty[4]) ? 3'd4 :
-       (adr_init & !tx_fifo_empty[5]) ? 3'd5 :
-       (adr_init & !tx_fifo_empty[6]) ? 3'd6 :
-       (adr_init & !tx_fifo_empty[7]) ? 3'd7 :
-       (adr_init & !tx_fifo_empty[0]) ? 3'd0 :
-       (adr_init & !tx_fifo_empty[1]) ? 3'd1 :
-       (adr_init & !tx_fifo_empty[2]) ? 3'd2 :
-       (adr_init & !tx_fifo_empty[3]) ? 3'd3 :
-       tx_fifo_b_sel_i_cur;
-
-   always @ (posedge sdram_clk_0 or posedge wb_rst)
-     if (wb_rst)
-       tx_fifo_b_sel_i_cur <= 3'd0;
-     else if (adr_init)
-       tx_fifo_b_sel_i_cur <= tx_fifo_b_sel_i;
-   
-   // Refresh interval counter
-   ref_counter ref_counter0
-     (
-      .zq(ref_zf),
-      .clk(sdram_clk_0),
-      .rst(wb_rst)
-      );
-
-   always @ (posedge sdram_clk_0 or posedge wb_rst)
-     if (wb_rst)
-       ref_req <= 1'b1;
-     else
-       if (ref_zf)
-	 ref_req <= 1'b1;
-       else if (ref_ack)
-	 ref_req <= 1'b0;
-
+generate   
+    if (nr_of_wb_clk_domains > 3) begin    
+        versatile_mem_ctrl_wb
+        # (.nr_of_wb_ports(nr_of_wb_ports_clk3))
+        wb0(
+            // wishbone side
+            .wb_adr_i_v(wb_adr_i_3),
+            .wb_dat_i_v(wb_dat_i_3),
+            .wb_dat_o(wb_dat_o_3),
+            .wb_stb_i(wb_stb_i_3),
+            .wb_cyc_i(wb_cyc_i_3),
+            .wb_ack_o(wb_ack_o_3),
+            .wb_clk(wb_clk[3]),
+            .wb_rst(wb_rst[3]),
+            // SDRAM controller interface
+            .sdram_dat_o(),
+            .sdram_fifo_empty(),
+            .sdram_fifo_rd(),
+            .sdram_dat_i(),
+            .sdram_fifo_wr(),
+            .sdram_clk(sdram_clk),
+            .sdram_rst(sdram_rst) );
+        if (nr_of_wb_ports_clk3 < 16) begin
+            assign fifo_empty[3][nr_of_wb_ports_clk3:15] = {(16-nr_of_wb_ports_clk3){1'b1}};
+        end
+    end else begin
+        assign fifo_empty[3] = {16{1'b1}};
+    end
+endgenerate
 
 `ifdef SDR_16
    wire read;
@@ -1055,146 +713,5 @@ assign tx_fifo_dat_i
    assign ck_fb_pad_o  = ck_fb;
 
 `endif //  `ifdef DDR_16
-
-
-   // receiving side FIFO
-   fifo rx_fifo
-     (
-      // A side (sdram)
-      .a_dat_i(rx_fifo_dat_i),
-      .a_we_i(rx_fifo_we),
-      .a_fifo_sel_i(rx_fifo_a_sel_i),
-      .a_fifo_full_o(rx_fifo_full),
-      .a_clk(sdram_clk_0),
-      // B side (wb)
-      .b_dat_o(rx_fifo_dat_o),
-      .b_re_i(rx_fifo_re),
-      .b_fifo_sel_i(rx_fifo_b_sel_i),
-      .b_fifo_empty_o(rx_fifo_empty),
-      .b_clk(wb_clk),
-      // misc
-      .rst(wb_rst) 	 
-      );
-
-   // WB/FIFO readout priority
-   // 4,5,6,7,0,1,2,3
-   assign {rx_fifo_re, rx_fifo_b_sel_i} = 
-`ifdef PORT4
-     !rx_fifo_empty[4] & wbs4_stb_i ? {1'b1,3'd4} :
-`endif		    	    		       
-`ifdef PORT5	    	    		       
-     !rx_fifo_empty[5] & wbs5_stb_i ? {1'b1,3'd5} :
-`endif		    	    		       
-`ifdef PORT6	    	    		       
-     !rx_fifo_empty[6] & wbs6_stb_i ? {1'b1,3'd6} :
-`endif		    	    		       
-`ifdef PORT7	    	    		       
-     !rx_fifo_empty[7] & wbs7_stb_i ? {1'b1,3'd7} :
-`endif		    	    		       
-`ifdef PORT0	    	    		       
-     !rx_fifo_empty[0] & wbs0_stb_i ? {1'b1,3'd0} :
-`endif		    	    		       
-`ifdef PORT1	    	    		       
-     !rx_fifo_empty[1] & wbs1_stb_i ? {1'b1,3'd1} :
-`endif		    	    		       
-`ifdef PORT2	    	    		       
-     !rx_fifo_empty[2] & wbs2_stb_i ? {1'b1,3'd2} :
-`endif		    	    		       
-`ifdef PORT3	    	    		       
-     !rx_fifo_empty[3] & wbs3_stb_i ? {1'b1,3'd3} :
-`endif
-       {1'b0,3'd4};
-
-   // ack read
-   // delay one cycle to compensate for synchronous FIFO readout
-   always @ (posedge wb_clk or posedge wb_rst)
-     if (wb_rst)
-       begin
-`ifdef PORT0
-	  wbs0_ack_re <= 1'b0;
-`endif
-`ifdef PORT1
-	  wbs1_ack_re <= 1'b0;
-`endif
-`ifdef PORT2
-	  wbs2_ack_re <= 1'b0;
-`endif
-`ifdef PORT3
-	  wbs3_ack_re <= 1'b0;
-`endif
-`ifdef PORT4
-	  wbs4_ack_re <= 1'b0;
-`endif
-`ifdef PORT5
-	  wbs5_ack_re <= 1'b0;
-`endif
-`ifdef PORT6
-	  wbs6_ack_re <= 1'b0;
-`endif
-`ifdef PORT7
-	  wbs7_ack_re <= 1'b0;
-`endif
-       end
-     else
-       begin
-`ifdef PORT0
-	  wbs0_ack_re <= rx_fifo_re & (rx_fifo_b_sel_i == 3'd0);
-`endif
-`ifdef PORT1
-	  wbs1_ack_re <= rx_fifo_re & (rx_fifo_b_sel_i == 3'd1);
-`endif
-`ifdef PORT2
-	  wbs2_ack_re <= rx_fifo_re & (rx_fifo_b_sel_i == 3'd2);
-`endif
-`ifdef PORT3
-	  wbs3_ack_re <= rx_fifo_re & (rx_fifo_b_sel_i == 3'd3);
-`endif
-`ifdef PORT4
-	  wbs4_ack_re <= rx_fifo_re & (rx_fifo_b_sel_i == 3'd4);
-`endif
-`ifdef PORT5
-	  wbs5_ack_re <= rx_fifo_re & (rx_fifo_b_sel_i == 3'd5);
-`endif
-`ifdef PORT6
-	  wbs6_ack_re <= rx_fifo_re & (rx_fifo_b_sel_i == 3'd6);
-`endif
-`ifdef PORT7
-	  wbs7_ack_re <= rx_fifo_re & (rx_fifo_b_sel_i == 3'd7);
-`endif
-       end
-   
-   // ack
-`ifdef PORT0
-   assign wbs0_dat_o = rx_fifo_dat_o[35:4];
-   assign wbs0_ack_o = (!wbs0_flag & tx_fifo_we & (tx_fifo_a_sel_i  == 3'd0)) | wbs0_ack_re;
-`endif
-`ifdef PORT1
-   assign wbs1_dat_o = rx_fifo_dat_o[35:4];
-   assign wbs1_ack_o = (!wbs1_flag & tx_fifo_we & (tx_fifo_a_sel_i  == 3'd1)) | wbs1_ack_re;
-`endif
-`ifdef PORT2
-   assign wbs2_dat_o = rx_fifo_dat_o[35:4];
-   assign wbs2_ack_o = (!wbs2_flag & tx_fifo_we & (tx_fifo_a_sel_i  == 3'd2)) | wbs2_ack_re;
-`endif
-`ifdef PORT3
-   assign wbs3_dat_o = rx_fifo_dat_o[35:4];
-   assign wbs3_ack_o = (!wbs3_flag & tx_fifo_we & (tx_fifo_a_sel_i  == 3'd3)) | wbs3_ack_re;
-`endif
-`ifdef PORT4
-   assign wbs4_dat_o = rx_fifo_dat_o[35:4];
-   assign wbs4_ack_o = (!wbs4_flag & tx_fifo_we & (tx_fifo_a_sel_i  == 3'd4)) | wbs4_ack_re;
-`endif
-`ifdef PORT5
-   assign wbs5_dat_o = rx_fifo_dat_o[35:4];
-   assign wbs5_ack_o = (!wbs5_flag & tx_fifo_we & (tx_fifo_a_sel_i  == 3'd5)) | wbs5_ack_re;
-`endif
-`ifdef PORT6
-   assign wbs6_dat_o = rx_fifo_dat_o[35:4];
-   assign wbs6_ack_o = (!wbs6_flag & tx_fifo_we & (tx_fifo_a_sel_i  == 3'd6)) | wbs6_ack_re;
-`endif
-`ifdef PORT7
-   assign wbs7_dat_o = rx_fifo_dat_o[35:4];
-   assign wbs7_ack_o = (!wbs7_flag & tx_fifo_we & (tx_fifo_a_sel_i  == 3'd7)) | wbs7_ack_re;   
-`endif
    
 endmodule // wb_sdram_ctrl_top

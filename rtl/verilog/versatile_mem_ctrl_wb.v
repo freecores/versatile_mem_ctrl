@@ -51,8 +51,6 @@ wire [35:0] egress_fifo_di[0:nr_of_wb_ports-1];
 
 wire [0:nr_of_wb_ports-1] wb_wr_ack, wb_rd_ack;
 
-reg  [7:0]  egress_fifo_ai;
-wire [31:0] ingress_dat_o;
 wire [3:0]  egress_fifo_wadr_bin[0:nr_of_wb_ports-1];
 wire [3:0]  egress_fifo_wadr_gray[0:nr_of_wb_ports-1];
 wire [3:0]  egress_fifo_radr_bin[0:nr_of_wb_ports-1];
@@ -79,7 +77,7 @@ endfunction
 genvar i;
 
 generate
-    for (i=0;i<nr_of_wb_ports;i=i+1) begin
+    for (i=0;i<nr_of_wb_ports;i=i+1) begin : vector2array
         assign wb_adr_i[i] = wb_adr_i_v[(nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36];
         assign wb_dat_i[i] = wb_dat_i_v[(nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36];
         assign egress_fifo_di[i] = (wb_state[i]==idle) ? wb_adr_i[i] : wb_dat_i[i];
@@ -89,7 +87,7 @@ endgenerate
 // wr_ack
 generate
     assign wb_wr_ack[0] = ((wb_state[0]==idle | wb_state[0]==wr) & wb_cyc_i[0] & wb_stb_i[0] & !egress_fifo_full[0]);
-    for (i=1;i<nr_of_wb_ports;i=i+1) begin
+    for (i=1;i<nr_of_wb_ports;i=i+1) begin : wr_ack
         assign wb_wr_ack[i] = (|(wb_wr_ack[0:i-1])) ? 1'b0 : ((wb_state[i]==idle | wb_state[i]==wr) & wb_cyc_i[i] & wb_stb_i[i] & !egress_fifo_full[i]);
     end
 endgenerate
@@ -97,14 +95,14 @@ endgenerate
 // rd_ack
 generate
     assign wb_rd_ack[0] = ((wb_state[0]==rd) & wb_cyc_i[0] & wb_stb_i[0] & !ingress_fifo_empty[0]);
-    for (i=1;i<nr_of_wb_ports;i=i+1) begin
+    for (i=1;i<nr_of_wb_ports;i=i+1) begin : rd_ack
         assign wb_rd_ack[i] = (|(wb_rd_ack[0:i-1])) ? 1'b0 : ((wb_state[i]==rd) & wb_cyc_i[i] & wb_stb_i[i] & !ingress_fifo_empty[i]);
     end
 endgenerate
 
 // trafic state machines
 generate
-    for (i=0;i<nr_of_wb_ports;i=i+1) begin
+    for (i=0;i<nr_of_wb_ports;i=i+1) begin : fsm
         always @ (posedge wb_clk or posedge wb_rst)
         if (wb_rst)
             wb_state[i] <= idle;
@@ -127,7 +125,7 @@ generate
 endgenerate
 
 generate
-    for (i=0;i<nr_of_wb_ports;i=i+1) begin
+    for (i=0;i<nr_of_wb_ports;i=i+1) begin : ack
         always @ (posedge wb_clk or posedge wb_rst)
         if (wb_rst)
             wb_ack_o[i] <= 1'b0;
@@ -145,7 +143,7 @@ generate
 endgenerate
 
 generate
-    for (i=0;i<nr_of_wb_ports;i=i+1) begin
+    for (i=0;i<nr_of_wb_ports;i=i+1) begin : fifo_adr
     
         // egress queue
         fifo_adr_counter egress_wadrcnt (
@@ -167,7 +165,7 @@ generate
             egresscmp ( 
                 .wptr(egress_fifo_wadr_gray[i]), 
 		.rptr(egress_fifo_radr_gray[i]), 
-		.fifo_empty(), 
+		.fifo_empty(sdram_fifo_empty[i]), 
 		.fifo_full(egress_fifo_full[i]), 
 		.wclk(wb_clk), 
 		.rclk(sdram_clk), 
@@ -183,8 +181,8 @@ generate
         
         fifo_adr_counter ingress_radrcnt (
             .cke(wb_rd_ack[i]),
-            .q(ingress_fifo_wadr_gray[i]),
-            .q_bin(ingress_fifo_wadr_bin[i]),
+            .q(ingress_fifo_radr_gray[i]),
+            .q_bin(ingress_fifo_radr_bin[i]),
             .rst(wb_rst),
             .clk(wb_clk));
         
@@ -206,7 +204,7 @@ vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(36), .ADDR_WIDTH(8))
     egress_dpram (
     .d_a(egress_fifo_di[onehot2bin(wb_wr_ack)]),
     .adr_a({onehot2bin(wb_wr_ack),egress_fifo_wadr_bin[onehot2bin(wb_wr_ack)]}), 
-    .we_a(|(wr_ack)),
+    .we_a(|(wb_wr_ack)),
     .clk_a(wb_clk),
     .q_b(sdram_dat_o),
     .adr_b({onehot2bin(sdram_fifo_rd),egress_fifo_radr_bin[onehot2bin(sdram_fifo_rd)]}),
