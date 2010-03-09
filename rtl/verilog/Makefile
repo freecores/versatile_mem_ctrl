@@ -30,10 +30,10 @@ ddr_16.v: ddr_16.fzm ddr_16_defines.v
 	perl fizzim.pl -encoding onehot < ddr_16.fzm > tmp1.v
 	vppreproc --simple tmp1.v > ddr_16.v
 
-versatile_mem_ctrl_ip.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v fifo.v fifo_fill.v inc_adr.v sdr_16.v ddr_16.v delay.v ddr_ff.v dcm_pll.v versatile_mem_ctrl_top.v
-	cat versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v sdr_16.v ddr_16.v delay.v ddr_ff.v dcm_pll.v versatile_mem_ctrl_top.v | cat copyright.v - > versatile_mem_ctrl_ip.v
+versatile_mem_ctrl_ip.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_sw.v fifo_adr_counter.v ctrl_counter.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v fifo.v fifo_fill.v inc_adr.v sdr_16.v ddr_16.v delay.v ddr_ff.v dcm_pll.v dff_sr.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v
+	cat versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_sw.v fifo_adr_counter.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v sdr_16.v ddr_16.v delay.v ddr_ff.v dcm_pll.v dff_sr.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v | cat copyright.v - > versatile_mem_ctrl_ip.v
 
-all: svn_export versatile_fifo_dual_port_ram_dc_dw.v versatile_counter fifo_fill.v sdr_16.v ddr_16.v versatile_mem_ctrl_ip.v
+all: svn_export versatile_fifo_dual_port_ram_dc_sw.v versatile_counter fifo_fill.v sdr_16.v ddr_16.v versatile_mem_ctrl_ip.v
 
 clean:
 	rm -rf versatile_fifo_dual_port_ram_dc_dw.v versatile_fifo_async_cmp.v lfsr_polynom.v versatile_counter.v

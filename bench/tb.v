@@ -144,8 +144,8 @@ module versatile_mem_ctrl_tb
       );
 `endif
 
-   wb_sdram_ctrl_top dut
-  (
+   versatile_mem_ctrl_top dut
+   (
    .wbs0_dat_i(wb0_dat_i),	 
    .wbs0_dat_o(wb0_dat_o),	 
    .wbs0_adr_i(wb0_adr_i[31:2]), 

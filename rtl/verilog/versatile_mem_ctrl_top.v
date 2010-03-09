@@ -13,7 +13,7 @@ module versatile_mem_ctrl_top
     wb_stb_i_0, wb_cyc_i_0, wb_ack_o_0,
     wb_adr_i_1, wb_dat_i_1, wb_dat_o_1,
     wb_stb_i_1, wb_cyc_i_1, wb_ack_o_1,
-    wb_adr_i_2, wb_dat_i_2, wb_dat_2,
+    wb_adr_i_2, wb_dat_i_2, wb_dat_o_2,   // Fixed typo /MF
     wb_stb_i_2, wb_cyc_i_2, wb_ack_o_2,
     wb_adr_i_3, wb_dat_i_3, wb_dat_o_3,
     wb_stb_i_3, wb_cyc_i_3, wb_ack_o_3,
@@ -52,8 +52,8 @@ module versatile_mem_ctrl_top
     output [31:0]                       wb_dat_o_1;
     input  [0:nr_of_wb_ports_clk1-1]    wb_stb_i_1, wb_cyc_i_1, wb_ack_o_1;
     
-    input  [36*nr_of_wb_ports_clk2-1:0] wb_adr_i_v2;
-    input  [36*nr_of_wb_ports_clk2-1:0] wb_dat_i_v2;
+    input  [36*nr_of_wb_ports_clk2-1:0] wb_adr_i_2;   // Fixed typo /MF
+    input  [36*nr_of_wb_ports_clk2-1:0] wb_dat_i_2;   // Fixed typo /MF
     output [31:0]                       wb_dat_o_2;
     input  [0:nr_of_wb_ports_clk2-1]    wb_stb_i_2, wb_cyc_i_2, wb_ack_o_2;
     
@@ -105,6 +105,8 @@ module versatile_mem_ctrl_top
     wire [1:0] fifo_dat_o[35:0];
     wire [1:0] fifo_dat_i[31:0];
     wire [1:0] fifo_wr[0:15];
+
+    wire [35:0] tx_fifo_dat_o;   // tmp added /MF
     
 genvar i;
 
@@ -337,7 +339,6 @@ endgenerate
    wire  [3:0] burst_next_cnt, burst_length;
    wire        burst_mask;
    wire [12:0] cur_row;
-   genvar      i;
 
    // DDR SDRAM 16 FSM
    ddr_16 ddr_16_0

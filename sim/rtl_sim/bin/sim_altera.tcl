@@ -20,14 +20,19 @@ project new . ${DESIGN_NAME}_sim_altera
 if {![file exists altera_primitives] || $FORCE_LIBRARY_RECOMPILE} {
 vlib altera_primitives
 vmap altera_primitives altera_primitives
-vcom -work altera_primitives /opt/altera9.0/quartus/eda/sim_lib/altera_primitives_components.vhd
-vcom -work altera_primitives /opt/altera9.0/quartus/eda/sim_lib/altera_primitives.vhd
+vcom -work altera_primitives /opt/altera9.1/quartus/eda/sim_lib/altera_primitives_components.vhd
+vcom -work altera_primitives /opt/altera9.1/quartus/eda/sim_lib/altera_primitives.vhd
 }
 if {![file exists altera_mf] || $FORCE_LIBRARY_RECOMPILE} {
 vlib altera_mf
 vmap altera_mf altera_mf
-vcom -work altera_mf /opt/altera9.0/quartus/eda/sim_lib/altera_mf_components.vhd
-vcom -work altera_mf /opt/altera9.0/quartus/eda/sim_lib/altera_mf.vhd
+vcom -work altera_mf /opt/altera9.1/quartus/eda/sim_lib/altera_mf_components.vhd
+vcom -work altera_mf /opt/altera9.1/quartus/eda/sim_lib/altera_mf.vhd
+}
+if {![file exists lpm] || $FORCE_LIBRARY_RECOMPILE} {
+vlib lpm
+vmap lpm lpm
+vlog -work lpm /opt/altera9.1/quartus/eda/sim_lib/220model.v
 }
 
 # Compile project source code
@@ -44,7 +49,7 @@ set PrefMain(forceQuit) 1
 # -gui      Open the GUI without loading a design
 # -novopt   Force incremental mode (pre-6.0 behavior)
 # -L        Search library for design units instantiated from Verilog and for VHDL default component binding
-vsim -gui -novopt -L altera_mf work.versatile_mem_ctrl_tb
+vsim -gui -novopt -L altera_mf -L lpm work.versatile_mem_ctrl_tb
 
 # Open waveform viewer
 view wave -title "${DESIGN_NAME}"
