@@ -20,12 +20,14 @@ project new . ${DESIGN_NAME}_sim_altera
 if {![file exists altera_primitives] || $FORCE_LIBRARY_RECOMPILE} {
 vlib altera_primitives
 vmap altera_primitives altera_primitives
+#vlog -work altera_primitives /opt/altera9.1/quartus/eda/sim_lib/altera_primitives.v
 vcom -work altera_primitives /opt/altera9.1/quartus/eda/sim_lib/altera_primitives_components.vhd
 vcom -work altera_primitives /opt/altera9.1/quartus/eda/sim_lib/altera_primitives.vhd
 }
 if {![file exists altera_mf] || $FORCE_LIBRARY_RECOMPILE} {
 vlib altera_mf
 vmap altera_mf altera_mf
+#vlog -work altera_mf /opt/altera9.1/quartus/eda/sim_lib/altera_mf.v
 vcom -work altera_mf /opt/altera9.1/quartus/eda/sim_lib/altera_mf_components.vhd
 vcom -work altera_mf /opt/altera9.1/quartus/eda/sim_lib/altera_mf.vhd
 }

@@ -59,7 +59,7 @@ view wave -title "${DESIGN_NAME}"
 view signals
 
 # Run the .do file to load signals to the waveform viewer
-#do $WAVE_FILE
+do $WAVE_FILE
 
 # Run the simulation
 run 330 us
