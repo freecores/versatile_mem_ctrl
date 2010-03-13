@@ -83,8 +83,7 @@ create_clock -name {sdram_clk} -period $sdram_clk_period [get_ports {sdram_clk}]
 create_generated_clock -name sdram_clk_0 -phase 0 -source [get_ports {sdram_clk}] [get_pins {dcm_pll_0|altpll_internal|auto_generated|pll1|clk[0]}]
 create_generated_clock -name sdram_clk_180 -phase 180 -source [get_ports {sdram_clk}] [get_pins {dcm_pll_0|altpll_internal|auto_generated|pll1|clk[2]}]
 create_generated_clock -name sdram_clk_270 -phase 270 -source [get_ports {sdram_clk}] [get_pins {dcm_pll_0|altpll_internal|auto_generated|pll1|clk[3]}]
-create_generated_clock -name ck_pad_o -phase 0 -source [get_pins {ddr_ff_out_inst_2|altddio_out_inst|auto_generated|ddio_outa[0]|clkhi}] [get_ports ck_pad*]
-
+create_generated_clock -name ck_pad_o -phase 0 -source [get_pins {versatile_mem_ctrl_ddr_0|ddr_ff_out_ck|altddio_out_inst|auto_generated|ddio_outa[0]|clkhi}] [get_ports {ck_pad_o}]
 
 #**************************************************************
 # Set Clock Latency

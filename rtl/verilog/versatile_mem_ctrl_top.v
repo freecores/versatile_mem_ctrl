@@ -501,216 +501,36 @@ endgenerate
       .clkfb_out(ck_fb)
       );
 
-   // Generate clock with equal delay as data
-   ddr_ff_out ddr_ff_out_inst_2  (
-      .Q(ck_pad_o),
-      .C0(sdram_clk_0),
-      .C1(sdram_clk_180),
-      .CE(1'b1),
-      .D0(1'b1),
-      .D1(1'b0),
-      .R(1'b0),   // no reset for CK
-      .S(1'b0)
-      );
-
-   // Generate clock with equal delay as data
-   ddr_ff_out ddr_ff_out_inst_3
-     (
-      .Q(ck_n_pad_o),
-      .C0(sdram_clk_0),
-      .C1(sdram_clk_180),
-      .CE(1'b1),
-      .D0(1'b0),
-      .D1(1'b1),
-      .R(wb_rst),
-      .S(1'b0)
-      );
-
-   // Generate strobe with equal delay as data
-   generate
-   for (i=0; i<2; i=i+1) begin:dqs_oddr
-   ddr_ff_out ddr_ff_out_inst_4  (
-      .Q(dqs_o[i]),
-      .C0(sdram_clk_0),
-      .C1(sdram_clk_180),
-      .CE(1'b1),
-      .D0(1'b1),
-      .D1(1'b0),
-      .R(1'b0),   // no reset for CK
-      .S(1'b0)
-      );
-   end
-   endgenerate
-
-   generate
-   for (i=0; i<2; i=i+1) begin:dqs_n_oddr
-   // Generate strobe with equal delay as data
-   ddr_ff_out ddr_ff_out_inst_5
-     (
-      .Q(dqs_n_o[i]),
-      .C0(sdram_clk_0),
-      .C1(sdram_clk_180),
-      .CE(1'b1),
-      .D0(1'b0),
-      .D1(1'b1),
-      .R(wb_rst),
-      .S(1'b0)
-      );
-   end
-   endgenerate
-
-`ifdef XILINX
-   // Data and data mask from Tx FIFO
-   always @ (posedge sdram_clk_270 or posedge wb_rst)
-     if (wb_rst) begin
-       dq_tx_reg[15:0] <= 16'h0;
-       dqm_tx_reg[1:0] <= 2'b00;
-       end
-     else begin
-       if (dqm_en) begin
-         dq_tx_reg[15:0] <= tx_fifo_dat_o[19:4];
-         dqm_tx_reg[1:0] <= 2'b00;
-         end
-       else begin
-         dq_tx_reg[15:0] <= tx_fifo_dat_o[19:4];
-         dqm_tx_reg[1:0] <= tx_fifo_dat_o[1:0];
-       end
-     end
-
-   always @ (posedge sdram_clk_180 or posedge wb_rst)
-     if (wb_rst) begin
-       dqm_tx_reg[3:2]  <= 2'b00;
-       end
-     else begin
-       if (dqm_en) begin
-         dqm_tx_reg[3:2]  <= 2'b00;
-         end
-       else begin
-         dqm_tx_reg[3:2]  <= tx_fifo_dat_o[3:2];
-       end
-     end
-
-   assign dq_tx[15:0] = tx_fifo_dat_o[35:20];
-   assign dqm_tx[1:0] = (dqm_en) ? 2'b00 : tx_fifo_dat_o[3:2];
-
-   // Data out
-   generate
-   for (i=0; i<16; i=i+1) begin:data_out_oddr
-      ddr_ff_out ddr_ff_out_inst_0 (
-        .Q(dq_o[i]),
-        .C0(sdram_clk_270),
-        .C1(sdram_clk_90),
-        .CE(dq_en),
-        .D0(dq_tx[i]),
-        .D1(dq_tx_reg[i]),
-        .R(wb_rst),
-        .S(1'b0)
-        );
-   end
-   endgenerate
-
-   assign dq_pad_io = dq_en ? dq_o : {16{1'bz}};
-
-   // Data mask
-   generate
-   for (i=0; i<2; i=i+1) begin:data_mask_oddr
-     ddr_ff_out ddr_ff_out_inst_1 (
-        .Q(dqm_o[i]),
-        .C0(sdram_clk_270),
-        .C1(sdram_clk_90),
-        .CE(dq_en),
-        .D0(!dqm_tx[i]),
-        .D1(!dqm_tx_reg[i]),
-        .R(wb_rst),
-        .S(1'b0)
-        );
-   end
-   endgenerate
-
-   assign dm_rdqs_pad_io = dq_en ? dqm_o : 2'bzz;
-`endif   // XILINX   
-
-`ifdef ALTERA
-   // Data out
-   generate
-   for (i=0; i<16; i=i+1) begin:data_out_oddr
-      ddr_ff_out ddr_ff_out_inst_0 (
-        .Q(dq_o[i]),
-        .C0(sdram_clk_270),
-        .C1(sdram_clk_90),
-        .CE(dq_en),
-        .D0(tx_fifo_dat_o[i+16+4]),
-        .D1(tx_fifo_dat_o[i+4]),
-        .R(wb_rst),
-        .S(1'b0)
-        );
-   end
-   endgenerate
-
-   assign dq_pad_io = dq_en ? dq_o : {16{1'bz}};
-
-   assign dqm_tx = dqm_en ? {4{1'b0}} : tx_fifo_dat_o[3:0];
-
-   // Data mask
-   generate
-   for (i=0; i<2; i=i+1) begin:data_mask_oddr
-     ddr_ff_out ddr_ff_out_inst_1 (
-        .Q(dqm_o[i]),
-        .C0(sdram_clk_270),
-        .C1(sdram_clk_90),
-        .CE(dq_en),
-        .D0(!dqm_tx[i+2]),
-        .D1(!dqm_tx[i]),
-        .R(wb_rst),
-        .S(1'b0)
-        );
-   end
-   endgenerate
-
-   assign dm_rdqs_pad_io = dq_en ? dqm_o : 2'bzz;
-`endif   // ALTERA
-
-   // DDR data in
-   generate
-   for (i=0; i<16; i=i+1) begin:iddr2gen
-     ddr_ff_in ddr_ff_in_inst_0 
-       (
-        .Q0(dq_rx[i]), 
-        .Q1(dq_rx[i+16]), 
-        .C0(sdram_clk_270), 
-        .C1(sdram_clk_90),
-        .CE(1'b1), 
-        .D(dq_pad_io[i]),   
-        .R(wb_rst),  
-        .S(1'b0)
-        );
-   end
-   endgenerate
-
-   // Data to Rx FIFO
-`ifdef XILINX
-   always @ (posedge sdram_clk_0 or posedge wb_rst)
-`endif
-`ifdef ALTERA
-   always @ (posedge sdram_clk_180 or posedge wb_rst)
-`endif
-     if (wb_rst)
-       dq_rx_reg[31:16] <= 16'h0;
-     else
-       dq_rx_reg[31:16] <= dq_rx[31:16];
-
-   always @ (posedge sdram_clk_180 or posedge wb_rst)
-     if (wb_rst)
-       dq_rx_reg[15:0] <= 16'h0;
-     else
-       dq_rx_reg[15:0] <= dq_rx[15:0];
-
-   assign rx_fifo_dat_i = {dq_rx_reg, 4'h0};
+   // DDR2 IF
+   versatile_mem_ctrl_ddr versatile_mem_ctrl_ddr_0 (
+      // DDR2 SDRAM ports
+      .ck_o(ck_pad_o),
+      .ck_n_o(ck_n_pad_o),
+      .dq_io(dq_pad_io),
+      .dqs_io(dqs_pad_io),
+      .dqs_n_io(dqs_n_pad_io), 
+      .dm_rdqs_io(dm_rdqs_pad_io),
+      // Memory controller side
+      .tx_dat_i(tx_fifo_dat_o),
+      .rx_dat_o(rx_fifo_dat_i),
+      .dq_en(dq_en),
+      .dqm_en(dqm_en),
+      .wb_rst(wb_rst),
+      .sdram_clk_0(sdram_clk_0),
+      .sdram_clk_90(sdram_clk_90),
+      .sdram_clk_180(sdram_clk_180),
+      .sdram_clk_270(sdram_clk_270));
 
    // Assing outputs
-   assign dqs_pad_io   = dq_en ? dqs_o : 2'bz;
-   assign dqs_n_pad_io = dq_en ? dqs_n_o : 2'bz;
+   // Non-DDR outputs
+   assign ba_pad_o     = ba;
+   assign addr_pad_o   = addr;
    assign dqs_oe       = dq_en;
+   assign cke_pad_o    = cke;
+   assign ras_pad_o    = ras;
+   assign cas_pad_o    = cas;
+   assign we_pad_o     = we;
+   assign cs_n_pad_o   = cs_n;
    assign ck_fb_pad_o  = ck_fb;
 
 `endif //  `ifdef DDR_16
