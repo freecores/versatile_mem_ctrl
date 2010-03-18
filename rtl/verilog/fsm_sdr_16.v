@@ -129,7 +129,7 @@ begin
     rfr:    if (counter==5'd5)      next = idle;
             else                    next = rfr;
     adr:    if (open_ba[ba_reg] & (open_row[ba_reg]==row_reg) & counter[0])  next = rw;
-            else if (!open_ba[ba_reg]& counter[0])                    next = act;
+            else if (!open_ba[ba_reg] & counter[0])                    next = act;
             else if (counter[0])                                      next = pch;
             else next = adr;
     pch:    if (counter[0])         next = act;

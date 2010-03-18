@@ -40,7 +40,7 @@ module versatile_mem_ctrl_top
     parameter ba_size = 2;
     parameter row_size = 13;
     parameter col_size = 9;
-    parameter [2:0] init_cl = 3'b010; // valid options 010, 011 used for SDR LMR
+    parameter [2:0] cl = 3'b010; // valid options 010, 011 used for SDR LMR
     
     input  [36*nr_of_wb_ports_clk0-1:0] wb_adr_i_0;
     input  [36*nr_of_wb_ports_clk0-1:0] wb_dat_i_0;
@@ -273,7 +273,7 @@ decode decode1 (
             refresh_req <= 1'b0;
             
     // SDR SDRAM 16 FSM
-    fsm_sdr_16 # ( .ba_size(ba_size), .row_size(row_size), .col_size(col_size))
+    fsm_sdr_16 # ( .ba_size(ba_size), .row_size(row_size), .col_size(col_size), .init_cl(cl))
     fsm_sdr_16(
         .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
         .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
@@ -295,7 +295,7 @@ genvar i;
 generate
     for (i=0; i < 16; i=i+1) begin : dly
 
-        defparam delay0.depth=init_cl+2;   
+        defparam delay0.depth=cl+2;   
         defparam delay0.width=1;
         delay delay0 (
             .d(fifo_sel_reg[i]),
@@ -305,7 +305,7 @@ generate
         );
     end
     
-    defparam delay1.depth=init_cl+2;   
+    defparam delay1.depth=cl+2;   
     defparam delay1.width=2;
     delay delay1 (
         .d(fifo_sel_domain_reg),
@@ -314,7 +314,7 @@ generate
         .rst(sdram_rst)
     );
     
-    defparam delay2.depth=init_cl+2;   
+    defparam delay2.depth=cl+2;   
     defparam delay2.width=1;
     delay delay2 (
         .d(cmd_read),
