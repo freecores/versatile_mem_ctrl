@@ -81,7 +81,7 @@ parameter [2:0] init = 3'b000,
                 rw   = 3'b111;
 reg [2:0] state, next;
 
-function [3:0] a10_fix;
+function [12:0] a10_fix;
 input [col_size-1:0] a;
 integer i;
 begin
@@ -104,14 +104,14 @@ endfunction
 
 
 assign {bank,row,col} = adr_i;
-always @ (posedge sdram_clk or sdram_rst)
+always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00,{row_size{1'b0}},{col_size{1'b0}}};
     else
         if (state==adr & !counter[0])
             {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
             
-always @ (posedge sdram_clk or sdram_rst)
+always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
     state <= init;
 else
@@ -213,9 +213,9 @@ begin
                 endcase
                 case (bte_reg)
                 linear: {ba,a} = {ba_reg,col_reg_a10_fix};
-                beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:2],col_reg_a10_fix[2:0] + counter[2:0]};
-                beat8:  {ba,a} = {ba_reg,col_reg_a10_fix[12:3],col_reg_a10_fix[3:0] + counter[3:0]};
-                beat16: {ba,a} = {ba_reg,col_reg_a10_fix[12:4],col_reg_a10_fix[4:0] + counter[4:0]};
+                beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:3],col_reg_a10_fix[2:0] + counter[2:0]};
+                beat8:  {ba,a} = {ba_reg,col_reg_a10_fix[12:4],col_reg_a10_fix[3:0] + counter[3:0]};
+                beat16: {ba,a} = {ba_reg,col_reg_a10_fix[12:5],col_reg_a10_fix[4:0] + counter[4:0]};
                 endcase
             end
         endcase

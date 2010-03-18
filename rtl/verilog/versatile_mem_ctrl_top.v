@@ -330,7 +330,7 @@ endgenerate
     assign cke_pad_o  = 1'b1;
     
    always @ (posedge sdram_clk or posedge sdram_rst)
-     if (wb_rst)
+     if (sdram_rst)
        {dq_i_reg, dq_i_tmp_reg} <= {16'h0000,16'h0000};
      else
        {dq_i_reg, dq_i_tmp_reg} <= {dq_i, dq_i_reg};

@@ -161,6 +161,33 @@ module fifo_adr_counter ( cke, q, q_bin, rst, clk);
          q <= (q_next>>1) ^ q_next;
    assign q_bin = qi;
 endmodule
+module vfifo_dual_port_ram_dc_sw
+  (
+   d_a,
+   adr_a, 
+   we_a,
+   clk_a,
+   q_b,
+   adr_b,
+   clk_b
+   );
+   parameter DATA_WIDTH = 32;
+   parameter ADDR_WIDTH = 8;
+   input [(DATA_WIDTH-1):0]      d_a;
+   input [(ADDR_WIDTH-1):0] 	 adr_a;
+   input [(ADDR_WIDTH-1):0] 	 adr_b;
+   input 			 we_a;
+   output [(DATA_WIDTH-1):0] 	 q_b;
+   input 			 clk_a, clk_b;
+   reg [(ADDR_WIDTH-1):0] 	 adr_b_reg;
+   reg [DATA_WIDTH-1:0] ram [(1<<ADDR_WIDTH)-1:0] ;
+   always @ (posedge clk_a)
+   if (we_a)
+     ram[adr_a] <= d_a;
+   always @ (posedge clk_b)
+   adr_b_reg <= adr_b;   
+   assign q_b = ram[adr_b_reg];
+endmodule 
 module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk, rst );
    parameter ADDR_WIDTH = 4;   
    parameter N = ADDR_WIDTH-1;
@@ -347,7 +374,7 @@ parameter [2:0] init = 3'b000,
                 nop  = 3'b110,
                 rw   = 3'b111;
 reg [2:0] state, next;
-function [3:0] a10_fix;
+function [12:0] a10_fix;
 input [col_size-1:0] a;
 integer i;
 begin
@@ -368,13 +395,13 @@ begin
 end
 endfunction
 assign {bank,row,col} = adr_i;
-always @ (posedge sdram_clk or sdram_rst)
+always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00,{row_size{1'b0}},{col_size{1'b0}}};
     else
         if (state==adr & !counter[0])
             {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
-always @ (posedge sdram_clk or sdram_rst)
+always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
     state <= init;
 else
@@ -454,9 +481,9 @@ begin
                 endcase
                 case (bte_reg)
                 linear: {ba,a} = {ba_reg,col_reg_a10_fix};
-                beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:2],col_reg_a10_fix[2:0] + counter[2:0]};
-                beat8:  {ba,a} = {ba_reg,col_reg_a10_fix[12:3],col_reg_a10_fix[3:0] + counter[3:0]};
-                beat16: {ba,a} = {ba_reg,col_reg_a10_fix[12:4],col_reg_a10_fix[4:0] + counter[4:0]};
+                beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:3],col_reg_a10_fix[2:0] + counter[2:0]};
+                beat8:  {ba,a} = {ba_reg,col_reg_a10_fix[12:4],col_reg_a10_fix[3:0] + counter[3:0]};
+                beat16: {ba,a} = {ba_reg,col_reg_a10_fix[12:5],col_reg_a10_fix[4:0] + counter[4:0]};
                 endcase
             end
         endcase
@@ -916,7 +943,7 @@ endgenerate
     assign cs_n_pad_o = 1'b0;
     assign cke_pad_o  = 1'b1;
    always @ (posedge sdram_clk or posedge sdram_rst)
-     if (wb_rst)
+     if (sdram_rst)
        {dq_i_reg, dq_i_tmp_reg} <= {16'h0000,16'h0000};
      else
        {dq_i_reg, dq_i_tmp_reg} <= {dq_i, dq_i_reg};
