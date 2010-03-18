@@ -30,7 +30,7 @@ input  [0:nr_of_wb_ports-1] sdram_fifo_wr;
 input                       sdram_clk;
 input                       sdram_rst;
 
-parameter linear_burst = 2'b00;
+parameter linear       = 2'b00;
 parameter wrap4        = 2'b01;
 parameter wrap8        = 2'b10;
 parameter wrap16       = 2'b11;
@@ -85,15 +85,7 @@ generate
         assign egress_fifo_di[i] = (wb_state[i]==idle) ? wb_adr_i[i] : wb_dat_i[i];
     end
 endgenerate
-/*
-// fifo write adr
-generate
-    assign wr_adr[0] = ((wb_state[0]==idle) & wb_cyc_i[0] & wb_stb_i[0] & !egress_fifo_full[0]);
-    for (i=1;i<nr_of_wb_ports;i=i+1) begin : fifo_wr_adr
-        assign wr_adr[i] = (|(wr_adr[0:i-1])) ? 1'b0 : ((wb_state[i]==idle) & wb_cyc_i[i] & wb_stb_i[i] & !egress_fifo_full[i]);
-    end
-endgenerate
-*/
+
 // wr_ack
 generate
     assign wb_wr_ack[0] = ((wb_state[0]==idle | wb_state[0]==wr) & wb_cyc_i[0] & wb_stb_i[0] & !egress_fifo_full[0]);
@@ -136,37 +128,16 @@ generate
                 else if (wb_wr_ack[i])
                     wb_state[i] <= rd;
             rd:
-                if ((wb_adr_i[i][`CTI_I]==classic | wb_adr_i[i][`CTI_I]==endofburst) & wb_ack_o[i])
+                if ((wb_adr_i[i][`CTI_I]==classic | wb_adr_i[i][`CTI_I]==endofburst | wb_adr_i[i][`BTE_I]==linear) & wb_ack_o[i])
                     wb_state[i] <= idle;
             wr:
-                if ((wb_adr_i[i][`CTI_I]==classic | wb_adr_i[i][`CTI_I]==endofburst) & wb_ack_o[i])
+                if ((wb_adr_i[i][`CTI_I]==classic | wb_adr_i[i][`CTI_I]==endofburst | wb_adr_i[i][`BTE_I]==linear) & wb_ack_o[i])
                     wb_state[i] <= idle;
             default: ;
             endcase
     end
 endgenerate
 
-/*
-generate
-
-    for (i=0;i<nr_of_wb_ports;i=i+1) begin : ack
-        always @ (posedge wb_clk or posedge wb_rst)
-        if (wb_rst)
-            wb_ack_o[i] <= 1'b0;
-        else
-            case (wb_state[i])
-            idle:
-                wb_ack_o[i] <= 1'b0;
-            wr:
-                wb_ack_o[i] <= wb_wr_ack[i];
-            rd:
-                wb_ack_o[i] <= wb_rd_ack[i];
-            default: ;
-            endcase
-    end
-    
-endgenerate
-*/
 generate
     for (i=0;i<nr_of_wb_ports;i=i+1) begin : fifo_adr
     

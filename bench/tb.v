@@ -291,7 +291,7 @@ ddr2 ddr2_sdram
      begin
 	#0 wb_clk = 1'b0;
 	forever
-	  #20 wb_clk = !wb_clk;   // 25MHz
+	  #200 wb_clk = !wb_clk;   // 25MHz
      end
    
    initial

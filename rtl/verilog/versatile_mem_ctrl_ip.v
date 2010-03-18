@@ -289,7 +289,7 @@ module fsm_sdr_16 (
     adr_i, we_i, bte_i,
     fifo_sel_i, fifo_sel_domain_i,
     fifo_sel_reg, fifo_sel_domain_reg,
-    fifo_rd, count0,
+    fifo_empty, fifo_rd, count0,
     refresh_req, cmd_aref, cmd_read,
     ba, a, cmd, dq_oe,
     sdram_clk, sdram_rst
@@ -304,6 +304,7 @@ input [0:15] fifo_sel_i;
 input [1:0] fifo_sel_domain_i;
 output [0:15] fifo_sel_reg;
 output [1:0] fifo_sel_domain_reg;
+input  fifo_empty;
 output fifo_rd;
 output count0;
 input refresh_req;
@@ -413,7 +414,8 @@ begin
         if (state!=next)
             counter <= 5'd0;
         else
-            counter <= counter + 5'd1;
+            if (~(state==rw & fifo_empty & ~counter[0] & we_reg))
+                counter <= counter + 5'd1;
 end
 always @ (posedge sdram_clk or posedge sdram_rst)
 begin
@@ -448,10 +450,10 @@ begin
             {ba,a,cmd} = {ba_reg,(13'd0 | row_reg),cmd_act};
         {rw,5'bxxxxx}:
             begin
-                if (!counter[0])
-                    {cmd,cmd_read} = {{2'b10,!we_reg},~we_reg};
-                else
-                    cmd = cmd_nop;
+                casex ({we_reg,counter[0],fifo_empty})
+                {1'b0,1'b0,1'bx}: {cmd,cmd_read} = {cmd_rd,1'b1};
+                {1'b1,1'b0,1'b0}: cmd = cmd_wr;
+                endcase
                 case (bte_reg)
                 linear: {ba,a} = {ba_reg,col_reg_a10_fix};
                 beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:2],col_reg_a10_fix[2:0] + counter[2:0]};
@@ -463,17 +465,17 @@ begin
     end
 end
 assign fifo_rd = ((state==idle) & (next==adr)) ? 1'b1 :
-                 ((state==rw) & we_reg & !counter[0])        ? 1'b1 :
+                 ((state==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
                  1'b0;
 assign count0 = counter[0];
 always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         dq_oe <= 1'b0;
     else
-        dq_oe <= (state==rw & we_reg);
+        dq_oe <= ((state==rw & we_reg & ~counter[0] & !fifo_empty) | (state==rw & we_reg & counter[0]));
 always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
-    {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size{1'b0}},{row_size{1'b0}},{row_size{1'b0}},{row_size{1'b0}}};
+    {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
 else
     casex ({ba,a[10],cmd})
     {2'bxx,1'b1,cmd_pch}: open_ba <= 4'b0000;
@@ -721,6 +723,7 @@ module versatile_mem_ctrl_top
    output        cke_pad_o;
     input        sdram_clk, sdram_rst;
     wire [0:15] fifo_empty[0:3];
+    wire        current_fifo_empty;
     wire [0:15] fifo_re[0:3];
     wire [35:0] fifo_dat_o[0:3];
     wire [31:0] fifo_dat_i;
@@ -847,6 +850,7 @@ decode decode0 (
     .fifo_sel(fifo_sel_reg), .fifo_sel_domain(fifo_sel_domain_reg),
     .fifo_we_0(fifo_re[0]), .fifo_we_1(fifo_re[1]), .fifo_we_2(fifo_re[2]), .fifo_we_3(fifo_re[3])
 );
+assign current_fifo_empty = (|(fifo_empty[0] & fifo_re[0])) | (|(fifo_empty[1] & fifo_re[1])) | (|(fifo_empty[2] & fifo_re[2])) | (|(fifo_empty[3] & fifo_re[3]));
 decode decode1 (
     .fifo_sel(fifo_sel_dly), .fifo_sel_domain(fifo_sel_domain_dly),
     .fifo_we_0(fifo_we[0]), .fifo_we_1(fifo_we[1]), .fifo_we_2(fifo_we[2]), .fifo_we_3(fifo_we[3])
@@ -870,7 +874,7 @@ decode decode1 (
         .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
         .fifo_sel_i(fifo_sel_i), .fifo_sel_domain_i(fifo_sel_domain_i),
         .fifo_sel_reg(fifo_sel_reg), .fifo_sel_domain_reg(fifo_sel_domain_reg),
-        .fifo_rd(fifo_rd),
+        .fifo_empty(current_fifo_empty), .fifo_rd(fifo_rd),
         .count0(count0),
         .refresh_req(refresh_req),
         .cmd_aref(cmd_aref), .cmd_read(cmd_read),

@@ -1,7 +1,4 @@
 `timescale 1ns/1ns
-`ifdef SDR_16
- `include "sdr_16_defines.v"
-`endif
 `ifdef DDR_16
  `include "ddr_16_defines.v"
 `endif
@@ -40,8 +37,11 @@ module versatile_mem_ctrl_top
     parameter nr_of_wb_ports_clk2  = 0;
     parameter nr_of_wb_ports_clk3  = 0;
     
-    parameter tot_nr_of_wb_ports = nr_of_wb_ports_clk0 + nr_of_wb_ports_clk1 + nr_of_wb_ports_clk2 + nr_of_wb_ports_clk3;
-
+    parameter ba_size = 2;
+    parameter row_size = 13;
+    parameter col_size = 9;
+    parameter [2:0] init_cl = 3'b010; // valid options 010, 011 used for SDR LMR
+    
     input  [36*nr_of_wb_ports_clk0-1:0] wb_adr_i_0;
     input  [36*nr_of_wb_ports_clk0-1:0] wb_dat_i_0;
     output [32*nr_of_wb_ports_clk0-1:0] wb_dat_o_0;
@@ -66,12 +66,12 @@ module versatile_mem_ctrl_top
     input  [0:nr_of_wb_clk_domains-1]   wb_rst;
     
 `ifdef SDR_16
-   output  [1:0] ba_pad_o;
+   output  [1:0]  ba_pad_o;
    output  [12:0] a_pad_o;
-   output        cs_n_pad_o;
-   output        ras_pad_o;
-   output        cas_pad_o;
-   output        we_pad_o;
+   output         cs_n_pad_o;
+   output         ras_pad_o;
+   output         cas_pad_o;
+   output         we_pad_o;
    output reg [15:0] dq_o;
    output reg [1:0] dqm_pad_o;
    input  [15:0] dq_i;
@@ -101,8 +101,8 @@ module versatile_mem_ctrl_top
     input        sdram_clk, sdram_rst;
 
     wire [0:15] fifo_empty[0:3];
+    wire        current_fifo_empty;
     wire [0:15] fifo_re[0:3];
-    //wire [0:15] fifo_rd[0:3];
     wire [35:0] fifo_dat_o[0:3];
     wire [31:0] fifo_dat_i;
     wire [0:15] fifo_we[0:3];
@@ -189,11 +189,11 @@ generate
             .wb_clk(wb_clk[2]),
             .wb_rst(wb_rst[2]),
             // SDRAM controller interface
-            .sdram_dat_o(),
-            .sdram_fifo_empty(),
-            .sdram_fifo_rd(),
-            .sdram_dat_i(),
-            .sdram_fifo_wr(),
+            .sdram_dat_o(fifo_dat_o[2]),
+            .sdram_fifo_empty(fifo_empty[2][0:nr_of_wb_ports_clk2-1]),
+            .sdram_fifo_rd(fifo_re[2][0:nr_of_wb_ports_clk2-1] & {nr_of_wb_ports_clk2{fifo_rd}}),
+            .sdram_dat_i(fifo_dat_i),
+            .sdram_fifo_wr(fifo_we[2][0:nr_of_wb_ports_clk2-1] & {nr_of_wb_ports_clk2{fifo_wr}}),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
         if (nr_of_wb_ports_clk2 < 16) begin
@@ -220,11 +220,11 @@ generate
             .wb_clk(wb_clk[3]),
             .wb_rst(wb_rst[3]),
             // SDRAM controller interface
-            .sdram_dat_o(),
-            .sdram_fifo_empty(),
-            .sdram_fifo_rd(),
-            .sdram_dat_i(),
-            .sdram_fifo_wr(),
+            .sdram_dat_o(fifo_dat_o[3]),
+            .sdram_fifo_empty(fifo_empty[3][0:nr_of_wb_ports_clk3-1]),
+            .sdram_fifo_rd(fifo_re[3][0:nr_of_wb_ports_clk3-1] & {nr_of_wb_ports_clk3{fifo_rd}}),
+            .sdram_dat_i(fifo_dat_i),
+            .sdram_fifo_wr(fifo_we[3][0:nr_of_wb_ports_clk3-1] & {nr_of_wb_ports_clk3{fifo_wr}}),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
         if (nr_of_wb_ports_clk3 < 16) begin
@@ -245,6 +245,10 @@ decode decode0 (
     .fifo_sel(fifo_sel_reg), .fifo_sel_domain(fifo_sel_domain_reg),
     .fifo_we_0(fifo_re[0]), .fifo_we_1(fifo_re[1]), .fifo_we_2(fifo_re[2]), .fifo_we_3(fifo_re[3])
 );
+
+// fifo_re[0-3] is a one-hot read enable structure
+// fifo_empty should go active when chosen fifo queue is empty
+assign current_fifo_empty = (|(fifo_empty[0] & fifo_re[0])) | (|(fifo_empty[1] & fifo_re[1])) | (|(fifo_empty[2] & fifo_re[2])) | (|(fifo_empty[3] & fifo_re[3]));
 
 decode decode1 (
     .fifo_sel(fifo_sel_dly), .fifo_sel_domain(fifo_sel_domain_dly),
@@ -269,14 +273,14 @@ decode decode1 (
             refresh_req <= 1'b0;
             
     // SDR SDRAM 16 FSM
-    fsm_sdr_16 # ( .ba_size(`BA_SIZE), .row_size(`ROW_SIZE), .col_size(`COL_SIZE))
+    fsm_sdr_16 # ( .ba_size(ba_size), .row_size(row_size), .col_size(col_size))
     fsm_sdr_16(
-        .adr_i({fifo_dat_o[fifo_sel_domain_reg][`BA_SIZE+`ROW_SIZE+`COL_SIZE+6-2:6],1'b0}),
+        .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
         .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
         .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
         .fifo_sel_i(fifo_sel_i), .fifo_sel_domain_i(fifo_sel_domain_i),
         .fifo_sel_reg(fifo_sel_reg), .fifo_sel_domain_reg(fifo_sel_domain_reg),
-        .fifo_rd(fifo_rd),
+        .fifo_empty(current_fifo_empty), .fifo_rd(fifo_rd),
         .count0(count0),
         .refresh_req(refresh_req),
         .cmd_aref(cmd_aref), .cmd_read(cmd_read),
@@ -291,7 +295,7 @@ genvar i;
 generate
     for (i=0; i < 16; i=i+1) begin : dly
 
-        defparam delay0.depth=`CL+2;   
+        defparam delay0.depth=init_cl+2;   
         defparam delay0.width=1;
         delay delay0 (
             .d(fifo_sel_reg[i]),
@@ -301,7 +305,7 @@ generate
         );
     end
     
-    defparam delay1.depth=`CL+2;   
+    defparam delay1.depth=init_cl+2;   
     defparam delay1.width=2;
     delay delay1 (
         .d(fifo_sel_domain_reg),
@@ -310,7 +314,7 @@ generate
         .rst(sdram_rst)
     );
     
-    defparam delay2.depth=`CL+2;   
+    defparam delay2.depth=init_cl+2;   
     defparam delay2.width=1;
     delay delay2 (
         .d(cmd_read),
