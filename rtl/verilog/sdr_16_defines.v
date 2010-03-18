@@ -1,6 +1,3 @@
-`timescale 1ns/1ns
-
-
 //
 // Specify either type of memory
 // or

@@ -1,6 +1,7 @@
+`timescale 1ns/1ns
 module versatile_mem_ctrl_wb (
     // wishbone side
-    wb_adr_i_v, wb_dat_i_v, wb_dat_o,
+    wb_adr_i_v, wb_dat_i_v, wb_dat_o_v,
     wb_stb_i, wb_cyc_i, wb_ack_o,
     wb_clk, wb_rst,
     // SDRAM controller interface
@@ -16,8 +17,8 @@ input  [36*nr_of_wb_ports-1:0]  wb_adr_i_v;
 input  [36*nr_of_wb_ports-1:0]  wb_dat_i_v;
 input  [0:nr_of_wb_ports-1]     wb_stb_i;
 input  [0:nr_of_wb_ports-1]     wb_cyc_i;
-output [31:0]                   wb_dat_o;
-output reg [0:nr_of_wb_ports-1] wb_ack_o;
+output [32*nr_of_wb_ports-1:0]  wb_dat_o_v;
+output [0:nr_of_wb_ports-1]     wb_ack_o;
 input                           wb_clk;
 input                           wb_rst;
 
@@ -48,9 +49,10 @@ reg [1:0] wb_state[0:nr_of_wb_ports-1];
 wire [35:0] wb_adr_i[0:nr_of_wb_ports-1];
 wire [35:0] wb_dat_i[0:nr_of_wb_ports-1];
 wire [35:0] egress_fifo_di[0:nr_of_wb_ports-1];
+wire [31:0] wb_dat_o;
 
-wire [0:nr_of_wb_ports-1] wb_wr_ack, wb_rd_ack;
-
+wire [0:nr_of_wb_ports-1] wb_wr_ack, wb_rd_ack, wr_adr;
+reg  [0:nr_of_wb_ports-1] wb_rd_ack_dly;
 wire [3:0]  egress_fifo_wadr_bin[0:nr_of_wb_ports-1];
 wire [3:0]  egress_fifo_wadr_gray[0:nr_of_wb_ports-1];
 wire [3:0]  egress_fifo_radr_bin[0:nr_of_wb_ports-1];
@@ -83,7 +85,15 @@ generate
         assign egress_fifo_di[i] = (wb_state[i]==idle) ? wb_adr_i[i] : wb_dat_i[i];
     end
 endgenerate
-
+/*
+// fifo write adr
+generate
+    assign wr_adr[0] = ((wb_state[0]==idle) & wb_cyc_i[0] & wb_stb_i[0] & !egress_fifo_full[0]);
+    for (i=1;i<nr_of_wb_ports;i=i+1) begin : fifo_wr_adr
+        assign wr_adr[i] = (|(wr_adr[0:i-1])) ? 1'b0 : ((wb_state[i]==idle) & wb_cyc_i[i] & wb_stb_i[i] & !egress_fifo_full[i]);
+    end
+endgenerate
+*/
 // wr_ack
 generate
     assign wb_wr_ack[0] = ((wb_state[0]==idle | wb_state[0]==wr) & wb_cyc_i[0] & wb_stb_i[0] & !egress_fifo_full[0]);
@@ -97,6 +107,18 @@ generate
     assign wb_rd_ack[0] = ((wb_state[0]==rd) & wb_cyc_i[0] & wb_stb_i[0] & !ingress_fifo_empty[0]);
     for (i=1;i<nr_of_wb_ports;i=i+1) begin : rd_ack
         assign wb_rd_ack[i] = (|(wb_rd_ack[0:i-1])) ? 1'b0 : ((wb_state[i]==rd) & wb_cyc_i[i] & wb_stb_i[i] & !ingress_fifo_empty[i]);
+    end
+endgenerate
+
+always @ (posedge wb_clk or posedge wb_rst)
+    if (wb_rst)
+        wb_rd_ack_dly <= {nr_of_wb_ports{1'b0}};
+    else
+        wb_rd_ack_dly <= wb_rd_ack;
+        
+generate
+    for (i=0;i<nr_of_wb_ports;i=i+1) begin : wb_ack
+        assign wb_ack_o[i] = (wb_state[i]==wr & wb_wr_ack[i]) | wb_rd_ack_dly[i];
     end
 endgenerate
 
@@ -124,7 +146,9 @@ generate
     end
 endgenerate
 
+/*
 generate
+
     for (i=0;i<nr_of_wb_ports;i=i+1) begin : ack
         always @ (posedge wb_clk or posedge wb_rst)
         if (wb_rst)
@@ -140,8 +164,9 @@ generate
             default: ;
             endcase
     end
+    
 endgenerate
-
+*/
 generate
     for (i=0;i<nr_of_wb_ports;i=i+1) begin : fifo_adr
     
@@ -176,8 +201,8 @@ generate
             .cke(sdram_fifo_wr[i]),
             .q(ingress_fifo_wadr_gray[i]),
             .q_bin(ingress_fifo_wadr_bin[i]),
-            .rst(wb_rst),
-            .clk(wb_clk));
+            .rst(sdram_rst),
+            .clk(sdram_clk));
         
         fifo_adr_counter ingress_radrcnt (
             .cke(wb_rd_ack[i]),
@@ -193,8 +218,8 @@ generate
 		.rptr(ingress_fifo_radr_gray[i]), 
 		.fifo_empty(ingress_fifo_empty[i]), 
 		.fifo_full(), 
-		.wclk(wb_clk), 
-		.rclk(sdram_clk), 
+		.wclk(sdram_clk), 
+		.rclk(wb_clk), 
 		.rst(wb_rst));
         
     end    
@@ -219,5 +244,7 @@ vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(32), .ADDR_WIDTH(8))
     .q_b(wb_dat_o),
     .adr_b({onehot2bin(wb_rd_ack),ingress_fifo_radr_bin[onehot2bin(wb_rd_ack)]}),
     .clk_b(wb_clk) );
+    
+assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
 
 endmodule
