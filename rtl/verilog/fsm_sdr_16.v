@@ -137,8 +137,8 @@ begin
     act:    if (counter==5'd2)      next = rw;
             else                    next = act;
 //    nop:    next = rw;
-    rw:     case ({bte_reg,counter})
-            {linear,5'd1},{beat4,5'd7},{beat8,5'd15},{beat16,5'd31}: next =  idle;
+    rw:     casex ({bte_reg,counter})
+            {linear,5'bxxxx1},{beat4,5'bxx111},{beat8,5'bx1111},{beat16,5'b11111}: next =  idle;
             default: next = rw;
             endcase
     endcase
