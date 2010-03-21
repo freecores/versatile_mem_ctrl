@@ -6,6 +6,12 @@ versatile_fifo_dual_port_ram.v:
 versatile_fifo_async_cmp.v:
 	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_async_cmp.v
 
+async_fifo_mq.v:
+	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/async_fifo_mq.v
+
+async_fifo_mq_md.v:
+	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/async_fifo_mq_md.v
+
 versatile_counter_generator.php:
 	svn export http://opencores.org/ocsvn/versatile_counter/versatile_counter/trunk/rtl/verilog/versatile_counter_generator.php
 
@@ -17,7 +23,7 @@ versatile_fifo_dual_port_ram_dc_dw.v: versatile_fifo_dual_port_ram.v
 
 versatile_counter: versatile_counter_generator.php CSV.class.php
 	excel2csv versatile_counter.xls -S ,
-	./versatile_counter_generator.php fifo_adr_counter.csv > fifo_adr_counter.v
+	./versatile_counter_generator.php gray_counter.csv > gray_counter.v
 	./versatile_counter_generator.php ctrl_counter.csv > ctrl_counter.v
 	./versatile_counter_generator.php ref_counter.csv > ref_counter.v
 	./versatile_counter_generator.php ref_delay_counter.csv > ref_delay_counter.v
@@ -36,8 +42,8 @@ versatile_mem_ctrl_ip.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram
 
 all: svn_export versatile_fifo_dual_port_ram_dc_dw.v versatile_counter fifo_fill.v sdr_16.v ddr_16.v versatile_mem_ctrl_ip.v
 
-sdr_16.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v versatile_counter
-	vppreproc --simple +define+SDR_16 delay.v codec.v fifo_adr_counter.v versatile_fifo_dual_port_ram_dc_sw.v versatile_fifo_async_cmp.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v > sdr_16.v
+sdr_16.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v async_fifo_mq.v async_fifo_mq_md.v versatile_counter
+	vppreproc --simple +define+SDR_16 delay.v codec.v gray_counter.v async_fifo_mq.v async_fifo_mq_md.v versatile_fifo_dual_port_ram_dc_sw.v versatile_fifo_async_cmp.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v > sdr_16.v
 
 all: sdr_16.v
 

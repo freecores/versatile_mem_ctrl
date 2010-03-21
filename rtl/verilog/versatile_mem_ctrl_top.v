@@ -106,10 +106,12 @@ module versatile_mem_ctrl_top
     wire [35:0] fifo_dat_o[0:3];
     wire [31:0] fifo_dat_i;
     wire [0:15] fifo_we[0:3];
-    wire fifo_rd, fifo_wr, count0;
+    wire fifo_rd, fifo_wr, idle, count0;
     
-    wire [0:15] fifo_sel_i, fifo_sel_reg, fifo_sel_dly;
-    wire [1:0]  fifo_sel_domain_i, fifo_sel_domain_reg, fifo_sel_domain_dly;
+    wire [0:15] fifo_sel_i, fifo_sel_dly;
+    reg [0:15] fifo_sel_reg;
+    wire [1:0]  fifo_sel_domain_i, fifo_sel_domain_dly;
+    reg [1:0] fifo_sel_domain_reg;
 
     reg refresh_req;
     
@@ -241,6 +243,15 @@ encode encode0 (
     .fifo_sel(fifo_sel_i), .fifo_sel_domain(fifo_sel_domain_i)
 );
 
+always @ (posedge sdram_clk or posedge sdram_rst)
+begin
+    if (sdram_rst)
+        {fifo_sel_reg,fifo_sel_domain_reg} <= {16'h0,2'b00};
+    else
+        if (idle)
+            {fifo_sel_reg,fifo_sel_domain_reg} <= {fifo_sel_i,fifo_sel_domain_i};
+end
+
 decode decode0 (
     .fifo_sel(fifo_sel_reg), .fifo_sel_domain(fifo_sel_domain_reg),
     .fifo_we_0(fifo_re[0]), .fifo_we_1(fifo_re[1]), .fifo_we_2(fifo_re[2]), .fifo_we_3(fifo_re[3])
@@ -248,7 +259,7 @@ decode decode0 (
 
 // fifo_re[0-3] is a one-hot read enable structure
 // fifo_empty should go active when chosen fifo queue is empty
-assign current_fifo_empty = (|(fifo_empty[0] & fifo_re[0])) | (|(fifo_empty[1] & fifo_re[1])) | (|(fifo_empty[2] & fifo_re[2])) | (|(fifo_empty[3] & fifo_re[3]));
+assign current_fifo_empty = (idle) ? (!(|fifo_sel_i)) : (|(fifo_empty[0] & fifo_re[0])) | (|(fifo_empty[1] & fifo_re[1])) | (|(fifo_empty[2] & fifo_re[2])) | (|(fifo_empty[3] & fifo_re[3]));
 
 decode decode1 (
     .fifo_sel(fifo_sel_dly), .fifo_sel_domain(fifo_sel_domain_dly),
@@ -258,7 +269,8 @@ decode decode1 (
 `ifdef SDR_16
 
     wire ref_cnt_zero;
-    reg [15:0] dq_i_reg, dq_i_tmp_reg;   
+    reg [15:0] dq_i_reg, dq_i_tmp_reg;
+    reg [17:0] dq_o_tmp_reg;
     wire cmd_aref, cmd_read;
       
     // refresch counter
@@ -278,10 +290,8 @@ decode decode1 (
         .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
         .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
         .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
-        .fifo_sel_i(fifo_sel_i), .fifo_sel_domain_i(fifo_sel_domain_i),
-        .fifo_sel_reg(fifo_sel_reg), .fifo_sel_domain_reg(fifo_sel_domain_reg),
         .fifo_empty(current_fifo_empty), .fifo_rd(fifo_rd),
-        .count0(count0),
+        .state_idle(idle), .count0(count0),
         .refresh_req(refresh_req),
         .cmd_aref(cmd_aref), .cmd_read(cmd_read),
         .ba(ba_pad_o), .a(a_pad_o), .cmd({ras_pad_o, cas_pad_o, we_pad_o}), .dq_oe(dq_oe),
@@ -295,7 +305,7 @@ genvar i;
 generate
     for (i=0; i < 16; i=i+1) begin : dly
 
-        defparam delay0.depth=cl+2;   
+        defparam delay0.depth=cl+3;   
         defparam delay0.width=1;
         delay delay0 (
             .d(fifo_sel_reg[i]),
@@ -305,7 +315,7 @@ generate
         );
     end
     
-    defparam delay1.depth=cl+2;   
+    defparam delay1.depth=cl+3;   
     defparam delay1.width=2;
     delay delay1 (
         .d(fifo_sel_domain_reg),
@@ -314,7 +324,7 @@ generate
         .rst(sdram_rst)
     );
     
-    defparam delay2.depth=cl+2;   
+    defparam delay2.depth=cl+3;   
     defparam delay2.width=1;
     delay delay2 (
         .d(cmd_read),
@@ -329,7 +339,7 @@ endgenerate
     assign cs_n_pad_o = 1'b0;
     assign cke_pad_o  = 1'b1;
     
-   always @ (posedge sdram_clk or posedge sdram_rst)
+    always @ (posedge sdram_clk or posedge sdram_rst)
      if (sdram_rst)
        {dq_i_reg, dq_i_tmp_reg} <= {16'h0000,16'h0000};
      else
@@ -337,14 +347,24 @@ endgenerate
 
    assign fifo_dat_i = {dq_i_tmp_reg, dq_i_reg};
 
-   always @ (posedge sdram_clk or posedge sdram_rst)
-     if (sdram_rst)
+    always @ (posedge sdram_clk or posedge sdram_rst)
+    if (sdram_rst) begin
        {dq_o, dqm_pad_o} <= {16'h0000,2'b00};
-     else
-       if (~count0)
-         {dq_o,dqm_pad_o} <= {fifo_dat_o[fifo_sel_domain_reg][35:20],~fifo_dat_o[fifo_sel_domain_reg][3:2]};
-       else
-         {dq_o,dqm_pad_o} <= {fifo_dat_o[fifo_sel_domain_reg][19:4],~fifo_dat_o[fifo_sel_domain_reg][1:0]};
+       dq_o_tmp_reg      <= 18'h0;
+    end else
+        if (~count0) begin
+            dq_o <= fifo_dat_o[fifo_sel_domain_reg][35:20];
+            dq_o_tmp_reg[17:2] <= fifo_dat_o[fifo_sel_domain_reg][19:4];
+            if (cmd_read)
+                dqm_pad_o <= 2'b00;
+            else
+                dqm_pad_o <= ~fifo_dat_o[fifo_sel_domain_reg][3:2];
+            if (cmd_read)
+                dq_o_tmp_reg[1:0] <= 2'b00;
+            else
+                dq_o_tmp_reg[1:0] <= ~fifo_dat_o[fifo_sel_domain_reg][1:0];
+       end else
+         {dq_o,dqm_pad_o} <= dq_o_tmp_reg;
 
 
 `endif //  `ifdef SDR_16

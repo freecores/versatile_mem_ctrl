@@ -136,7 +136,7 @@ assign fifo_we_1 = (fifo_sel_domain == 2'b01) ? fifo_sel : {16{1'b0}};
 assign fifo_we_2 = (fifo_sel_domain == 2'b10) ? fifo_sel : {16{1'b0}};
 assign fifo_we_3 = (fifo_sel_domain == 2'b11) ? fifo_sel : {16{1'b0}};
 endmodule
-module fifo_adr_counter ( cke, q, q_bin, rst, clk);
+module gray_counter ( cke, q, q_bin, rst, clk);
    parameter length = 4;
    input cke;
    output reg [length:1] q;
@@ -160,6 +160,196 @@ module fifo_adr_counter ( cke, q, q_bin, rst, clk);
        if (cke)
          q <= (q_next>>1) ^ q_next;
    assign q_bin = qi;
+endmodule
+module async_fifo_mq (
+    d, fifo_full, write, clk1, rst1,
+    q, fifo_empty, read, clk2, rst2
+);
+parameter a_hi_size = 4;
+parameter a_lo_size = 4;
+parameter nr_of_queues = 16;
+parameter data_width = 36;
+input [data_width-1:0] d;
+output [0:nr_of_queues-1] fifo_full;
+input  [0:nr_of_queues-1] write;
+input clk1;
+input rst1;
+output [data_width-1:0] q;
+output [0:nr_of_queues-1] fifo_empty;
+inout  [0:nr_of_queues-1] read;
+input clk2;
+input rst2;
+wire [a_lo_size-1:0]  fifo_wadr_bin[0:nr_of_queues-1];
+wire [a_lo_size-1:0]  fifo_wadr_gray[0:nr_of_queues-1];
+wire [a_lo_size-1:0]  fifo_radr_bin[0:nr_of_queues-1];
+wire [a_lo_size-1:0]  fifo_radr_gray[0:nr_of_queues-1];
+reg [a_lo_size-1:0] wadr;
+reg [a_lo_size-1:0] radr;
+reg [data_width-1:0] wdata;
+wire [data_width-1:0] wdataa[0:nr_of_queues-1];
+genvar i;
+integer j,k,l;
+function [a_lo_size-1:0] onehot2bin;
+input [0:nr_of_queues-1] a;
+integer i;
+begin
+    onehot2bin = {a_lo_size{1'b0}};
+    for (i=1;i<nr_of_queues;i=i+1) begin
+        if (a[i])
+            onehot2bin = i;
+    end
+end
+endfunction
+generate
+    for (i=0;i<nr_of_queues;i=i+1) begin : fifo_adr
+        gray_counter wadrcnt (
+            .cke(write[i]),
+            .q(fifo_wadr_gray[i]),
+            .q_bin(fifo_wadr_bin[i]),
+            .rst(rst1),
+            .clk(clk1));
+        gray_counter radrcnt (
+            .cke(read[i]),
+            .q(fifo_radr_gray[i]),
+            .q_bin(fifo_radr_bin[i]),
+            .rst(rst2),
+            .clk(clk2));
+	versatile_fifo_async_cmp
+            #(.ADDR_WIDTH(a_lo_size))
+            egresscmp ( 
+                .wptr(fifo_wadr_gray[i]), 
+		.rptr(fifo_radr_gray[i]), 
+		.fifo_empty(fifo_empty[i]), 
+		.fifo_full(fifo_full[i]), 
+		.wclk(clk1), 
+		.rclk(clk2), 
+		.rst(rst1));
+    end
+endgenerate
+always @*
+begin
+    wadr = {a_lo_size{1'b0}};
+    for (j=0;j<nr_of_queues;j=j+1) begin
+        wadr = (fifo_wadr_bin[j] & {a_lo_size{write[j]}}) | wadr;
+    end
+end
+always @*
+begin
+    radr = {a_lo_size{1'b0}};
+    for (k=0;k<nr_of_queues;k=k+1) begin
+        radr = (fifo_radr_bin[k] & {a_lo_size{read[k]}}) | radr;
+    end
+end
+vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_lo_size))
+    dpram (
+    .d_a(d),
+    .adr_a({onehot2bin(write),wadr}), 
+    .we_a(|(write)),
+    .clk_a(clk1),
+    .q_b(q),
+    .adr_b({onehot2bin(read),radr}),
+    .clk_b(clk2) );
+endmodule
+module async_fifo_mq_md (
+    d, fifo_full, write, clk1, rst1,
+    q, fifo_empty, read, clk2, rst2
+);
+parameter a_hi_size = 4;
+parameter a_lo_size = 4;
+parameter nr_of_queues = 16;
+parameter data_width = 36;
+input [data_width*nr_of_queues-1:0] d;
+output [0:nr_of_queues-1] fifo_full;
+input  [0:nr_of_queues-1] write;
+input clk1;
+input rst1;
+output [data_width-1:0] q;
+output [0:nr_of_queues-1] fifo_empty;
+inout  [0:nr_of_queues-1] read;
+input clk2;
+input rst2;
+wire [a_lo_size-1:0]  fifo_wadr_bin[0:nr_of_queues-1];
+wire [a_lo_size-1:0]  fifo_wadr_gray[0:nr_of_queues-1];
+wire [a_lo_size-1:0]  fifo_radr_bin[0:nr_of_queues-1];
+wire [a_lo_size-1:0]  fifo_radr_gray[0:nr_of_queues-1];
+reg [a_lo_size-1:0] wadr;
+reg [a_lo_size-1:0] radr;
+reg [data_width-1:0] wdata;
+wire [data_width-1:0] wdataa[0:nr_of_queues-1];
+genvar i;
+integer j,k,l;
+function [a_lo_size-1:0] onehot2bin;
+input [0:nr_of_queues-1] a;
+integer i;
+begin
+    onehot2bin = {a_lo_size{1'b0}};
+    for (i=1;i<nr_of_queues;i=i+1) begin
+        if (a[i])
+            onehot2bin = i;
+    end
+end
+endfunction
+generate
+    for (i=0;i<nr_of_queues;i=i+1) begin : fifo_adr
+        gray_counter wadrcnt (
+            .cke(write[i]),
+            .q(fifo_wadr_gray[i]),
+            .q_bin(fifo_wadr_bin[i]),
+            .rst(rst1),
+            .clk(clk1));
+        gray_counter radrcnt (
+            .cke(read[i]),
+            .q(fifo_radr_gray[i]),
+            .q_bin(fifo_radr_bin[i]),
+            .rst(rst2),
+            .clk(clk2));
+	versatile_fifo_async_cmp
+            #(.ADDR_WIDTH(a_lo_size))
+            egresscmp ( 
+                .wptr(fifo_wadr_gray[i]), 
+		.rptr(fifo_radr_gray[i]), 
+		.fifo_empty(fifo_empty[i]), 
+		.fifo_full(fifo_full[i]), 
+		.wclk(clk1), 
+		.rclk(clk2), 
+		.rst(rst1));
+    end
+endgenerate
+always @*
+begin
+    wadr = {a_lo_size{1'b0}};
+    for (j=0;j<nr_of_queues;j=j+1) begin
+        wadr = (fifo_wadr_bin[j] & {a_lo_size{write[j]}}) | wadr;
+    end
+end
+always @*
+begin
+    radr = {a_lo_size{1'b0}};
+    for (k=0;k<nr_of_queues;k=k+1) begin
+        radr = (fifo_radr_bin[k] & {a_lo_size{read[k]}}) | radr;
+    end
+end
+generate
+    for (i=0;i<nr_of_queues;i=i+1) begin : vector2array
+        assign wdataa[i] = d[(nr_of_queues-i)*data_width-1:(nr_of_queues-1-i)*data_width];
+    end
+endgenerate
+always @*
+begin
+    wdata = {data_width{1'b0}};
+    for (l=0;l<nr_of_queues;l=l+1) begin
+        wdata = (wdataa[l] & {data_width{write[l]}}) | wdata;
+    end
+end
+vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_lo_size))
+    dpram (
+    .d_a(wdata),
+    .adr_a({onehot2bin(write),wadr}), 
+    .we_a(|(write)),
+    .clk_a(clk1),
+    .q_b(q),
+    .adr_b({onehot2bin(read),radr}),
+    .clk_b(clk2) );
 endmodule
 module vfifo_dual_port_ram_dc_sw
   (
@@ -312,10 +502,8 @@ endmodule
 `timescale 1ns/1ns
 module fsm_sdr_16 (
     adr_i, we_i, bte_i,
-    fifo_sel_i, fifo_sel_domain_i,
-    fifo_sel_reg, fifo_sel_domain_reg,
     fifo_empty, fifo_rd, count0,
-    refresh_req, cmd_aref, cmd_read,
+    refresh_req, cmd_aref, cmd_read, state_idle,
     ba, a, cmd, dq_oe,
     sdram_clk, sdram_rst
 );
@@ -325,16 +513,13 @@ parameter col_size = 9;
 input [ba_size+row_size+col_size-1:0] adr_i;
 input we_i;
 input [1:0] bte_i;
-input [0:15] fifo_sel_i;
-input [1:0] fifo_sel_domain_i;
-output [0:15] fifo_sel_reg;
-output [1:0] fifo_sel_domain_reg;
 input  fifo_empty;
 output fifo_rd;
 output count0;
 input refresh_req;
 output reg cmd_aref; 
-output reg cmd_read; 
+output cmd_read; 
+output state_idle; 
 output reg [1:0] ba;
 output reg [12:0] a;
 output reg [2:0] cmd;
@@ -352,8 +537,9 @@ reg [row_size-1:0] row_reg;
 reg [col_size-1:0] col_reg;
 reg                we_reg;
 reg [1:0]          bte_reg;
-reg [row_size-1:0] open_row[3:0];
-reg [3:0]          open_ba;
+reg [row_size-1:0] open_row[0:3];
+reg [0:3]          open_ba;
+wire current_bank_closed, current_row_open;
 parameter [1:0] linear = 2'b00,
                 beat4  = 2'b01,
                 beat8  = 2'b10,
@@ -371,7 +557,7 @@ parameter [2:0] init = 3'b000,
                 adr  = 3'b011,
                 pch  = 3'b100,
                 act  = 3'b101,
-                nop  = 3'b110,
+                w4d  = 3'b110,
                 rw   = 3'b111;
 reg [2:0] state, next;
 function [12:0] a10_fix;
@@ -399,7 +585,7 @@ always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00,{row_size{1'b0}},{col_size{1'b0}}};
     else
-        if (state==adr & !counter[0])
+        if (state==adr & counter[0])
             {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
 always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
@@ -413,18 +599,22 @@ begin
     init:   if (counter==5'd31)     next = idle;
             else                    next = init;
     idle:   if (refresh_req)        next = rfr;
-            else if (|fifo_sel_i)   next = adr;
+            else if (!fifo_empty)   next = adr;
             else                    next = idle;
     rfr:    if (counter==5'd5)      next = idle;
             else                    next = rfr;
-    adr:    if (open_ba[ba_reg] & (open_row[ba_reg]==row_reg) & counter[0])  next = rw;
-            else if (!open_ba[ba_reg] & counter[0])                    next = act;
-            else if (counter[0])                                      next = pch;
+    adr:    if (current_row_open & counter[0] & we_i)  next = w4d;
+            else if (current_row_open & counter[0])                 next = rw;
+            else if (current_bank_closed & counter[0])              next = act;
+            else if (counter[0])                                    next = pch;
             else next = adr;
     pch:    if (counter[0])         next = act;
             else                    next = pch;
-    act:    if (counter==5'd2)      next = rw;
-            else                    next = act;
+    act:    if (counter[1:0]==2'd2 & !fifo_empty)       next = rw;
+            else if (counter[1:0]==2'd2 & fifo_empty)   next = w4d;
+            else                                        next = act;
+    w4d:    if (!fifo_empty) next = rw;
+            else             next = w4d;
     rw:     casex ({bte_reg,counter})
             {linear,5'bxxxx1},{beat4,5'bxx111},{beat8,5'bx1111},{beat16,5'b11111}: next =  idle;
             default: next = rw;
@@ -439,18 +629,9 @@ begin
         if (state!=next)
             counter <= 5'd0;
         else
-            if (~(state==rw & fifo_empty & ~counter[0] & we_reg))
+            if (~(state==rw & next==rw & fifo_empty & counter[0] & we_reg))
                 counter <= counter + 5'd1;
 end
-always @ (posedge sdram_clk or posedge sdram_rst)
-begin
-    if (sdram_rst)
-        {fifo_sel_reg_int,fifo_sel_domain_reg_int} <= {16'h0,2'b00};
-    else
-        if (state==idle)
-            {fifo_sel_reg_int,fifo_sel_domain_reg_int} <= {fifo_sel_i,fifo_sel_domain_i};
-end
-assign {fifo_sel_reg,fifo_sel_domain_reg} = (state==idle) ? {fifo_sel_i,fifo_sel_domain_i} : {fifo_sel_reg_int,fifo_sel_domain_reg_int};
 parameter [0:0] init_wb = 1'b0;
 parameter [2:0] init_cl = 3'b010;
 parameter [0:0] init_bt = 1'b0;
@@ -459,9 +640,9 @@ assign col_reg_a10_fix = a10_fix(col_reg);
 always @ (posedge sdram_clk or posedge sdram_rst)
 begin
     if (sdram_rst)
-        {ba,a,cmd,cmd_aref,cmd_read} = {2'b00,13'd0,cmd_nop,1'b0,1'b0};
+        {ba,a,cmd,cmd_aref} = {2'b00,13'd0,cmd_nop,1'b0};
     else begin
-        {ba,a,cmd,cmd_aref,cmd_read} = {2'b00,13'd0,cmd_nop,1'b0,1'b0};
+        {ba,a,cmd,cmd_aref} = {2'b00,13'd0,cmd_nop,1'b0};
         casex ({state,counter})
         {init,5'd3}, {rfr,5'd0}:
             {ba,a,cmd} = {2'b00, 13'b0010000000000, cmd_pch};
@@ -476,8 +657,8 @@ begin
         {rw,5'bxxxxx}:
             begin
                 casex ({we_reg,counter[0],fifo_empty})
-                {1'b0,1'b0,1'bx}: {cmd,cmd_read} = {cmd_rd,1'b1};
-                {1'b1,1'b0,1'b0}: cmd = cmd_wr;
+                {1'b0,1'b0,1'bx}: cmd = cmd_rd;
+                {1'b1,1'b0,1'bx}: cmd = cmd_wr;
                 endcase
                 case (bte_reg)
                 linear: {ba,a} = {ba_reg,col_reg_a10_fix};
@@ -489,15 +670,18 @@ begin
         endcase
     end
 end
-assign fifo_rd = ((state==idle) & (next==adr)) ? 1'b1 :
-                 ((state==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
+assign fifo_rd = ((state==adr) & !counter[0]) ? 1'b1 :
+                 (state==w4d & !fifo_empty) ? 1'b1 :
+                 ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
                  1'b0;
+assign state_idle = (state==idle);
+assign cmd_read = (state==rw & !counter[0] & !we_reg);
 assign count0 = counter[0];
 always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         dq_oe <= 1'b0;
     else
-        dq_oe <= ((state==rw & we_reg & ~counter[0] & !fifo_empty) | (state==rw & we_reg & counter[0]));
+        dq_oe <= ((state==rw & we_reg & ~counter[0]) | (state==rw & we_reg & counter[0]));
 always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
     {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
@@ -513,6 +697,16 @@ else
     {2'b10,1'bx,cmd_act}: {open_ba[2],open_row[2]} <= {1'b1,row_reg};
     {2'b11,1'bx,cmd_act}: {open_ba[3],open_row[3]} <= {1'b1,row_reg};
     endcase
+assign current_bank_closed = (!(open_ba[0]) & bank==2'b00) ? 1'b1 :
+                             (!(open_ba[1]) & bank==2'b01) ? 1'b1 :
+                             (!(open_ba[2]) & bank==2'b10) ? 1'b1 :
+                             (!(open_ba[3]) & bank==2'b11) ? 1'b1 :
+                             1'b0;
+assign current_row_open = ((open_ba[0] & bank==2'b00) & open_row[0]==row) ? 1'b1 :
+                          ((open_ba[1] & bank==2'b01) & open_row[1]==row) ? 1'b1 :
+                          ((open_ba[2] & bank==2'b10) & open_row[2]==row) ? 1'b1 :
+                          ((open_ba[3] & bank==2'b11) & open_row[3]==row) ? 1'b1 :
+                          1'b0;
 endmodule
 `timescale 1ns/1ns
 module versatile_mem_ctrl_wb (
@@ -551,37 +745,18 @@ parameter wr   = 2'b10;
 reg [1:0] wb_state[0:nr_of_wb_ports-1];
 wire [35:0] wb_adr_i[0:nr_of_wb_ports-1];
 wire [35:0] wb_dat_i[0:nr_of_wb_ports-1];
-wire [35:0] egress_fifo_di[0:nr_of_wb_ports-1];
+wire [36*nr_of_wb_ports-1:0] egress_fifo_di;
 wire [31:0] wb_dat_o;
 wire [0:nr_of_wb_ports-1] wb_wr_ack, wb_rd_ack, wr_adr;
 reg  [0:nr_of_wb_ports-1] wb_rd_ack_dly;
-wire [3:0]  egress_fifo_wadr_bin[0:nr_of_wb_ports-1];
-wire [3:0]  egress_fifo_wadr_gray[0:nr_of_wb_ports-1];
-wire [3:0]  egress_fifo_radr_bin[0:nr_of_wb_ports-1];
-wire [3:0]  egress_fifo_radr_gray[0:nr_of_wb_ports-1];
-wire [3:0]  egress_fifo_full;
-wire [3:0]  ingress_fifo_wadr_bin[0:nr_of_wb_ports-1];
-wire [3:0]  ingress_fifo_wadr_gray[0:nr_of_wb_ports-1];
-wire [3:0]  ingress_fifo_radr_bin[0:nr_of_wb_ports-1];
-wire [3:0]  ingress_fifo_radr_gray[0:nr_of_wb_ports-1];
-wire [3:0]  ingress_fifo_empty;
-function [3:0] onehot2bin;
-input [0:nr_of_wb_ports-1] a;
-integer i;
-begin
-    onehot2bin = 0;
-    for (i=1;i<nr_of_wb_ports;i=i+1) begin
-        if (a[i])
-            onehot2bin = i;
-    end
-end
-endfunction
+wire [0:nr_of_wb_ports-1] egress_fifo_full;
+wire [0:nr_of_wb_ports-1] ingress_fifo_empty;
 genvar i;
 generate
     for (i=0;i<nr_of_wb_ports;i=i+1) begin : vector2array
         assign wb_adr_i[i] = wb_adr_i_v[(nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36];
         assign wb_dat_i[i] = wb_dat_i_v[(nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36];
-        assign egress_fifo_di[i] = (wb_state[i]==idle) ? wb_adr_i[i] : wb_dat_i[i];
+        assign egress_fifo_di[(nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36] = (wb_state[i]==idle) ? wb_adr_i[i] : wb_dat_i[i];
     end
 endgenerate
 generate
@@ -628,72 +803,16 @@ generate
             endcase
     end
 endgenerate
-generate
-    for (i=0;i<nr_of_wb_ports;i=i+1) begin : fifo_adr
-        fifo_adr_counter egress_wadrcnt (
-            .cke(wb_wr_ack[i]),
-            .q(egress_fifo_wadr_gray[i]),
-            .q_bin(egress_fifo_wadr_bin[i]),
-            .rst(wb_rst),
-            .clk(wb_clk));
-        fifo_adr_counter egress_radrcnt (
-            .cke(sdram_fifo_rd[i]),
-            .q(egress_fifo_radr_gray[i]),
-            .q_bin(egress_fifo_radr_bin[i]),
-            .rst(sdram_rst),
-            .clk(sdram_clk));
-	versatile_fifo_async_cmp
-            #(.ADDR_WIDTH(4))
-            egresscmp ( 
-                .wptr(egress_fifo_wadr_gray[i]), 
-		.rptr(egress_fifo_radr_gray[i]), 
-		.fifo_empty(sdram_fifo_empty[i]), 
-		.fifo_full(egress_fifo_full[i]), 
-		.wclk(wb_clk), 
-		.rclk(sdram_clk), 
-		.rst(wb_rst));
-        fifo_adr_counter ingress_wadrcnt (
-            .cke(sdram_fifo_wr[i]),
-            .q(ingress_fifo_wadr_gray[i]),
-            .q_bin(ingress_fifo_wadr_bin[i]),
-            .rst(sdram_rst),
-            .clk(sdram_clk));
-        fifo_adr_counter ingress_radrcnt (
-            .cke(wb_rd_ack[i]),
-            .q(ingress_fifo_radr_gray[i]),
-            .q_bin(ingress_fifo_radr_bin[i]),
-            .rst(wb_rst),
-            .clk(wb_clk));
-	versatile_fifo_async_cmp
-            #(.ADDR_WIDTH(4))
-            ingresscmp ( 
-                .wptr(ingress_fifo_wadr_gray[i]), 
-		.rptr(ingress_fifo_radr_gray[i]), 
-		.fifo_empty(ingress_fifo_empty[i]), 
-		.fifo_full(), 
-		.wclk(sdram_clk), 
-		.rclk(wb_clk), 
-		.rst(wb_rst));
-    end    
-endgenerate
-vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(36), .ADDR_WIDTH(8))
-    egress_dpram (
-    .d_a(egress_fifo_di[onehot2bin(wb_wr_ack)]),
-    .adr_a({onehot2bin(wb_wr_ack),egress_fifo_wadr_bin[onehot2bin(wb_wr_ack)]}), 
-    .we_a(|(wb_wr_ack)),
-    .clk_a(wb_clk),
-    .q_b(sdram_dat_o),
-    .adr_b({onehot2bin(sdram_fifo_rd),egress_fifo_radr_bin[onehot2bin(sdram_fifo_rd)]}),
-    .clk_b(sdram_clk) );
-vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(32), .ADDR_WIDTH(8))
-    ingress_dpram (
-    .d_a(sdram_dat_i),
-    .adr_a({onehot2bin(sdram_fifo_wr),ingress_fifo_wadr_bin[onehot2bin(sdram_fifo_wr)]}), 
-    .we_a(|(sdram_fifo_wr)),
-    .clk_a(sdram_clk),
-    .q_b(wb_dat_o),
-    .adr_b({onehot2bin(wb_rd_ack),ingress_fifo_radr_bin[onehot2bin(wb_rd_ack)]}),
-    .clk_b(wb_clk) );
+async_fifo_mq_md # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
+egress_FIFO(
+    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(wb_wr_ack), .clk1(wb_clk), .rst1(wb_rst),
+    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read(sdram_fifo_rd), .clk2(sdram_clk), .rst2(sdram_rst)
+);
+async_fifo_mq # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(32))
+ingress_FIFO(
+    .d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), .clk1(sdram_clk), .rst1(sdram_rst),
+    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(wb_rd_ack), .clk2(wb_clk), .rst2(wb_rst)
+);
 assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
 endmodule
 `timescale 1ns/1ns
@@ -756,9 +875,11 @@ module versatile_mem_ctrl_top
     wire [35:0] fifo_dat_o[0:3];
     wire [31:0] fifo_dat_i;
     wire [0:15] fifo_we[0:3];
-    wire fifo_rd, fifo_wr, count0;
-    wire [0:15] fifo_sel_i, fifo_sel_reg, fifo_sel_dly;
-    wire [1:0]  fifo_sel_domain_i, fifo_sel_domain_reg, fifo_sel_domain_dly;
+    wire fifo_rd, fifo_wr, idle, count0;
+    wire [0:15] fifo_sel_i, fifo_sel_dly;
+    reg [0:15] fifo_sel_reg;
+    wire [1:0]  fifo_sel_domain_i, fifo_sel_domain_dly;
+    reg [1:0] fifo_sel_domain_reg;
     reg refresh_req;
     wire [35:0] tx_fifo_dat_o;   
 generate   
@@ -874,17 +995,26 @@ encode encode0 (
     .fifo_empty_0(fifo_empty[0]), .fifo_empty_1(fifo_empty[1]), .fifo_empty_2(fifo_empty[2]), .fifo_empty_3(fifo_empty[3]),
     .fifo_sel(fifo_sel_i), .fifo_sel_domain(fifo_sel_domain_i)
 );
+always @ (posedge sdram_clk or posedge sdram_rst)
+begin
+    if (sdram_rst)
+        {fifo_sel_reg,fifo_sel_domain_reg} <= {16'h0,2'b00};
+    else
+        if (idle)
+            {fifo_sel_reg,fifo_sel_domain_reg} <= {fifo_sel_i,fifo_sel_domain_i};
+end
 decode decode0 (
     .fifo_sel(fifo_sel_reg), .fifo_sel_domain(fifo_sel_domain_reg),
     .fifo_we_0(fifo_re[0]), .fifo_we_1(fifo_re[1]), .fifo_we_2(fifo_re[2]), .fifo_we_3(fifo_re[3])
 );
-assign current_fifo_empty = (|(fifo_empty[0] & fifo_re[0])) | (|(fifo_empty[1] & fifo_re[1])) | (|(fifo_empty[2] & fifo_re[2])) | (|(fifo_empty[3] & fifo_re[3]));
+assign current_fifo_empty = (idle) ? (!(|fifo_sel_i)) : (|(fifo_empty[0] & fifo_re[0])) | (|(fifo_empty[1] & fifo_re[1])) | (|(fifo_empty[2] & fifo_re[2])) | (|(fifo_empty[3] & fifo_re[3]));
 decode decode1 (
     .fifo_sel(fifo_sel_dly), .fifo_sel_domain(fifo_sel_domain_dly),
     .fifo_we_0(fifo_we[0]), .fifo_we_1(fifo_we[1]), .fifo_we_2(fifo_we[2]), .fifo_we_3(fifo_we[3])
 );
     wire ref_cnt_zero;
-    reg [15:0] dq_i_reg, dq_i_tmp_reg;   
+    reg [15:0] dq_i_reg, dq_i_tmp_reg;
+    reg [17:0] dq_o_tmp_reg;
     wire cmd_aref, cmd_read;
     ref_counter ref_counter0( .zq(ref_cnt_zero), .rst(sdram_rst), .clk(sdram_clk));
     always @ (posedge sdram_clk or posedge sdram_rst)
@@ -900,10 +1030,8 @@ decode decode1 (
         .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
         .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
         .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
-        .fifo_sel_i(fifo_sel_i), .fifo_sel_domain_i(fifo_sel_domain_i),
-        .fifo_sel_reg(fifo_sel_reg), .fifo_sel_domain_reg(fifo_sel_domain_reg),
         .fifo_empty(current_fifo_empty), .fifo_rd(fifo_rd),
-        .count0(count0),
+        .state_idle(idle), .count0(count0),
         .refresh_req(refresh_req),
         .cmd_aref(cmd_aref), .cmd_read(cmd_read),
         .ba(ba_pad_o), .a(a_pad_o), .cmd({ras_pad_o, cas_pad_o, we_pad_o}), .dq_oe(dq_oe),
@@ -914,7 +1042,7 @@ decode decode1 (
 genvar i;
 generate
     for (i=0; i < 16; i=i+1) begin : dly
-        defparam delay0.depth=cl+2;   
+        defparam delay0.depth=cl+3;   
         defparam delay0.width=1;
         delay delay0 (
             .d(fifo_sel_reg[i]),
@@ -923,7 +1051,7 @@ generate
             .rst(sdram_rst)
         );
     end
-    defparam delay1.depth=cl+2;   
+    defparam delay1.depth=cl+3;   
     defparam delay1.width=2;
     delay delay1 (
         .d(fifo_sel_domain_reg),
@@ -931,7 +1059,7 @@ generate
         .clk(sdram_clk),
         .rst(sdram_rst)
     );
-    defparam delay2.depth=cl+2;   
+    defparam delay2.depth=cl+3;   
     defparam delay2.width=1;
     delay delay2 (
         .d(cmd_read),
@@ -942,18 +1070,28 @@ generate
 endgenerate  
     assign cs_n_pad_o = 1'b0;
     assign cke_pad_o  = 1'b1;
-   always @ (posedge sdram_clk or posedge sdram_rst)
+    always @ (posedge sdram_clk or posedge sdram_rst)
      if (sdram_rst)
        {dq_i_reg, dq_i_tmp_reg} <= {16'h0000,16'h0000};
      else
        {dq_i_reg, dq_i_tmp_reg} <= {dq_i, dq_i_reg};
    assign fifo_dat_i = {dq_i_tmp_reg, dq_i_reg};
-   always @ (posedge sdram_clk or posedge sdram_rst)
-     if (sdram_rst)
+    always @ (posedge sdram_clk or posedge sdram_rst)
+    if (sdram_rst) begin
        {dq_o, dqm_pad_o} <= {16'h0000,2'b00};
-     else
-       if (~count0)
-         {dq_o,dqm_pad_o} <= {fifo_dat_o[fifo_sel_domain_reg][35:20],~fifo_dat_o[fifo_sel_domain_reg][3:2]};
-       else
-         {dq_o,dqm_pad_o} <= {fifo_dat_o[fifo_sel_domain_reg][19:4],~fifo_dat_o[fifo_sel_domain_reg][1:0]};
+       dq_o_tmp_reg      <= 18'h0;
+    end else
+        if (~count0) begin
+            dq_o <= fifo_dat_o[fifo_sel_domain_reg][35:20];
+            dq_o_tmp_reg[17:2] <= fifo_dat_o[fifo_sel_domain_reg][19:4];
+            if (cmd_read)
+                dqm_pad_o <= 2'b00;
+            else
+                dqm_pad_o <= ~fifo_dat_o[fifo_sel_domain_reg][3:2];
+            if (cmd_read)
+                dq_o_tmp_reg[1:0] <= 2'b00;
+            else
+                dq_o_tmp_reg[1:0] <= ~fifo_dat_o[fifo_sel_domain_reg][1:0];
+       end else
+         {dq_o,dqm_pad_o} <= dq_o_tmp_reg;
 endmodule 

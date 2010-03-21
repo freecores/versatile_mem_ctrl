@@ -1,10 +1,8 @@
 `timescale 1ns/1ns
 module fsm_sdr_16 (
     adr_i, we_i, bte_i,
-    fifo_sel_i, fifo_sel_domain_i,
-    fifo_sel_reg, fifo_sel_domain_reg,
     fifo_empty, fifo_rd, count0,
-    refresh_req, cmd_aref, cmd_read,
+    refresh_req, cmd_aref, cmd_read, state_idle,
     ba, a, cmd, dq_oe,
     sdram_clk, sdram_rst
 );
@@ -17,18 +15,14 @@ input [ba_size+row_size+col_size-1:0] adr_i;
 input we_i;
 input [1:0] bte_i;
 
-input [0:15] fifo_sel_i;
-input [1:0] fifo_sel_domain_i;
-output [0:15] fifo_sel_reg;
-output [1:0] fifo_sel_domain_reg;
-
 input  fifo_empty;
 output fifo_rd;
 output count0;
 
 input refresh_req;
 output reg cmd_aref; // used for rerfresh ack
-output reg cmd_read; // used for ingress fifo control
+output cmd_read; // used for ingress fifo control
+output state_idle; // state=idle
 
 output reg [1:0] ba;
 output reg [12:0] a;
@@ -54,8 +48,9 @@ reg                we_reg;
 reg [1:0]          bte_reg;
 
 // to keep track of open rows per bank
-reg [row_size-1:0] open_row[3:0];
-reg [3:0]          open_ba;
+reg [row_size-1:0] open_row[0:3];
+reg [0:3]          open_ba;
+wire current_bank_closed, current_row_open;
 
 parameter [1:0] linear = 2'b00,
                 beat4  = 2'b01,
@@ -77,7 +72,7 @@ parameter [2:0] init = 3'b000,
                 adr  = 3'b011,
                 pch  = 3'b100,
                 act  = 3'b101,
-                nop  = 3'b110,
+                w4d  = 3'b110,
                 rw   = 3'b111;
 reg [2:0] state, next;
 
@@ -108,7 +103,7 @@ always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00,{row_size{1'b0}},{col_size{1'b0}}};
     else
-        if (state==adr & !counter[0])
+        if (state==adr & counter[0])
             {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
             
 always @ (posedge sdram_clk or posedge sdram_rst)
@@ -124,19 +119,22 @@ begin
     init:   if (counter==5'd31)     next = idle;
             else                    next = init;
     idle:   if (refresh_req)        next = rfr;
-            else if (|fifo_sel_i)   next = adr;
+            else if (!fifo_empty)   next = adr;
             else                    next = idle;
     rfr:    if (counter==5'd5)      next = idle;
             else                    next = rfr;
-    adr:    if (open_ba[ba_reg] & (open_row[ba_reg]==row_reg) & counter[0])  next = rw;
-            else if (!open_ba[ba_reg] & counter[0])                    next = act;
-            else if (counter[0])                                      next = pch;
+    adr:    if (current_row_open & counter[0] & we_i)  next = w4d;
+            else if (current_row_open & counter[0])                 next = rw;
+            else if (current_bank_closed & counter[0])              next = act;
+            else if (counter[0])                                    next = pch;
             else next = adr;
     pch:    if (counter[0])         next = act;
             else                    next = pch;
-    act:    if (counter==5'd2)      next = rw;
-            else                    next = act;
-//    nop:    next = rw;
+    act:    if (counter[1:0]==2'd2 & !fifo_empty)       next = rw;
+            else if (counter[1:0]==2'd2 & fifo_empty)   next = w4d;
+            else                                        next = act;
+    w4d:    if (!fifo_empty) next = rw;
+            else             next = w4d;
     rw:     casex ({bte_reg,counter})
             {linear,5'bxxxx1},{beat4,5'bxx111},{beat8,5'bx1111},{beat16,5'b11111}: next =  idle;
             default: next = rw;
@@ -153,20 +151,11 @@ begin
         if (state!=next)
             counter <= 5'd0;
         else
-            if (~(state==rw & fifo_empty & ~counter[0] & we_reg))
+            if (~(state==rw & next==rw & fifo_empty & counter[0] & we_reg))
                 counter <= counter + 5'd1;
 end
 
-always @ (posedge sdram_clk or posedge sdram_rst)
-begin
-    if (sdram_rst)
-        {fifo_sel_reg_int,fifo_sel_domain_reg_int} <= {16'h0,2'b00};
-    else
-        if (state==idle)
-            {fifo_sel_reg_int,fifo_sel_domain_reg_int} <= {fifo_sel_i,fifo_sel_domain_i};
-end
-
-assign {fifo_sel_reg,fifo_sel_domain_reg} = (state==idle) ? {fifo_sel_i,fifo_sel_domain_i} : {fifo_sel_reg_int,fifo_sel_domain_reg_int};
+//assign {fifo_sel_reg,fifo_sel_domain_reg} = (state==idle) ? {fifo_sel_i,fifo_sel_domain_i} : {fifo_sel_reg_int,fifo_sel_domain_reg_int};
 
 // LMR
 // [12:10] reserved
@@ -184,12 +173,13 @@ parameter [2:0] init_bl = 3'b001;
 // col_reg_a10 has bit [10] set to zero to disable auto precharge
 assign col_reg_a10_fix = a10_fix(col_reg);
 
+// ba = ba_reg ??
 always @ (posedge sdram_clk or posedge sdram_rst)
 begin
     if (sdram_rst)
-        {ba,a,cmd,cmd_aref,cmd_read} = {2'b00,13'd0,cmd_nop,1'b0,1'b0};
+        {ba,a,cmd,cmd_aref} = {2'b00,13'd0,cmd_nop,1'b0};
     else begin
-        {ba,a,cmd,cmd_aref,cmd_read} = {2'b00,13'd0,cmd_nop,1'b0,1'b0};
+        {ba,a,cmd,cmd_aref} = {2'b00,13'd0,cmd_nop,1'b0};
         casex ({state,counter})
         {init,5'd3}, {rfr,5'd0}:
             {ba,a,cmd} = {2'b00, 13'b0010000000000, cmd_pch};
@@ -208,8 +198,8 @@ begin
                 else
                     cmd = cmd_nop;*/
                 casex ({we_reg,counter[0],fifo_empty})
-                {1'b0,1'b0,1'bx}: {cmd,cmd_read} = {cmd_rd,1'b1};
-                {1'b1,1'b0,1'b0}: cmd = cmd_wr;
+                {1'b0,1'b0,1'bx}: cmd = cmd_rd;
+                {1'b1,1'b0,1'bx}: cmd = cmd_wr;
                 endcase
                 case (bte_reg)
                 linear: {ba,a} = {ba_reg,col_reg_a10_fix};
@@ -223,10 +213,13 @@ begin
 end
 
 // rd_adr goes high when next adr is fetched from sync RAM and during write burst
-assign fifo_rd = ((state==idle) & (next==adr)) ? 1'b1 :
-                 ((state==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
+assign fifo_rd = ((state==adr) & !counter[0]) ? 1'b1 :
+                 (state==w4d & !fifo_empty) ? 1'b1 :
+                 ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
                  1'b0;
 
+assign state_idle = (state==idle);
+assign cmd_read = (state==rw & !counter[0] & !we_reg);
 assign count0 = counter[0];
 
 //assign dq_oe = (state==rw);
@@ -234,7 +227,7 @@ always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         dq_oe <= 1'b0;
     else
-        dq_oe <= ((state==rw & we_reg & ~counter[0] & !fifo_empty) | (state==rw & we_reg & counter[0]));
+        dq_oe <= ((state==rw & we_reg & ~counter[0]) | (state==rw & we_reg & counter[0]));
             
 always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
@@ -251,5 +244,17 @@ else
     {2'b10,1'bx,cmd_act}: {open_ba[2],open_row[2]} <= {1'b1,row_reg};
     {2'b11,1'bx,cmd_act}: {open_ba[3],open_row[3]} <= {1'b1,row_reg};
     endcase
+
+// bank and row open ?
+assign current_bank_closed = (!(open_ba[0]) & bank==2'b00) ? 1'b1 :
+                             (!(open_ba[1]) & bank==2'b01) ? 1'b1 :
+                             (!(open_ba[2]) & bank==2'b10) ? 1'b1 :
+                             (!(open_ba[3]) & bank==2'b11) ? 1'b1 :
+                             1'b0;
+assign current_row_open = ((open_ba[0] & bank==2'b00) & open_row[0]==row) ? 1'b1 :
+                          ((open_ba[1] & bank==2'b01) & open_row[1]==row) ? 1'b1 :
+                          ((open_ba[2] & bank==2'b10) & open_row[2]==row) ? 1'b1 :
+                          ((open_ba[3] & bank==2'b11) & open_row[3]==row) ? 1'b1 :
+                          1'b0;
 
 endmodule
