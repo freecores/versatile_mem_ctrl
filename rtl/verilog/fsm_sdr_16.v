@@ -1,7 +1,7 @@
 `timescale 1ns/1ns
 module fsm_sdr_16 (
     adr_i, we_i, bte_i,
-    fifo_empty, fifo_rd, count0,
+    fifo_empty, fifo_rd_adr, fifo_rd_data, count0,
     refresh_req, cmd_aref, cmd_read, state_idle,
     ba, a, cmd, dq_oe,
     sdram_clk, sdram_rst
@@ -16,7 +16,7 @@ input we_i;
 input [1:0] bte_i;
 
 input  fifo_empty;
-output fifo_rd;
+output fifo_rd_adr, fifo_rd_data;
 output count0;
 
 input refresh_req;
@@ -103,7 +103,7 @@ always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00, {row_size{1'b0}}, {col_size{1'b0}}, 1'b0, 2'b00 };
     else
-        if (state==adr & counter[0])
+        if (state==adr & counter[1:0]==2'b10)
             {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
             
 always @ (posedge sdram_clk or posedge sdram_rst)
@@ -123,10 +123,10 @@ begin
             else                    next = idle;
     rfr:    if (counter==5'd5)      next = idle;
             else                    next = rfr;
-    adr:    if (current_row_open & counter[0] & we_i)  next = w4d;
-            else if (current_row_open & counter[0])                 next = rw;
-            else if (current_bank_closed & counter[0])              next = act;
-            else if (counter[0])                                    next = pch;
+    adr:    if (current_row_open & (counter[1:0]==2'b10) & we_i)  next = w4d;
+            else if (current_row_open & (counter[1:0]==2'b10))    next = rw;
+            else if (current_bank_closed & (counter[1:0]==2'b10)) next = act;
+            else if ((counter[1:0]==2'b10))                       next = pch;
             else next = adr;
     pch:    if (counter[0])         next = act;
             else                    next = pch;
@@ -213,10 +213,10 @@ begin
 end
 
 // rd_adr goes high when next adr is fetched from sync RAM and during write burst
-assign fifo_rd = ((state==adr) & !counter[0]) ? 1'b1 :
-                 (state==w4d & !fifo_empty) ? 1'b1 :
-                 ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
-                 1'b0;
+assign fifo_rd_adr = ((state==adr) & (counter[1:0]==2'b00)) ? 1'b1 : 1'b0;
+assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b1 :
+                      ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
+                      1'b0;
 
 assign state_idle = (state==idle);
 assign cmd_read = (state==rw & !counter[0] & !we_reg);

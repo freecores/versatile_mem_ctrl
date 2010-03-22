@@ -252,9 +252,9 @@ vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_l
     .adr_b({onehot2bin(read_enable),radr}),
     .clk_b(clk2) );
 endmodule
-module async_fifo_mq_md (
+module egress_fifo (
     d, fifo_full, write, write_enable, clk1, rst1,
-    q, fifo_empty, read, read_enable, clk2, rst2
+    q, fifo_empty, read_adr, read_data, read_enable, clk2, rst2
 );
 parameter a_hi_size = 4;
 parameter a_lo_size = 4;
@@ -268,7 +268,7 @@ input clk1;
 input rst1;
 output [data_width-1:0] q;
 output [0:nr_of_queues-1] fifo_empty;
-input                     read;
+input                     read_adr, read_data;
 input  [0:nr_of_queues-1] read_enable;
 input clk2;
 input rst2;
@@ -280,6 +280,8 @@ reg [a_lo_size-1:0] wadr;
 reg [a_lo_size-1:0] radr;
 reg [data_width-1:0] wdata;
 wire [data_width-1:0] wdataa[0:nr_of_queues-1];
+reg read_adr_reg;
+reg [0:nr_of_queues-1] read_enable_reg;
 genvar i;
 integer j,k,l;
 function [a_lo_size-1:0] onehot2bin;
@@ -293,6 +295,17 @@ begin
     end
 end
 endfunction
+always @ (posedge clk2 or posedge rst2)
+if (rst2)
+    read_adr_reg <= 1'b0;
+else
+    read_adr_reg <= read_adr;
+always @ (posedge clk2 or posedge rst2)
+if (rst2)
+    read_enable_reg <= {nr_of_queues{1'b0}};
+else
+    if (read_adr)
+        read_enable_reg <= read_enable;
 generate
     for (i=0;i<nr_of_queues;i=i+1) begin : fifo_adr
         gray_counter wadrcnt (
@@ -302,7 +315,7 @@ generate
             .rst(rst1),
             .clk(clk1));
         gray_counter radrcnt (
-            .cke(read & read_enable[i]),
+            .cke((read_adr_reg | read_data) & read_enable_reg[i]),
             .q(fifo_radr_gray[i]),
             .q_bin(fifo_radr_bin[i]),
             .rst(rst2),
@@ -330,7 +343,7 @@ always @*
 begin
     radr = {a_lo_size{1'b0}};
     for (k=0;k<nr_of_queues;k=k+1) begin
-        radr = (fifo_radr_bin[k] & {a_lo_size{read_enable[k]}}) | radr;
+        radr = (fifo_radr_bin[k] & {a_lo_size{read_enable_reg[k]}}) | radr;
     end
 end
 generate
@@ -352,7 +365,7 @@ vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_l
     .we_a(write),
     .clk_a(clk1),
     .q_b(q),
-    .adr_b({onehot2bin(read_enable),radr}),
+    .adr_b({onehot2bin(read_enable_reg),radr}),
     .clk_b(clk2) );
 endmodule
 module vfifo_dual_port_ram_dc_sw
@@ -382,6 +395,20 @@ module vfifo_dual_port_ram_dc_sw
    adr_b_reg <= adr_b;   
    assign q_b = ram[adr_b_reg];
 endmodule 
+module dff_sr ( aclr, aset, clock, data, q);
+    input	  aclr;
+    input	  aset;
+    input	  clock;
+    input	  data;
+    output reg	  q;
+   always @ (posedge clock or posedge aclr or posedge aset)
+     if (aclr)
+       q <= 1'b0;
+     else if (aset)
+       q <= 1'b1;
+     else
+       q <= data;
+endmodule
 module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk, rst );
    parameter ADDR_WIDTH = 4;   
    parameter N = ADDR_WIDTH-1;
@@ -392,11 +419,14 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk,
    parameter going_empty = 1'b0;
    parameter going_full  = 1'b1;
    input [N:0]  wptr, rptr;   
-   output reg	fifo_empty, fifo_full;
+   output reg	fifo_empty;
+   output       fifo_full;
    input 	wclk, rclk, rst;   
-   reg 	direction, direction_set, direction_clr;
+   wire direction;
+   reg 	direction_set, direction_clr;
    wire async_empty, async_full;
-   reg 	fifo_full2, fifo_empty2;   
+   wire fifo_full2;
+   reg  fifo_empty2;   
    always @ (wptr[N:N-1] or rptr[N:N-1])
      case ({wptr[N:N-1],rptr[N:N-1]})
        {Q1,Q2} : direction_set <= 1'b1;
@@ -416,20 +446,11 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk,
 	 {Q1,Q4} : direction_clr <= 1'b1;
 	 default : direction_clr <= 1'b0;
        endcase
-   always @ (posedge direction_set or posedge direction_clr)
-     if (direction_clr)
-       direction <= going_empty;
-     else
-       direction <= going_full;
+    dff_sr dff_sr_dir( .aclr(direction_clr), .aset(direction_set), .clock(1'b1), .data(1'b1), .q(direction));
    assign async_empty = (wptr == rptr) && (direction==going_empty);
    assign async_full  = (wptr == rptr) && (direction==going_full);
-   always @ (posedge wclk or posedge rst or posedge async_full)
-     if (rst)
-       {fifo_full, fifo_full2} <= 2'b00;
-     else if (async_full)
-       {fifo_full, fifo_full2} <= 2'b11;
-     else
-       {fifo_full, fifo_full2} <= {fifo_full2, async_full};
+    dff_sr dff_sr_empty0( .aclr(rst), .aset(async_full), .clock(wclk), .data(async_full), .q(fifo_full2));
+    dff_sr dff_sr_empty1( .aclr(rst), .aset(async_full), .clock(wclk), .data(fifo_full2), .q(fifo_full));
    always @ (posedge rclk or posedge async_empty)
      if (async_empty)
        {fifo_empty, fifo_empty2} <= 2'b11;
@@ -506,7 +527,7 @@ endmodule
 `timescale 1ns/1ns
 module fsm_sdr_16 (
     adr_i, we_i, bte_i,
-    fifo_empty, fifo_rd, count0,
+    fifo_empty, fifo_rd_adr, fifo_rd_data, count0,
     refresh_req, cmd_aref, cmd_read, state_idle,
     ba, a, cmd, dq_oe,
     sdram_clk, sdram_rst
@@ -518,7 +539,7 @@ input [ba_size+row_size+col_size-1:0] adr_i;
 input we_i;
 input [1:0] bte_i;
 input  fifo_empty;
-output fifo_rd;
+output fifo_rd_adr, fifo_rd_data;
 output count0;
 input refresh_req;
 output reg cmd_aref; 
@@ -589,7 +610,7 @@ always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00, {row_size{1'b0}}, {col_size{1'b0}}, 1'b0, 2'b00 };
     else
-        if (state==adr & counter[0])
+        if (state==adr & counter[1:0]==2'b10)
             {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
 always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
@@ -607,10 +628,10 @@ begin
             else                    next = idle;
     rfr:    if (counter==5'd5)      next = idle;
             else                    next = rfr;
-    adr:    if (current_row_open & counter[0] & we_i)  next = w4d;
-            else if (current_row_open & counter[0])                 next = rw;
-            else if (current_bank_closed & counter[0])              next = act;
-            else if (counter[0])                                    next = pch;
+    adr:    if (current_row_open & (counter[1:0]==2'b10) & we_i)  next = w4d;
+            else if (current_row_open & (counter[1:0]==2'b10))    next = rw;
+            else if (current_bank_closed & (counter[1:0]==2'b10)) next = act;
+            else if ((counter[1:0]==2'b10))                       next = pch;
             else next = adr;
     pch:    if (counter[0])         next = act;
             else                    next = pch;
@@ -674,10 +695,10 @@ begin
         endcase
     end
 end
-assign fifo_rd = ((state==adr) & !counter[0]) ? 1'b1 :
-                 (state==w4d & !fifo_empty) ? 1'b1 :
-                 ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
-                 1'b0;
+assign fifo_rd_adr = ((state==adr) & (counter[1:0]==2'b00)) ? 1'b1 : 1'b0;
+assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b1 :
+                      ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
+                      1'b0;
 assign state_idle = (state==idle);
 assign cmd_read = (state==rw & !counter[0] & !we_reg);
 assign count0 = counter[0];
@@ -717,7 +738,7 @@ module versatile_mem_ctrl_wb (
     wb_adr_i_v, wb_dat_i_v, wb_dat_o_v,
     wb_stb_i, wb_cyc_i, wb_ack_o,
     wb_clk, wb_rst,
-    sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd, sdram_fifo_re,
+    sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd_adr, sdram_fifo_rd_data, sdram_fifo_re,
     sdram_dat_i, sdram_fifo_wr, sdram_fifo_we,
     sdram_clk, sdram_rst
 );
@@ -732,7 +753,7 @@ input                           wb_clk;
 input                           wb_rst;
 output [35:0]               sdram_dat_o;
 output [0:nr_of_wb_ports-1] sdram_fifo_empty;
-input                       sdram_fifo_rd;
+input                       sdram_fifo_rd_adr, sdram_fifo_rd_data;
 input  [0:nr_of_wb_ports-1] sdram_fifo_re;
 input  [31:0]               sdram_dat_i;
 input                       sdram_fifo_wr;
@@ -809,10 +830,10 @@ generate
             endcase
     end
 endgenerate
-async_fifo_mq_md # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
+egress_fifo # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
 egress_FIFO(
     .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(wb_wr_ack)), .write_enable(wb_wr_ack),
-    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read(sdram_fifo_rd), .read_enable(sdram_fifo_re),
+    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), .read_enable(sdram_fifo_re),
     .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), .rst2(sdram_rst)
 );
 async_fifo_mq # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(32))
@@ -883,7 +904,7 @@ module versatile_mem_ctrl_top
     wire [35:0] fifo_dat_o[0:3];
     wire [31:0] fifo_dat_i;
     wire [0:15] fifo_we[0:3];
-    wire fifo_rd, fifo_wr, idle, count0;
+    wire fifo_rd_adr, fifo_rd_data, fifo_wr, idle, count0;
     wire [0:15] fifo_sel_i, fifo_sel_dly;
     reg [0:15] fifo_sel_reg;
     wire [1:0]  fifo_sel_domain_i, fifo_sel_domain_dly;
@@ -905,7 +926,8 @@ generate
             .wb_rst(wb_rst[0]),
             .sdram_dat_o(fifo_dat_o[0]),
             .sdram_fifo_empty(fifo_empty[0][0:nr_of_wb_ports_clk0-1]),
-            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_rd_adr(fifo_rd_adr),
+            .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[0][0:nr_of_wb_ports_clk0-1]),
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
@@ -932,7 +954,8 @@ generate
             .wb_rst(wb_rst[1]),
             .sdram_dat_o(fifo_dat_o[1]),
             .sdram_fifo_empty(fifo_empty[1][0:nr_of_wb_ports_clk1-1]),
-            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_rd_adr(fifo_rd_adr),
+            .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[1][0:nr_of_wb_ports_clk1-1]),
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
@@ -962,7 +985,8 @@ generate
             .wb_rst(wb_rst[2]),
             .sdram_dat_o(fifo_dat_o[2]),
             .sdram_fifo_empty(fifo_empty[2][0:nr_of_wb_ports_clk2-1]),
-            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_rd_adr(fifo_rd_adr),
+            .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[2][0:nr_of_wb_ports_clk2-1]),
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
@@ -992,7 +1016,8 @@ generate
             .wb_rst(wb_rst[3]),
             .sdram_dat_o(fifo_dat_o[3]),
             .sdram_fifo_empty(fifo_empty[3][0:nr_of_wb_ports_clk3-1]),
-            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_rd_adr(fifo_rd_adr),
+            .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[3][0:nr_of_wb_ports_clk3-1]),
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
@@ -1046,7 +1071,7 @@ decode decode1 (
         .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
         .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
         .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
-        .fifo_empty(current_fifo_empty), .fifo_rd(fifo_rd),
+        .fifo_empty(current_fifo_empty), .fifo_rd_adr(fifo_rd_adr), .fifo_rd_data(fifo_rd_data),
         .state_idle(idle), .count0(count0),
         .refresh_req(refresh_req),
         .cmd_aref(cmd_aref), .cmd_read(cmd_read),

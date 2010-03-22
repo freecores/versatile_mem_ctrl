@@ -106,7 +106,7 @@ module versatile_mem_ctrl_top
     wire [35:0] fifo_dat_o[0:3];
     wire [31:0] fifo_dat_i;
     wire [0:15] fifo_we[0:3];
-    wire fifo_rd, fifo_wr, idle, count0;
+    wire fifo_rd_adr, fifo_rd_data, fifo_wr, idle, count0;
     
     wire [0:15] fifo_sel_i, fifo_sel_dly;
     reg [0:15] fifo_sel_reg;
@@ -134,7 +134,8 @@ generate
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[0]),
             .sdram_fifo_empty(fifo_empty[0][0:nr_of_wb_ports_clk0-1]),
-            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_rd_adr(fifo_rd_adr),
+            .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[0][0:nr_of_wb_ports_clk0-1]),
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
@@ -164,7 +165,8 @@ generate
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[1]),
             .sdram_fifo_empty(fifo_empty[1][0:nr_of_wb_ports_clk1-1]),
-            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_rd_adr(fifo_rd_adr),
+            .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[1][0:nr_of_wb_ports_clk1-1]),
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
@@ -197,7 +199,8 @@ generate
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[2]),
             .sdram_fifo_empty(fifo_empty[2][0:nr_of_wb_ports_clk2-1]),
-            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_rd_adr(fifo_rd_adr),
+            .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[2][0:nr_of_wb_ports_clk2-1]),
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
@@ -230,7 +233,8 @@ generate
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[3]),
             .sdram_fifo_empty(fifo_empty[3][0:nr_of_wb_ports_clk3-1]),
-            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_rd_adr(fifo_rd_adr),
+            .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[3][0:nr_of_wb_ports_clk3-1]),
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
@@ -298,7 +302,7 @@ decode decode1 (
         .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
         .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
         .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
-        .fifo_empty(current_fifo_empty), .fifo_rd(fifo_rd),
+        .fifo_empty(current_fifo_empty), .fifo_rd_adr(fifo_rd_adr), .fifo_rd_data(fifo_rd_data),
         .state_idle(idle), .count0(count0),
         .refresh_req(refresh_req),
         .cmd_aref(cmd_aref), .cmd_read(cmd_read),

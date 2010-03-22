@@ -5,7 +5,7 @@ module versatile_mem_ctrl_wb (
     wb_stb_i, wb_cyc_i, wb_ack_o,
     wb_clk, wb_rst,
     // SDRAM controller interface
-    sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd, sdram_fifo_re,
+    sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd_adr, sdram_fifo_rd_data, sdram_fifo_re,
     sdram_dat_i, sdram_fifo_wr, sdram_fifo_we,
     sdram_clk, sdram_rst
 
@@ -24,7 +24,7 @@ input                           wb_rst;
 
 output [35:0]               sdram_dat_o;
 output [0:nr_of_wb_ports-1] sdram_fifo_empty;
-input                       sdram_fifo_rd;
+input                       sdram_fifo_rd_adr, sdram_fifo_rd_data;
 input  [0:nr_of_wb_ports-1] sdram_fifo_re;
 input  [31:0]               sdram_dat_i;
 input                       sdram_fifo_wr;
@@ -121,10 +121,10 @@ generate
     end
 endgenerate
 
-async_fifo_mq_md # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
+egress_fifo # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
 egress_FIFO(
     .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(wb_wr_ack)), .write_enable(wb_wr_ack),
-    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read(sdram_fifo_rd), .read_enable(sdram_fifo_re),
+    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), .read_enable(sdram_fifo_re),
     .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), .rst2(sdram_rst)
 );
 

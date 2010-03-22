@@ -3,7 +3,10 @@ svn_export: versatile_fifo_dual_port_ram.v versatile_fifo_async_cmp.v
 versatile_fifo_dual_port_ram.v:
 	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_dual_port_ram.v
 
-versatile_fifo_async_cmp.v:
+dff_sr.v:
+	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/dff_sr.v
+
+versatile_fifo_async_cmp.v: dff_sr.v
 	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_async_cmp.v
 
 async_fifo_mq.v:
@@ -42,8 +45,8 @@ versatile_mem_ctrl_ip.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram
 
 all: svn_export versatile_fifo_dual_port_ram_dc_dw.v versatile_counter fifo_fill.v sdr_16.v ddr_16.v versatile_mem_ctrl_ip.v
 
-sdr_16.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v async_fifo_mq.v async_fifo_mq_md.v versatile_counter
-	vppreproc --simple +define+SDR_16 delay.v codec.v gray_counter.v async_fifo_mq.v async_fifo_mq_md.v versatile_fifo_dual_port_ram_dc_sw.v versatile_fifo_async_cmp.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v > sdr_16.v
+sdr_16.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_sw.v async_fifo_mq.v versatile_counter
+	vppreproc --simple +define+SDR_16 delay.v codec.v gray_counter.v async_fifo_mq.v egress_fifo.v versatile_fifo_dual_port_ram_dc_sw.v dff_sr.v versatile_fifo_async_cmp.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v > sdr_16.v
 
 all: sdr_16.v
 
