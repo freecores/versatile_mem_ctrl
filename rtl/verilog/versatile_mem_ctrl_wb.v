@@ -5,8 +5,8 @@ module versatile_mem_ctrl_wb (
     wb_stb_i, wb_cyc_i, wb_ack_o,
     wb_clk, wb_rst,
     // SDRAM controller interface
-    sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd,
-    sdram_dat_i, sdram_fifo_wr,
+    sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd, sdram_fifo_re,
+    sdram_dat_i, sdram_fifo_wr, sdram_fifo_we,
     sdram_clk, sdram_rst
 
 );
@@ -24,9 +24,11 @@ input                           wb_rst;
 
 output [35:0]               sdram_dat_o;
 output [0:nr_of_wb_ports-1] sdram_fifo_empty;
-input  [0:nr_of_wb_ports-1] sdram_fifo_rd;
+input                       sdram_fifo_rd;
+input  [0:nr_of_wb_ports-1] sdram_fifo_re;
 input  [31:0]               sdram_dat_i;
-input  [0:nr_of_wb_ports-1] sdram_fifo_wr;
+input                       sdram_fifo_wr;
+input  [0:nr_of_wb_ports-1] sdram_fifo_we;
 input                       sdram_clk;
 input                       sdram_rst;
 
@@ -121,38 +123,18 @@ endgenerate
 
 async_fifo_mq_md # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
 egress_FIFO(
-    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(wb_wr_ack), .clk1(wb_clk), .rst1(wb_rst),
-    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read(sdram_fifo_rd), .clk2(sdram_clk), .rst2(sdram_rst)
+    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(wb_wr_ack)), .write_enable(wb_wr_ack),
+    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read(sdram_fifo_rd), .read_enable(sdram_fifo_re),
+    .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), .rst2(sdram_rst)
 );
 
 async_fifo_mq # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(32))
 ingress_FIFO(
-    .d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), .clk1(sdram_clk), .rst1(sdram_rst),
-    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(wb_rd_ack), .clk2(wb_clk), .rst2(wb_rst)
+    .d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), .write_enable(sdram_fifo_we),
+    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(|(wb_rd_ack)), .read_enable(wb_rd_ack),
+    .clk1(sdram_clk), .rst1(sdram_rst), .clk2(wb_clk), .rst2(wb_rst)
 );
 
-/*
-vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(36), .ADDR_WIDTH(8))
-    egress_dpram (
-    .d_a(egress_fifo_di[onehot2bin(wb_wr_ack)]),
-//    .adr_a({onehot2bin(wb_wr_ack),egress_fifo_wadr_bin[onehot2bin(wb_wr_ack)]}), 
-    .adr_a({onehot2bin(wb_wr_ack),egress_wadr}), 
-    .we_a(|(wb_wr_ack)),
-    .clk_a(wb_clk),
-    .q_b(sdram_dat_o),
-    .adr_b({onehot2bin(sdram_fifo_rd),egress_fifo_radr_bin[onehot2bin(sdram_fifo_rd)]}),
-    .clk_b(sdram_clk) );
-
-vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(32), .ADDR_WIDTH(8))
-    ingress_dpram (
-    .d_a(sdram_dat_i),
-    .adr_a({onehot2bin(sdram_fifo_wr),ingress_fifo_wadr_bin[onehot2bin(sdram_fifo_wr)]}), 
-    .we_a(|(sdram_fifo_wr)),
-    .clk_a(sdram_clk),
-    .q_b(wb_dat_o),
-    .adr_b({onehot2bin(wb_rd_ack),ingress_fifo_radr_bin[onehot2bin(wb_rd_ack)]}),
-    .clk_b(wb_clk) );
-*/    
 assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
 
 endmodule

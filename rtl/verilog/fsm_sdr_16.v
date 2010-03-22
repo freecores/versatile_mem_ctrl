@@ -101,7 +101,7 @@ endfunction
 assign {bank,row,col} = adr_i;
 always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
-        {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00,{row_size{1'b0}},{col_size{1'b0}}};
+        {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00, {row_size{1'b0}}, {col_size{1'b0}}, 1'b0, 2'b00 };
     else
         if (state==adr & counter[0])
             {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};

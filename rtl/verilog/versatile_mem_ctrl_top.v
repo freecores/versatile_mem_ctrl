@@ -134,9 +134,11 @@ generate
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[0]),
             .sdram_fifo_empty(fifo_empty[0][0:nr_of_wb_ports_clk0-1]),
-            .sdram_fifo_rd(fifo_re[0][0:nr_of_wb_ports_clk0-1] & {nr_of_wb_ports_clk0{fifo_rd}}),
+            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_re(fifo_re[0][0:nr_of_wb_ports_clk0-1]),
             .sdram_dat_i(fifo_dat_i),
-            .sdram_fifo_wr(fifo_we[0][0:nr_of_wb_ports_clk0-1] & {nr_of_wb_ports_clk0{fifo_wr}}),
+            .sdram_fifo_wr(fifo_wr),
+            .sdram_fifo_we(fifo_we[0][0:nr_of_wb_ports_clk0-1]),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
     end
@@ -162,9 +164,11 @@ generate
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[1]),
             .sdram_fifo_empty(fifo_empty[1][0:nr_of_wb_ports_clk1-1]),
-            .sdram_fifo_rd(fifo_re[1][0:nr_of_wb_ports_clk1-1] & {nr_of_wb_ports_clk1{fifo_rd}}),
+            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_re(fifo_re[1][0:nr_of_wb_ports_clk1-1]),
             .sdram_dat_i(fifo_dat_i),
-            .sdram_fifo_wr(fifo_we[1][0:nr_of_wb_ports_clk1-1] & {nr_of_wb_ports_clk1{fifo_wr}}),
+            .sdram_fifo_wr(fifo_wr),
+            .sdram_fifo_we(fifo_we[1][0:nr_of_wb_ports_clk1-1]),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
         if (nr_of_wb_ports_clk1 < 16) begin
@@ -193,9 +197,11 @@ generate
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[2]),
             .sdram_fifo_empty(fifo_empty[2][0:nr_of_wb_ports_clk2-1]),
-            .sdram_fifo_rd(fifo_re[2][0:nr_of_wb_ports_clk2-1] & {nr_of_wb_ports_clk2{fifo_rd}}),
+            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_re(fifo_re[2][0:nr_of_wb_ports_clk2-1]),
             .sdram_dat_i(fifo_dat_i),
-            .sdram_fifo_wr(fifo_we[2][0:nr_of_wb_ports_clk2-1] & {nr_of_wb_ports_clk2{fifo_wr}}),
+            .sdram_fifo_wr(fifo_wr),
+            .sdram_fifo_we(fifo_we[2][0:nr_of_wb_ports_clk2-1]),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
         if (nr_of_wb_ports_clk2 < 16) begin
@@ -224,9 +230,11 @@ generate
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[3]),
             .sdram_fifo_empty(fifo_empty[3][0:nr_of_wb_ports_clk3-1]),
-            .sdram_fifo_rd(fifo_re[3][0:nr_of_wb_ports_clk3-1] & {nr_of_wb_ports_clk3{fifo_rd}}),
+            .sdram_fifo_rd(fifo_rd),
+            .sdram_fifo_re(fifo_re[3][0:nr_of_wb_ports_clk3-1]),
             .sdram_dat_i(fifo_dat_i),
-            .sdram_fifo_wr(fifo_we[3][0:nr_of_wb_ports_clk3-1] & {nr_of_wb_ports_clk3{fifo_wr}}),
+            .sdram_fifo_wr(fifo_wr),
+            .sdram_fifo_we(fifo_we[3][0:nr_of_wb_ports_clk3-1]),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
         if (nr_of_wb_ports_clk3 < 16) begin
