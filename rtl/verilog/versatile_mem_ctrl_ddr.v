@@ -32,10 +32,16 @@ module versatile_mem_ctrl_ddr (
   wire   [31:0] dq_rx;
   wire    [1:0] dqs_o, dqs_n_o, dqm_o;
   wire   [15:0] dq_o;
-  wire    [1:0] dqs_delayed;
-  wire    [1:0] dqs_n_delayed;
+  wire    [1:0] dqs_delayed, dqs_n_delayed;
+
+  wire   [15:0] dq_iobuf;
+  wire    [1:0] dqs_iobuf, dqs_n_iobuf;
 
   genvar        i;
+
+///////////////////////////////////////////////////////////////////////////////
+// Common for both Xilinx and Altera
+///////////////////////////////////////////////////////////////////////////////
 
   // Generate clock with equal delay as data
   ddr_ff_out ddr_ff_out_ck (
@@ -87,10 +93,11 @@ module versatile_mem_ctrl_ddr (
     end
   endgenerate
 
-  // Assign outports
-  assign dqs_io   = dq_en ? dqs_o : 2'bz;
-  assign dqs_n_io = dq_en ? dqs_n_o : 2'bz;
 
+
+///////////////////////////////////////////////////////////////////////////////
+// Xilinx
+///////////////////////////////////////////////////////////////////////////////
 
 `ifdef XILINX   
 
@@ -99,7 +106,41 @@ module versatile_mem_ctrl_ddr (
   reg   [3:0] dqm_tx_reg;
   wire  [3:0] dqm_tx;
 
-  // Data out
+  // IO BUFFER
+  // DDR data to/from DDR2 SDRAM
+  generate
+    for (i=0; i<16; i=i+1) begin:iobuf_dq
+      IOBUF u_iobuf_dq (
+        .I(dq_o[i]),
+        .T(!dq_en),
+        .IO(dq_io[i]),
+        .O(dq_iobuf[i]));
+    end
+  endgenerate
+
+  // DQS strobe to/from DDR2 SDRAM
+  generate
+    for (i=0; i<2; i=i+1) begin:iobuf_dqs
+      IOBUF u_iobuf_dqs (
+        .I(dqs_o[i]),
+        .T(!dq_en),
+        .IO(dqs_io[i]),
+        .O(dqs_iobuf[i]));
+    end
+  endgenerate
+
+  // DQS strobe to/from DDR2 SDRAM
+  generate
+    for (i=0; i<2; i=i+1) begin:iobuf_dqs_n
+      IOBUF u_iobuf_dqs_n (
+        .I(dqs_n_o[i]),
+        .T(!dq_en),
+        .IO(dqs_n_io[i]),
+        .O(dqs_n_iobuf[i]));
+    end
+  endgenerate
+
+
   // Data from Tx FIFO
   always @ (posedge sdram_clk_270 or posedge wb_rst)
     if (wb_rst)
@@ -112,7 +153,7 @@ module versatile_mem_ctrl_ddr (
 
   assign dq_tx[15:0] = tx_dat_i[35:20];
 
-  // DDR flip-flops
+  // Output Data DDR flip-flops
   generate
     for (i=0; i<16; i=i+1) begin:data_out_oddr
       ddr_ff_out ddr_ff_out_inst_0 (
@@ -127,10 +168,6 @@ module versatile_mem_ctrl_ddr (
     end
   endgenerate
 
-  // Assign outports
-  assign dq_io = dq_en ? dq_o : {16{1'bz}};
-
-  // Data mask
   // Data mask from Tx FIFO
   always @ (posedge sdram_clk_270 or posedge wb_rst)
     if (wb_rst)
@@ -143,16 +180,16 @@ module versatile_mem_ctrl_ddr (
 
   always @ (posedge sdram_clk_180 or posedge wb_rst)
     if (wb_rst)
-      dqm_tx_reg[3:2]  <= 2'b00;
+      dqm_tx_reg[3:2] <= 2'b00;
     else
       if (dqm_en)
-        dqm_tx_reg[3:2]  <= 2'b00;
+        dqm_tx_reg[3:2] <= 2'b00;
       else
-        dqm_tx_reg[3:2]  <= tx_dat_i[3:2];
+        dqm_tx_reg[3:2] <= tx_dat_i[3:2];
 
   assign dqm_tx[1:0] = (dqm_en) ? 2'b00 : tx_dat_i[3:2];
 
-  // DDR flip-flops
+  // Mask output DDR flip-flops
   generate
     for (i=0; i<2; i=i+1) begin:data_mask_oddr
       ddr_ff_out ddr_ff_out_inst_1 (
@@ -167,11 +204,20 @@ module versatile_mem_ctrl_ddr (
     end
   endgenerate
 
-  // Assign outport
-  assign dm_rdqs_io = dq_en ? dqm_o : 2'bzz;
+  // Data mask to DDR2 SDRAM
+  generate
+    for (i=0; i<2; i=i+1) begin:iobuf_dqm
+      IOBUF u_iobuf_dqm (
+        .I(dqm_o[i]),
+        .T(!dq_en),
+        .IO(dm_rdqs_io[i]),
+        .O());
+    end
+  endgenerate
+
     
+`ifdef INT_CLOCKED_DATA_CAPTURE
   // Data in
-  `ifdef INT_CLOCKED_DATA_CAPTURE
   // DDR flip-flops
   generate
     for (i=0; i<16; i=i+1) begin:iddr2gen
@@ -201,26 +247,168 @@ module versatile_mem_ctrl_ddr (
       dq_rx_reg[15:0] <= dq_rx[15:0];
 
   assign rx_dat_o = {dq_rx_reg, 4'h0};
-  `endif   // INT_CLOCKED_DATA_CAPTURE
+`endif   // INT_CLOCKED_DATA_CAPTURE
 
-  `ifdef DEL_DQS_DATA_CAPTURE_1
-   // Delay DQS
-   // DDR FF
-  `endif   // DEL_DQS_DATA_CAPTURE_1
 
-  `ifdef DEL_DQS_DATA_CAPTURE_2
-   // DDR data to IOBUF
-   // Delay data (?)
-   // IDDR FF
-   // Rise & fall clocked FF
-   // Fall sync FF
-   // Mux
-   // DDR DQS to IODUFDS
-   // Delay DQS
-   // BUFIO (?)
-  `endif   // DEL_DQS_DATA_CAPTURE_2
+`ifdef DEL_DQS_DATA_CAPTURE_1
+
+  wire  [1:0] dqs_iodelay, dqs_n_iodelay;
+
+  // Delay DQS
+  assign # 2 dqs_iodelay   = dqs_iobuf;
+  assign # 2 dqs_n_iodelay = dqs_n_iobuf;
+
+  // IDDR FF
+  generate
+    for (i=0; i<16; i=i+1) begin:iddr_dq
+      ddr_ff_in ddr_ff_in_inst_0 (
+        .Q0(dq_rx[i]), 
+        .Q1(dq_rx[i+16]), 
+        .C0(dqs_iodelay[0]), 
+        .C1(dqs_n_iodelay[0]), 
+        .CE(1'b1), 
+        .D(dq_iobuf[i]),
+        .R(wb_rst),  
+        .S(1'b0));
+    end
+  endgenerate
+
+  // Data to Rx FIFO
+  always @ (posedge sdram_clk_0 or posedge wb_rst)
+    if (wb_rst)
+      dq_rx_reg[31:16] <= 16'h0;
+    else
+      dq_rx_reg[31:16] <= dq_rx[31:16];
+
+  always @ (posedge sdram_clk_0 or posedge wb_rst)
+    if (wb_rst)
+      dq_rx_reg[15:0] <= 16'h0;
+    else
+      dq_rx_reg[15:0] <= dq_rx[15:0];
+
+  assign rx_dat_o = {dq_rx_reg, 4'h0};
+  
+`endif   // DEL_DQS_DATA_CAPTURE_1
+
+
+`ifdef DEL_DQS_DATA_CAPTURE_2
+
+  wire [15:0] dq_iodelay;
+  wire  [1:0] dqs_iodelay, dqs_n_iodelay;
+  wire [15:0] dq_iddr_fall, dq_iddr_rise;
+  reg  [15:0] dq_fall_1, dq_rise_1;
+  reg  [15:0] dq_fall_2, dq_rise_2;
+  reg  [15:0] dq_fall_3, dq_rise_3;
+
+
+  // Delay data
+  // IODELAY is available in the Xilinx Virtex FPGAs
+  /*IODELAY # (
+    .DELAY_SRC(),
+    .IDELAY_TYPE(),
+    .HIGH_PERFORMANCE_MODE(),
+    .IDELAY_VALUE(),
+    .ODELAY_VALUE())
+   u_idelay_dq (
+      .DATAOUT(),
+      .C(),
+      .CE(),
+      .DATAIN(),
+      .IDATAIN(),
+      .INC(),
+      .ODATAIN(),
+      .RST(),
+      .T());*/
+  // IODELAY is NOT available in the Xilinx Spartan FPGAs, 
+  // equivalent delay can be implemented using a chain of LUT
+  /*lut_delay lut_delay_dq (
+    .clk_i(),
+    .d_i(dq_iobuf),
+    .d_o(dq_iodelay));*/
+
+  // IDDR FF
+  generate
+    for (i=0; i<16; i=i+1) begin:iddr_dq
+      ddr_ff_in ddr_ff_in_inst_0 (
+        .Q0(dq_iddr_fall[i]), 
+        .Q1(dq_iddr_rise[i]), 
+        .C0(dqs_iodelay[0]), 
+        .C1(dqs_n_iodelay[0]),
+        .CE(1'b1), 
+        .D(dq_iobuf[i]),
+        .R(wb_rst),  
+        .S(1'b0));
+    end
+  endgenerate
+   
+  // Rise & fall clocked FF
+  always @ (posedge sdram_clk_0 or posedge wb_rst)
+    if (wb_rst) begin
+      dq_fall_1 <= 16'h0;
+      dq_rise_1 <= 16'h0;
+    end else begin
+      dq_fall_1 <= dq_iddr_fall;
+      dq_rise_1 <= dq_iddr_rise;
+    end
+
+  always @ (posedge sdram_clk_180 or posedge wb_rst)
+    if (wb_rst) begin
+      dq_fall_2 <= 16'h0;
+      dq_rise_2 <= 16'h0;
+    end else begin
+      dq_fall_2 <= dq_iddr_fall;
+      dq_rise_2 <= dq_iddr_rise;
+    end
+   
+  // Fall sync FF
+  always @ (posedge sdram_clk_0 or posedge wb_rst)
+    if (wb_rst) begin
+      dq_fall_3 <= 16'h0;
+      dq_rise_3 <= 16'h0;
+    end else begin
+      dq_fall_3 <= dq_fall_2;
+      dq_rise_3 <= dq_rise_2;
+    end
+  
+  // Mux
+  assign rx_dat_o[35:32] = 4'h0;
+  assign rx_dat_o[31:16] = dq_fall_1;
+  assign rx_dat_o[15:0]  = dq_rise_1;
+
+  // DDR DQS to IODUFDS
+  // Delay DQS
+  // IODELAY is NOT available in the Xilinx Spartan FPGAs, 
+  // equivalent delay can be implemented using a chain of LUTs
+/*
+  generate
+    for (i=0; i<2; i=i+1) begin:lut_delay_dqs
+      lut_delay lut_delay_dqs (
+        .d_i(dqs_iobuf[i]),
+        .d_o(dqs_iodelay[i]));
+    end
+  endgenerate
+  generate
+    for (i=0; i<2; i=i+1) begin:lut_delay_dqs_n
+      lut_delay lut_delay_dqs_n (
+        .d_i(dqs_n_iobuf[i]),
+        .d_o(dqs_n_iodelay[i]));
+    end
+  endgenerate
+*/
+
+  assign # 2 dqs_iodelay   = dqs_iobuf;
+  assign # 2 dqs_n_iodelay = dqs_n_iobuf;
+  
+
+  // BUFIO (?)
+`endif   // DEL_DQS_DATA_CAPTURE_2
 
 `endif   // XILINX
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Altera
+///////////////////////////////////////////////////////////////////////////////
 
 `ifdef ALTERA
 
@@ -269,7 +457,7 @@ module versatile_mem_ctrl_ddr (
 
 
   // Data in
-  `ifdef INT_CLOCKED_DATA_CAPTURE
+`ifdef INT_CLOCKED_DATA_CAPTURE
   // DDR flip-flops
   generate
     for (i=0; i<16; i=i+1) begin:iddr2gen
@@ -293,14 +481,14 @@ module versatile_mem_ctrl_ddr (
       dq_rx_reg <= dq_rx;
 
   assign rx_dat_o = {dq_rx_reg, 4'h0};
-  `endif   // INT_CLOCKED_DATA_CAPTURE
+`endif   // INT_CLOCKED_DATA_CAPTURE
 
-  `ifdef DEL_DQS_DATA_CAPTURE_1
+`ifdef DEL_DQS_DATA_CAPTURE_1
    // Delay DQS
    // DDR FF
-  `endif   // DEL_DQS_DATA_CAPTURE_1
+`endif   // DEL_DQS_DATA_CAPTURE_1
 
-  `ifdef DEL_DQS_DATA_CAPTURE_2
+`ifdef DEL_DQS_DATA_CAPTURE_2
    // DDR data to IOBUFFER
    // Delay data (?)
    // DDR FF
@@ -310,7 +498,7 @@ module versatile_mem_ctrl_ddr (
    // DDR DQS to IODUFDS
    // Delay DQS
    // BUFIO (?)
-  `endif   // DEL_DQS_DATA_CAPTURE_2
+`endif   // DEL_DQS_DATA_CAPTURE_2
 
 `endif   // ALTERA
 
