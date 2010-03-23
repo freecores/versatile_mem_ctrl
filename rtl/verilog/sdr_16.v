@@ -565,6 +565,7 @@ reg [1:0]          bte_reg;
 reg [row_size-1:0] open_row[0:3];
 reg [0:3]          open_ba;
 wire current_bank_closed, current_row_open;
+reg current_bank_closed_reg, current_row_open_reg;
 parameter [1:0] linear = 2'b00,
                 beat4  = 2'b01,
                 beat8  = 2'b10,
@@ -628,10 +629,10 @@ begin
             else                    next = idle;
     rfr:    if (counter==5'd5)      next = idle;
             else                    next = rfr;
-    adr:    if (current_row_open & (counter[1:0]==2'b10) & we_i)  next = w4d;
-            else if (current_row_open & (counter[1:0]==2'b10))    next = rw;
-            else if (current_bank_closed & (counter[1:0]==2'b10)) next = act;
-            else if ((counter[1:0]==2'b10))                       next = pch;
+    adr:    if (current_row_open_reg & (counter[1:0]==2'b11) & we_reg)  next = w4d;
+            else if (current_row_open_reg & (counter[1:0]==2'b11))    next = rw;
+            else if (current_bank_closed_reg & (counter[1:0]==2'b11)) next = act;
+            else if ((counter[1:0]==2'b11))                       next = pch;
             else next = adr;
     pch:    if (counter[0])         next = act;
             else                    next = pch;
@@ -732,6 +733,11 @@ assign current_row_open = ((open_ba[0] & bank==2'b00) & open_row[0]==row) ? 1'b1
                           ((open_ba[2] & bank==2'b10) & open_row[2]==row) ? 1'b1 :
                           ((open_ba[3] & bank==2'b11) & open_row[3]==row) ? 1'b1 :
                           1'b0;
+always @ (posedge sdram_clk or posedge sdram_rst)
+    if (sdram_rst)
+        {current_bank_closed_reg, current_row_open_reg} <= {1'b1, 1'b0};
+    else
+        {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
 endmodule
 `timescale 1ns/1ns
 module versatile_mem_ctrl_wb (
