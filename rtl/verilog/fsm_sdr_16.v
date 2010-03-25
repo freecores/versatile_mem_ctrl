@@ -234,6 +234,13 @@ always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
     {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
 else
+    if (cmd==cmd_pch & a[10])
+        open_ba <= 4'b0000;
+    else if (cmd==cmd_pch)
+        open_ba[ba_reg] <= 1'b0;
+    else if (cmd==cmd_act)
+        {open_ba[ba_reg],open_row[ba_reg]} <= {1'b1,row_reg};
+/*
     casex ({ba,a[10],cmd})
     {2'bxx,1'b1,cmd_pch}: open_ba <= 4'b0000;
     {2'b00,1'b0,cmd_pch}: open_ba[0] <= 1'b0;
@@ -245,22 +252,29 @@ else
     {2'b10,1'bx,cmd_act}: {open_ba[2],open_row[2]} <= {1'b1,row_reg};
     {2'b11,1'bx,cmd_act}: {open_ba[3],open_row[3]} <= {1'b1,row_reg};
     endcase
+*/
 
 // bank and row open ?
+assign current_bank_closed = !(open_ba[bank]);
+assign current_row_open = open_ba[bank] & (open_row[bank]==row);
+/*
 assign current_bank_closed = (!(open_ba[0]) & bank==2'b00) ? 1'b1 :
                              (!(open_ba[1]) & bank==2'b01) ? 1'b1 :
                              (!(open_ba[2]) & bank==2'b10) ? 1'b1 :
                              (!(open_ba[3]) & bank==2'b11) ? 1'b1 :
                              1'b0;
+
 assign current_row_open = ((open_ba[0] & bank==2'b00) & open_row[0]==row) ? 1'b1 :
                           ((open_ba[1] & bank==2'b01) & open_row[1]==row) ? 1'b1 :
                           ((open_ba[2] & bank==2'b10) & open_row[2]==row) ? 1'b1 :
                           ((open_ba[3] & bank==2'b11) & open_row[3]==row) ? 1'b1 :
                           1'b0;
-
+*/
 always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {current_bank_closed_reg, current_row_open_reg} <= {1'b1, 1'b0};
     else
         {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
+        
+
 endmodule
