@@ -317,7 +317,7 @@ genvar i;
 generate
     for (i=0; i < 16; i=i+1) begin : dly
 
-        defparam delay0.depth=cl+3;   
+        defparam delay0.depth=cl+2;   
         defparam delay0.width=1;
         delay delay0 (
             .d(fifo_sel_reg[i]),
@@ -327,7 +327,7 @@ generate
         );
     end
     
-    defparam delay1.depth=cl+3;   
+    defparam delay1.depth=cl+2;   
     defparam delay1.width=2;
     delay delay1 (
         .d(fifo_sel_domain_reg),
@@ -336,7 +336,7 @@ generate
         .rst(sdram_rst)
     );
     
-    defparam delay2.depth=cl+3;   
+    defparam delay2.depth=cl+2;   
     defparam delay2.width=1;
     delay delay2 (
         .d(cmd_read),

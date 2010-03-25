@@ -543,7 +543,7 @@ output fifo_rd_adr, fifo_rd_data;
 output count0;
 input refresh_req;
 output reg cmd_aref; 
-output cmd_read; 
+output reg cmd_read; 
 output state_idle; 
 output reg [1:0] ba;
 output reg [12:0] a;
@@ -665,27 +665,44 @@ parameter [2:0] init_bl = 3'b001;
 assign col_reg_a10_fix = a10_fix(col_reg);
 always @ (posedge sdram_clk or posedge sdram_rst)
 begin
-    if (sdram_rst)
-        {ba,a,cmd,cmd_aref} = {2'b00,13'd0,cmd_nop,1'b0};
-    else begin
-        {ba,a,cmd,cmd_aref} = {2'b00,13'd0,cmd_nop,1'b0};
+    if (sdram_rst) begin
+        {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
+        cmd_aref = 1'b0;
+        cmd_read = 1'b0;
+        dq_oe = 1'b0;
+        {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
+    end else begin
+        {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
+        cmd_aref = 1'b0;
+        cmd_read = 1'b0;
+        dq_oe = 1'b0;
         casex ({state,counter})
-        {init,5'd3}, {rfr,5'd0}:
+        {init,5'd3}, {rfr,5'd0}: begin
             {ba,a,cmd} = {2'b00, 13'b0010000000000, cmd_pch};
+            open_ba[ba_reg] <= 1'b0;
+            end
         {init,5'd7}, {init,5'd19}, {rfr,5'd2}:
             {ba,a,cmd,cmd_aref} = {2'b00, 13'd0, cmd_rfr,1'b1};  
         {init,5'd31}:
             {ba,a,cmd} = {2'b00,3'b000,init_wb,2'b00,init_cl,init_bt,init_bl, cmd_lmr};
-        {pch,5'bxxxx0}:
+        {pch,5'bxxxx0}: begin
             {ba,a,cmd} = {ba_reg,13'd0,cmd_pch};
-        {act,5'd0}:
+            open_ba <= 4'b0000;
+            end
+        {act,5'd0}: begin
             {ba,a,cmd} = {ba_reg,(13'd0 | row_reg),cmd_act};
+            {open_ba[ba_reg],open_row[ba_reg]} <= {1'b1,row_reg};
+            end
         {rw,5'bxxxxx}:
             begin
-                casex ({we_reg,counter[0],fifo_empty})
-                {1'b0,1'b0,1'bx}: cmd = cmd_rd;
-                {1'b1,1'b0,1'bx}: cmd = cmd_wr;
-                endcase
+                if (we_reg & !counter[0])
+                    cmd = cmd_wr;
+                else if (!counter[0])
+                    {cmd,cmd_read} = {cmd_rd,1'b1};
+                else
+                    cmd = cmd_nop;
+                if (we_reg)
+                    dq_oe <= 1'b1;
                 case (bte_reg)
                 linear: {ba,a} = {ba_reg,col_reg_a10_fix};
                 beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:3],col_reg_a10_fix[2:0] + counter[2:0]};
@@ -701,23 +718,7 @@ assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b1 :
                       ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
                       1'b0;
 assign state_idle = (state==idle);
-assign cmd_read = (state==rw & !counter[0] & !we_reg);
 assign count0 = counter[0];
-always @ (posedge sdram_clk or posedge sdram_rst)
-    if (sdram_rst)
-        dq_oe <= 1'b0;
-    else
-        dq_oe <= ((state==rw & we_reg & ~counter[0]) | (state==rw & we_reg & counter[0]));
-always @ (posedge sdram_clk or posedge sdram_rst)
-if (sdram_rst)
-    {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
-else
-    if (cmd==cmd_pch & a[10])
-        open_ba <= 4'b0000;
-    else if (cmd==cmd_pch)
-        open_ba[ba_reg] <= 1'b0;
-    else if (cmd==cmd_act)
-        {open_ba[ba_reg],open_row[ba_reg]} <= {1'b1,row_reg};
 assign current_bank_closed = !(open_ba[bank]);
 assign current_row_open = open_ba[bank] & (open_row[bank]==row);
 always @ (posedge sdram_clk or posedge sdram_rst)
@@ -1076,7 +1077,7 @@ decode decode1 (
 genvar i;
 generate
     for (i=0; i < 16; i=i+1) begin : dly
-        defparam delay0.depth=cl+3;   
+        defparam delay0.depth=cl+2;   
         defparam delay0.width=1;
         delay delay0 (
             .d(fifo_sel_reg[i]),
@@ -1085,7 +1086,7 @@ generate
             .rst(sdram_rst)
         );
     end
-    defparam delay1.depth=cl+3;   
+    defparam delay1.depth=cl+2;   
     defparam delay1.width=2;
     delay delay1 (
         .d(fifo_sel_domain_reg),
@@ -1093,7 +1094,7 @@ generate
         .clk(sdram_clk),
         .rst(sdram_rst)
     );
-    defparam delay2.depth=cl+3;   
+    defparam delay2.depth=cl+2;   
     defparam delay2.width=1;
     delay delay2 (
         .d(cmd_read),

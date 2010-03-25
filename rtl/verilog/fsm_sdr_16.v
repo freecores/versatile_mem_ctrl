@@ -21,7 +21,7 @@ output count0;
 
 input refresh_req;
 output reg cmd_aref; // used for rerfresh ack
-output cmd_read; // used for ingress fifo control
+output reg cmd_read; // used for ingress fifo control
 output state_idle; // state=idle
 
 output reg [1:0] ba;
@@ -177,31 +177,50 @@ assign col_reg_a10_fix = a10_fix(col_reg);
 // ba = ba_reg ??
 always @ (posedge sdram_clk or posedge sdram_rst)
 begin
-    if (sdram_rst)
-        {ba,a,cmd,cmd_aref} = {2'b00,13'd0,cmd_nop,1'b0};
-    else begin
-        {ba,a,cmd,cmd_aref} = {2'b00,13'd0,cmd_nop,1'b0};
+    if (sdram_rst) begin
+        {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
+        cmd_aref = 1'b0;
+        cmd_read = 1'b0;
+        dq_oe = 1'b0;
+        {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
+    end else begin
+        {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
+        cmd_aref = 1'b0;
+        cmd_read = 1'b0;
+        dq_oe = 1'b0;
         casex ({state,counter})
-        {init,5'd3}, {rfr,5'd0}:
+        {init,5'd3}, {rfr,5'd0}: begin
             {ba,a,cmd} = {2'b00, 13'b0010000000000, cmd_pch};
+            open_ba[ba_reg] <= 1'b0;
+            end
         {init,5'd7}, {init,5'd19}, {rfr,5'd2}:
             {ba,a,cmd,cmd_aref} = {2'b00, 13'd0, cmd_rfr,1'b1};  
         {init,5'd31}:
             {ba,a,cmd} = {2'b00,3'b000,init_wb,2'b00,init_cl,init_bt,init_bl, cmd_lmr};
-        {pch,5'bxxxx0}:
+        {pch,5'bxxxx0}: begin
             {ba,a,cmd} = {ba_reg,13'd0,cmd_pch};
-        {act,5'd0}:
+            open_ba <= 4'b0000;
+            end
+        {act,5'd0}: begin
             {ba,a,cmd} = {ba_reg,(13'd0 | row_reg),cmd_act};
+            {open_ba[ba_reg],open_row[ba_reg]} <= {1'b1,row_reg};
+            end
         {rw,5'bxxxxx}:
             begin
-                /*if (!counter[0] & !fifo_empty)
-                    {cmd,cmd_read} = {{2'b10,!we_reg},~we_reg};
-                else
-                    cmd = cmd_nop;*/
+                /*    
                 casex ({we_reg,counter[0],fifo_empty})
                 {1'b0,1'b0,1'bx}: cmd = cmd_rd;
                 {1'b1,1'b0,1'bx}: cmd = cmd_wr;
                 endcase
+                */
+                if (we_reg & !counter[0])
+                    cmd = cmd_wr;
+                else if (!counter[0])
+                    {cmd,cmd_read} = {cmd_rd,1'b1};
+                else
+                    cmd = cmd_nop;
+                if (we_reg)
+                    dq_oe <= 1'b1;
                 case (bte_reg)
                 linear: {ba,a} = {ba_reg,col_reg_a10_fix};
                 beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:3],col_reg_a10_fix[2:0] + counter[2:0]};
@@ -220,16 +239,19 @@ assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b1 :
                       1'b0;
 
 assign state_idle = (state==idle);
-assign cmd_read = (state==rw & !counter[0] & !we_reg);
+//assign cmd_read = (state==rw & !counter[0] & !we_reg);
 assign count0 = counter[0];
 
 //assign dq_oe = (state==rw);
+/*
 always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         dq_oe <= 1'b0;
     else
         dq_oe <= ((state==rw & we_reg & ~counter[0]) | (state==rw & we_reg & counter[0]));
-            
+*/
+// moved to process above
+/*            
 always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
     {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
@@ -240,6 +262,7 @@ else
         open_ba[ba_reg] <= 1'b0;
     else if (cmd==cmd_act)
         {open_ba[ba_reg],open_row[ba_reg]} <= {1'b1,row_reg};
+*/
 /*
     casex ({ba,a[10],cmd})
     {2'bxx,1'b1,cmd_pch}: open_ba <= 4'b0000;
