@@ -1,61 +1,64 @@
-svn_export: versatile_fifo_dual_port_ram.v versatile_fifo_async_cmp.v
+VERSATILE_FIFO_PROJECT_FILES =versatile_fifo_dual_port_ram.v
+VERSATILE_FIFO_PROJECT_FILES +=versatile_fifo_async_cmp.v
+VERSATILE_FIFO_PROJECT_FILES +=dff_sr.v
+VERSATILE_FIFO_PROJECT_FILES +=async_fifo_mq.v
+VERSATILE_FIFO_PROJECT_FILES +=async_fifo_mq_md.v
+VERSATILE_FIFO_PROJECT_FILES +=versatile_fifo_dual_port_ram_dc_sw.v
 
-versatile_fifo_dual_port_ram.v:
-	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_dual_port_ram.v
+$(VERSATILE_FIFO_PROJECT_FILES):
+	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/$@
 
-dff_sr.v:
-	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/dff_sr.v
+VERSATILE_COUNTER_PROJECT_FILES =versatile_counter_generator.php
+VERSATILE_COUNTER_PROJECT_FILES +=CSV.class.php
 
-versatile_fifo_async_cmp.v: dff_sr.v
-	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_async_cmp.v
-
-async_fifo_mq.v:
-	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/async_fifo_mq.v
-
-async_fifo_mq_md.v:
-	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/async_fifo_mq_md.v
-
-versatile_counter_generator.php:
-	svn export http://opencores.org/ocsvn/versatile_counter/versatile_counter/trunk/rtl/verilog/versatile_counter_generator.php
-
-CSV.class.php:
-	svn export http://opencores.org/ocsvn/versatile_counter/versatile_counter/trunk/rtl/verilog/CSV.class.php
+$(VERSATILE_COUNTER_PROJECT_FILES):
+	svn export http://opencores.org/ocsvn/versatile_counter/versatile_counter/trunk/rtl/verilog/$@
 
 versatile_fifo_dual_port_ram_dc_dw.v: versatile_fifo_dual_port_ram.v
 	vppreproc +define+TYPE+"dc_dw" +define+DC +define+DW +define+DATA_WIDTH+36 +define+ADDR_WIDTH+8 --simple versatile_fifo_dual_port_ram.v > versatile_fifo_dual_port_ram_dc_dw.v
 
-versatile_fifo_dual_port_ram_dc_sw.v:
-	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_dual_port_ram_dc_sw.v
+# These rules will generate counters as they're required, but some CSVs stil hang around (the ones we don't use, ironically.)
+counter_csvs:versatile_counter.xls versatile_counter_generator.php CSV.class.php
+	excel2csv $< -S ,
 
-versatile_counter: versatile_counter_generator.php CSV.class.php
-	excel2csv versatile_counter.xls -S ,
-	./versatile_counter_generator.php gray_counter.csv > gray_counter.v
-	./versatile_counter_generator.php ctrl_counter.csv > ctrl_counter.v
-	./versatile_counter_generator.php ref_counter.csv > ref_counter.v
-	./versatile_counter_generator.php ref_delay_counter.csv > ref_delay_counter.v
-	./versatile_counter_generator.php pre_delay_counter.csv > pre_delay_counter.v
-	./versatile_counter_generator.php burst_length_counter.csv > burst_length_counter.v
+%.csv:
+	$(MAKE) counter_csvs
+
+%.v: %.csv
+	@if [ ! -e $< ]; then ls $<; fi
+	./versatile_counter_generator.php $^ > $@
 
 fifo_fill.v: fifo_fill.fzm
 	perl fizzim.pl -encoding onehot < fifo_fill.fzm > fifo_fill.v
 
-ddr_16.v: ddr_16.fzm ddr_16_defines.v
-	perl fizzim.pl -encoding onehot < ddr_16.fzm > tmp1.v
-	vppreproc --simple tmp1.v > ddr_16.v
+ddr_16_generated.v: ddr_16.fzm ddr_16_defines.v
+		perl fizzim.pl -encoding onehot < ddr_16.fzm > $@
 
-versatile_mem_ctrl_ip.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v fifo.v fifo_fill.v inc_adr.v sdr_16.v ddr_16.v delay.v ddr_ff.v dcm_pll.v dff_sr.v versatile_mem_ctrl_ddr.v versatile_mem_ctrl_top.v
-	cat versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v sdr_16.v ddr_16.v delay.v ddr_ff.v dcm_pll.v dff_sr.v versatile_mem_ctrl_ddr.v versatile_mem_ctrl_top.v | cat copyright.v - > versatile_mem_ctrl_ip.v
+ddr_16.v: ddr_16_generated.v
+	vppreproc --simple $^ > $@
 
-all: svn_export versatile_fifo_dual_port_ram_dc_dw.v versatile_counter fifo_fill.v sdr_16.v ddr_16.v versatile_mem_ctrl_ip.v
+fifo_adr_counter.v:
+	@echo;echo "\tThis file,"$@", doesn't exist, is it still needed?!. \n\tMake will now stop";echo
+	ls notexisting
 
-sdr_16.v: versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_sw.v async_fifo_mq.v versatile_counter
-	vppreproc --simple +define+SDR_16 delay.v codec.v gray_counter.v async_fifo_mq.v egress_fifo.v versatile_fifo_dual_port_ram_dc_sw.v dff_sr.v versatile_fifo_async_cmp.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v > sdr_16.v
+VERSATILE_MEM_CTRL_IP_FILES=versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v sdr_16.v ddr_16.v delay.v ddr_ff.v dcm_pll.v dff_sr.v versatile_mem_ctrl_ddr.v versatile_mem_ctrl_top.v
 
-all: sdr_16.v
+versatile_mem_ctrl_ip.v: $(VERSATILE_MEM_CTRL_IP_FILES)
+	cat $^  | cat copyright.v - > $@
+
+# SDRAM 16-bit wide databus dependency files - force a recompile
+SDR_16_FILES=versatile_fifo_async_cmp.v async_fifo_mq.v  delay.v codec.v gray_counter.v egress_fifo.v versatile_fifo_dual_port_ram_dc_sw.v dff_sr.v versatile_fifo_async_cmp.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v
+sdr_16.v: $(SDR_16_FILES)
+	vppreproc --simple +define+SDR_16  $^ > $@
+
+# the single all rule
+all: versatile_fifo_dual_port_ram.v versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v counter_csvs fifo_fill.v sdr_16.v ddr_16.v versatile_mem_ctrl_ip.v
+
 
 clean:
-	rm -rf versatile_fifo_dual_port_ram_dc_dw.v versatile_fifo_async_cmp.v
+	rm -rf $(VERSATILE_FIFO_PROJECT_FILES) $(VERSATILE_COUNTER_PROJECT_FILES)
 	rm -rf fifo_fill.v sdr_16.v ddr_16.v
+	rm -f versatile_fifo_dual_port_ram_dc_dw.v ddr_16_generated.v
 	rm -rf *_counter.v
 	rm -rf *.csv
 	rm -rf *~
