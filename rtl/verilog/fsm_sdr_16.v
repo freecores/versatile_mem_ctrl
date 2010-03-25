@@ -131,7 +131,7 @@ begin
             else next = adr;
     pch:    if (counter[0])         next = act;
             else                    next = pch;
-    act:    if (counter[1:0]==2'd2 & !fifo_empty)       next = rw;
+    act:    if (counter[1:0]==2'd2 & (!fifo_empty | !we_reg)       next = rw;
             else if (counter[1:0]==2'd2 & fifo_empty)   next = w4d;
             else                                        next = act;
     w4d:    if (!fifo_empty) next = rw;
