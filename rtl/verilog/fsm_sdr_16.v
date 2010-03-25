@@ -155,6 +155,7 @@ begin
             if (~(state==rw & next==rw & fifo_empty & counter[0] & we_reg))
                 counter <= counter + 5'd1;
 end
+assign count0 = counter[0];
 
 //assign {fifo_sel_reg,fifo_sel_domain_reg} = (state==idle) ? {fifo_sel_i,fifo_sel_domain_i} : {fifo_sel_reg_int,fifo_sel_domain_reg_int};
 
@@ -174,7 +175,7 @@ parameter [2:0] init_bl = 3'b001;
 // col_reg_a10 has bit [10] set to zero to disable auto precharge
 assign col_reg_a10_fix = a10_fix(col_reg);
 
-// ba = ba_reg ??
+// outputs dependent on state vector
 always @ (posedge sdram_clk or posedge sdram_rst)
 begin
     if (sdram_rst) begin
@@ -220,7 +221,7 @@ begin
                 else
                     cmd = cmd_nop;
                 if (we_reg)
-                    dq_oe <= 1'b1;
+                    dq_oe = 1'b1;
                 case (bte_reg)
                 linear: {ba,a} = {ba_reg,col_reg_a10_fix};
                 beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:3],col_reg_a10_fix[2:0] + counter[2:0]};
@@ -239,43 +240,6 @@ assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b1 :
                       1'b0;
 
 assign state_idle = (state==idle);
-//assign cmd_read = (state==rw & !counter[0] & !we_reg);
-assign count0 = counter[0];
-
-//assign dq_oe = (state==rw);
-/*
-always @ (posedge sdram_clk or posedge sdram_rst)
-    if (sdram_rst)
-        dq_oe <= 1'b0;
-    else
-        dq_oe <= ((state==rw & we_reg & ~counter[0]) | (state==rw & we_reg & counter[0]));
-*/
-// moved to process above
-/*            
-always @ (posedge sdram_clk or posedge sdram_rst)
-if (sdram_rst)
-    {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
-else
-    if (cmd==cmd_pch & a[10])
-        open_ba <= 4'b0000;
-    else if (cmd==cmd_pch)
-        open_ba[ba_reg] <= 1'b0;
-    else if (cmd==cmd_act)
-        {open_ba[ba_reg],open_row[ba_reg]} <= {1'b1,row_reg};
-*/
-/*
-    casex ({ba,a[10],cmd})
-    {2'bxx,1'b1,cmd_pch}: open_ba <= 4'b0000;
-    {2'b00,1'b0,cmd_pch}: open_ba[0] <= 1'b0;
-    {2'b01,1'b0,cmd_pch}: open_ba[1] <= 1'b0;
-    {2'b10,1'b0,cmd_pch}: open_ba[2] <= 1'b0;
-    {2'b11,1'b0,cmd_pch}: open_ba[3] <= 1'b0;
-    {2'b00,1'bx,cmd_act}: {open_ba[0],open_row[0]} <= {1'b1,row_reg};
-    {2'b01,1'bx,cmd_act}: {open_ba[1],open_row[1]} <= {1'b1,row_reg};
-    {2'b10,1'bx,cmd_act}: {open_ba[2],open_row[2]} <= {1'b1,row_reg};
-    {2'b11,1'bx,cmd_act}: {open_ba[3],open_row[3]} <= {1'b1,row_reg};
-    endcase
-*/
 
 // bank and row open ?
 assign current_bank_closed = !(open_ba[bank]);
