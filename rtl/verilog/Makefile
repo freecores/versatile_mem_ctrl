@@ -24,6 +24,9 @@ CSV.class.php:
 versatile_fifo_dual_port_ram_dc_dw.v: versatile_fifo_dual_port_ram.v
 	vppreproc +define+TYPE+"dc_dw" +define+DC +define+DW +define+DATA_WIDTH+36 +define+ADDR_WIDTH+8 --simple versatile_fifo_dual_port_ram.v > versatile_fifo_dual_port_ram_dc_dw.v
 
+versatile_fifo_dual_port_ram_dc_sw.v:
+	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/versatile_fifo_dual_port_ram_dc_sw.v
+
 versatile_counter: versatile_counter_generator.php CSV.class.php
 	excel2csv versatile_counter.xls -S ,
 	./versatile_counter_generator.php gray_counter.csv > gray_counter.v
