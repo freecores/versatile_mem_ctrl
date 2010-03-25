@@ -636,7 +636,7 @@ begin
             else next = adr;
     pch:    if (counter[0])         next = act;
             else                    next = pch;
-    act:    if (counter[1:0]==2'd2 & !fifo_empty)       next = rw;
+    act:    if (counter[1:0]==2'd2 & (!fifo_empty | !we_reg))       next = rw;
             else if (counter[1:0]==2'd2 & fifo_empty)   next = w4d;
             else                                        next = act;
     w4d:    if (!fifo_empty) next = rw;
@@ -658,6 +658,7 @@ begin
             if (~(state==rw & next==rw & fifo_empty & counter[0] & we_reg))
                 counter <= counter + 5'd1;
 end
+assign count0 = counter[0];
 parameter [0:0] init_wb = 1'b0;
 parameter [2:0] init_cl = 3'b010;
 parameter [0:0] init_bt = 1'b0;
@@ -702,7 +703,7 @@ begin
                 else
                     cmd = cmd_nop;
                 if (we_reg)
-                    dq_oe <= 1'b1;
+                    dq_oe = 1'b1;
                 case (bte_reg)
                 linear: {ba,a} = {ba_reg,col_reg_a10_fix};
                 beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:3],col_reg_a10_fix[2:0] + counter[2:0]};
@@ -718,7 +719,6 @@ assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b1 :
                       ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
                       1'b0;
 assign state_idle = (state==idle);
-assign count0 = counter[0];
 assign current_bank_closed = !(open_ba[bank]);
 assign current_row_open = open_ba[bank] & (open_row[bank]==row);
 always @ (posedge sdram_clk or posedge sdram_rst)
