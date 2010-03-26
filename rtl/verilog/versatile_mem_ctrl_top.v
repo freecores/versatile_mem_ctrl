@@ -357,12 +357,39 @@ endgenerate
      else
        {dq_i_reg, dq_i_tmp_reg} <= {dq_i, dq_i_reg};
 
-   assign fifo_dat_i = {dq_i_tmp_reg, dq_i_reg};
-
+    assign fifo_dat_i = {dq_i_tmp_reg, dq_i_reg};
+   
+    always @ (posedge sdram_clk or posedge sdram_rst)
+    if (sdram_rst)
+        dq_o_tmp_reg <= 18'h0;
+    else
+        dq_o_tmp_reg <= {fifo_dat_o[fifo_sel_domain_reg][19:4],fifo_dat_o[fifo_sel_domain_reg][1:0]};
+        
+    // output dq_o mux and dffs
+    always @ (posedge sdram_clk or posedge sdram_rst)
+    if (sdram_rst)
+        dq_o <= 16'h0000;
+    else
+        if (~count0)
+            dq_o <= fifo_dat_o[fifo_sel_domain_reg][35:20];
+        else
+            dq_o <= dq_o_tmp_reg[17:2];
+            
+    // data mask signals should be not(sel_i) for write and 2'b00 for read
+    always @ (posedge sdram_clk or posedge sdram_rst)
+    if (sdram_rst)
+        dqm_pad_o <= 2'b00;
+    else
+        if (~count0)
+            dqm_pad_o <= ~fifo_dat_o[fifo_sel_domain_reg][3:2];
+        else
+            dqm_pad_o <= ~dq_o_tmp_reg[1:0];
+    
+/*
     always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst) begin
        {dq_o, dqm_pad_o} <= {16'h0000,2'b00};
-       dq_o_tmp_reg      <= 18'h0;
+       
     end else
         if (~count0) begin
             dq_o <= fifo_dat_o[fifo_sel_domain_reg][35:20];
@@ -377,6 +404,7 @@ endgenerate
                 dq_o_tmp_reg[1:0] <= ~fifo_dat_o[fifo_sel_domain_reg][1:0];
        end else
          {dq_o,dqm_pad_o} <= dq_o_tmp_reg;
+*/
 
 
 `endif //  `ifdef SDR_16
