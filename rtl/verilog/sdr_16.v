@@ -526,10 +526,10 @@ module ref_counter ( zq, rst, clk);
 endmodule
 `timescale 1ns/1ns
 module fsm_sdr_16 (
-    adr_i, we_i, bte_i,
+    adr_i, we_i, bte_i, sel_i,
     fifo_empty, fifo_rd_adr, fifo_rd_data, count0,
     refresh_req, cmd_aref, cmd_read, state_idle,
-    ba, a, cmd, dq_oe,
+    ba, a, cmd, dqm, dq_oe,
     sdram_clk, sdram_rst
 );
 parameter ba_size = 2;
@@ -538,6 +538,7 @@ parameter col_size = 9;
 input [ba_size+row_size+col_size-1:0] adr_i;
 input we_i;
 input [1:0] bte_i;
+input [3:0] sel_i;
 input  fifo_empty;
 output fifo_rd_adr, fifo_rd_data;
 output count0;
@@ -548,6 +549,7 @@ output state_idle;
 output reg [1:0] ba;
 output reg [12:0] a;
 output reg [2:0] cmd;
+output reg [1:0] dqm;
 output reg dq_oe;
 input sdram_clk, sdram_rst;
 wire [ba_size-1:0] bank;
@@ -668,12 +670,14 @@ always @ (posedge sdram_clk or posedge sdram_rst)
 begin
     if (sdram_rst) begin
         {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
+        dqm = 2'b00;
         cmd_aref = 1'b0;
         cmd_read = 1'b0;
         dq_oe = 1'b0;
         {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
     end else begin
         {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
+        dqm = 2'b00;
         cmd_aref = 1'b0;
         cmd_read = 1'b0;
         dq_oe = 1'b0;
@@ -702,6 +706,12 @@ begin
                     {cmd,cmd_read} = {cmd_rd,1'b1};
                 else
                     cmd = cmd_nop;
+                if (we_reg & !counter[0])
+                    dqm = sel_i[3:2];
+                else if (we_reg & counter[0])
+                    dqm = sel_i[1:0];
+                else
+                    dqm = 2'b00;
                 if (we_reg)
                     dq_oe = 1'b1;
                 case (bte_reg)
@@ -1065,11 +1075,12 @@ decode decode1 (
         .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
         .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
         .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
+        .sel_i({fifo_dat_o[fifo_sel_domain_reg][3:2],dq_o_tmp_reg[1:0]})
         .fifo_empty(current_fifo_empty), .fifo_rd_adr(fifo_rd_adr), .fifo_rd_data(fifo_rd_data),
         .state_idle(idle), .count0(count0),
         .refresh_req(refresh_req),
         .cmd_aref(cmd_aref), .cmd_read(cmd_read),
-        .ba(ba_pad_o), .a(a_pad_o), .cmd({ras_pad_o, cas_pad_o, we_pad_o}), .dq_oe(dq_oe),
+        .ba(ba_pad_o), .a(a_pad_o), .cmd({ras_pad_o, cas_pad_o, we_pad_o}), .dq_oe(dq_oe), .dqm(dqm_pad_o),
         .sdram_clk(sdram_clk), .sdram_rst(sdram_rst)
     );
     assign cs_pad_o = 1'b0;
@@ -1124,12 +1135,4 @@ endgenerate
             dq_o <= fifo_dat_o[fifo_sel_domain_reg][35:20];
         else
             dq_o <= dq_o_tmp_reg[17:2];
-    always @ (posedge sdram_clk or posedge sdram_rst)
-    if (sdram_rst)
-        dqm_pad_o <= 2'b00;
-    else
-        if (~count0)
-            dqm_pad_o <= ~fifo_dat_o[fifo_sel_domain_reg][3:2];
-        else
-            dqm_pad_o <= ~dq_o_tmp_reg[1:0];
 endmodule 

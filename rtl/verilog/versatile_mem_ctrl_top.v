@@ -302,11 +302,12 @@ decode decode1 (
         .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
         .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
         .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
+        .sel_i({fifo_dat_o[fifo_sel_domain_reg][3:2],dq_o_tmp_reg[1:0]})
         .fifo_empty(current_fifo_empty), .fifo_rd_adr(fifo_rd_adr), .fifo_rd_data(fifo_rd_data),
         .state_idle(idle), .count0(count0),
         .refresh_req(refresh_req),
         .cmd_aref(cmd_aref), .cmd_read(cmd_read),
-        .ba(ba_pad_o), .a(a_pad_o), .cmd({ras_pad_o, cas_pad_o, we_pad_o}), .dq_oe(dq_oe),
+        .ba(ba_pad_o), .a(a_pad_o), .cmd({ras_pad_o, cas_pad_o, we_pad_o}), .dq_oe(dq_oe), .dqm(dqm_pad_o),
         .sdram_clk(sdram_clk), .sdram_rst(sdram_rst)
     );
    
@@ -374,7 +375,8 @@ endgenerate
             dq_o <= fifo_dat_o[fifo_sel_domain_reg][35:20];
         else
             dq_o <= dq_o_tmp_reg[17:2];
-            
+    
+    /*
     // data mask signals should be not(sel_i) for write and 2'b00 for read
     always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
@@ -384,7 +386,7 @@ endgenerate
             dqm_pad_o <= ~fifo_dat_o[fifo_sel_domain_reg][3:2];
         else
             dqm_pad_o <= ~dq_o_tmp_reg[1:0];
-    
+    */
 /*
     always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst) begin

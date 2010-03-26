@@ -1,9 +1,9 @@
 `timescale 1ns/1ns
 module fsm_sdr_16 (
-    adr_i, we_i, bte_i,
+    adr_i, we_i, bte_i, sel_i,
     fifo_empty, fifo_rd_adr, fifo_rd_data, count0,
     refresh_req, cmd_aref, cmd_read, state_idle,
-    ba, a, cmd, dq_oe,
+    ba, a, cmd, dqm, dq_oe,
     sdram_clk, sdram_rst
 );
 
@@ -14,6 +14,7 @@ parameter col_size = 9;
 input [ba_size+row_size+col_size-1:0] adr_i;
 input we_i;
 input [1:0] bte_i;
+input [3:0] sel_i;
 
 input  fifo_empty;
 output fifo_rd_adr, fifo_rd_data;
@@ -27,6 +28,7 @@ output state_idle; // state=idle
 output reg [1:0] ba;
 output reg [12:0] a;
 output reg [2:0] cmd;
+output reg [1:0] dqm;
 output reg dq_oe;
 
 input sdram_clk, sdram_rst;
@@ -180,12 +182,14 @@ always @ (posedge sdram_clk or posedge sdram_rst)
 begin
     if (sdram_rst) begin
         {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
+        dqm = 2'b00;
         cmd_aref = 1'b0;
         cmd_read = 1'b0;
         dq_oe = 1'b0;
         {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
     end else begin
         {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
+        dqm = 2'b00;
         cmd_aref = 1'b0;
         cmd_read = 1'b0;
         dq_oe = 1'b0;
@@ -220,6 +224,12 @@ begin
                     {cmd,cmd_read} = {cmd_rd,1'b1};
                 else
                     cmd = cmd_nop;
+                if (we_reg & !counter[0])
+                    dqm = sel_i[3:2];
+                else if (we_reg & counter[0])
+                    dqm = sel_i[1:0];
+                else
+                    dqm = 2'b00;
                 if (we_reg)
                     dq_oe = 1'b1;
                 case (bte_reg)
