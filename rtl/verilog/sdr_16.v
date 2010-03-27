@@ -670,14 +670,14 @@ always @ (posedge sdram_clk or posedge sdram_rst)
 begin
     if (sdram_rst) begin
         {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
-        dqm = 2'b00;
+        dqm = 2'b11;
         cmd_aref = 1'b0;
         cmd_read = 1'b0;
         dq_oe = 1'b0;
         {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
     end else begin
         {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
-        dqm = 2'b00;
+        dqm = 2'b11;
         cmd_aref = 1'b0;
         cmd_read = 1'b0;
         dq_oe = 1'b0;
@@ -707,9 +707,9 @@ begin
                 else
                     cmd = cmd_nop;
                 if (we_reg & !counter[0])
-                    dqm = sel_i[3:2];
+                    dqm = ~sel_i[3:2];
                 else if (we_reg & counter[0])
-                    dqm = sel_i[1:0];
+                    dqm = ~sel_i[1:0];
                 else
                     dqm = 2'b00;
                 if (we_reg)
@@ -897,7 +897,7 @@ module versatile_mem_ctrl_top
    output         cas_pad_o;
    output         we_pad_o;
    output reg [15:0] dq_o;
-   output reg [1:0] dqm_pad_o;
+   output [1:0] dqm_pad_o;
    input  [15:0] dq_i;
    output        dq_oe;
    output        cke_pad_o;
@@ -1070,19 +1070,32 @@ decode decode1 (
             refresh_req <= 1'b1;
         else if (cmd_aref)
             refresh_req <= 1'b0;
-    fsm_sdr_16 # ( .ba_size(ba_size), .row_size(row_size), .col_size(col_size), .init_cl(cl))
-    fsm_sdr_16(
-        .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
-        .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
-        .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
-        .sel_i({fifo_dat_o[fifo_sel_domain_reg][3:2],dq_o_tmp_reg[1:0]})
-        .fifo_empty(current_fifo_empty), .fifo_rd_adr(fifo_rd_adr), .fifo_rd_data(fifo_rd_data),
-        .state_idle(idle), .count0(count0),
-        .refresh_req(refresh_req),
-        .cmd_aref(cmd_aref), .cmd_read(cmd_read),
-        .ba(ba_pad_o), .a(a_pad_o), .cmd({ras_pad_o, cas_pad_o, we_pad_o}), .dq_oe(dq_oe), .dqm(dqm_pad_o),
-        .sdram_clk(sdram_clk), .sdram_rst(sdram_rst)
-    );
+    fsm_sdr_16 # ( 
+		   .ba_size(ba_size), 
+		   .row_size(row_size), 
+		   .col_size(col_size), 
+		   .init_cl(cl)
+		   )
+   fsm_sdr_16(
+              .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
+              .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
+              .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
+              .sel_i({fifo_dat_o[fifo_sel_domain_reg][3:2],dq_o_tmp_reg[1:0]}),
+              .fifo_empty(current_fifo_empty), 
+	      .fifo_rd_adr(fifo_rd_adr), 
+	      .fifo_rd_data(fifo_rd_data),
+              .state_idle(idle), 
+	      .count0(count0),
+              .refresh_req(refresh_req),
+              .cmd_aref(cmd_aref), 
+	      .cmd_read(cmd_read),
+              .ba(ba_pad_o), .a(a_pad_o), 
+	      .cmd({ras_pad_o, cas_pad_o, we_pad_o}), 
+	      .dq_oe(dq_oe), 
+	      .dqm(dqm_pad_o),
+              .sdram_clk(sdram_clk), 
+	      .sdram_rst(sdram_rst)
+	      );
     assign cs_pad_o = 1'b0;
     assign cke_pad_o = 1'b1;
 genvar i;

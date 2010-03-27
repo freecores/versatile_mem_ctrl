@@ -73,7 +73,7 @@ module versatile_mem_ctrl_top
    output         cas_pad_o;
    output         we_pad_o;
    output reg [15:0] dq_o;
-   output reg [1:0] dqm_pad_o;
+   output [1:0] dqm_pad_o;
    input  [15:0] dq_i;
    output        dq_oe;
    output        cke_pad_o;
@@ -297,19 +297,32 @@ decode decode1 (
             refresh_req <= 1'b0;
             
     // SDR SDRAM 16 FSM
-    fsm_sdr_16 # ( .ba_size(ba_size), .row_size(row_size), .col_size(col_size), .init_cl(cl))
-    fsm_sdr_16(
-        .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
-        .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
-        .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
-        .sel_i({fifo_dat_o[fifo_sel_domain_reg][3:2],dq_o_tmp_reg[1:0]})
-        .fifo_empty(current_fifo_empty), .fifo_rd_adr(fifo_rd_adr), .fifo_rd_data(fifo_rd_data),
-        .state_idle(idle), .count0(count0),
-        .refresh_req(refresh_req),
-        .cmd_aref(cmd_aref), .cmd_read(cmd_read),
-        .ba(ba_pad_o), .a(a_pad_o), .cmd({ras_pad_o, cas_pad_o, we_pad_o}), .dq_oe(dq_oe), .dqm(dqm_pad_o),
-        .sdram_clk(sdram_clk), .sdram_rst(sdram_rst)
-    );
+    fsm_sdr_16 # ( 
+		   .ba_size(ba_size), 
+		   .row_size(row_size), 
+		   .col_size(col_size), 
+		   .init_cl(cl)
+		   )
+   fsm_sdr_16(
+              .adr_i({fifo_dat_o[fifo_sel_domain_reg][ba_size+row_size+col_size+6-2:6],1'b0}),
+              .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
+              .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
+              .sel_i({fifo_dat_o[fifo_sel_domain_reg][3:2],dq_o_tmp_reg[1:0]}),
+              .fifo_empty(current_fifo_empty), 
+	      .fifo_rd_adr(fifo_rd_adr), 
+	      .fifo_rd_data(fifo_rd_data),
+              .state_idle(idle), 
+	      .count0(count0),
+              .refresh_req(refresh_req),
+              .cmd_aref(cmd_aref), 
+	      .cmd_read(cmd_read),
+              .ba(ba_pad_o), .a(a_pad_o), 
+	      .cmd({ras_pad_o, cas_pad_o, we_pad_o}), 
+	      .dq_oe(dq_oe), 
+	      .dqm(dqm_pad_o),
+              .sdram_clk(sdram_clk), 
+	      .sdram_rst(sdram_rst)
+	      );
    
     assign cs_pad_o = 1'b0;
     assign cke_pad_o = 1'b1;

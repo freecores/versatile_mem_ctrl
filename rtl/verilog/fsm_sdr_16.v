@@ -182,14 +182,14 @@ always @ (posedge sdram_clk or posedge sdram_rst)
 begin
     if (sdram_rst) begin
         {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
-        dqm = 2'b00;
+        dqm = 2'b11;
         cmd_aref = 1'b0;
         cmd_read = 1'b0;
         dq_oe = 1'b0;
         {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
     end else begin
         {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
-        dqm = 2'b00;
+        dqm = 2'b11;
         cmd_aref = 1'b0;
         cmd_read = 1'b0;
         dq_oe = 1'b0;
@@ -225,9 +225,9 @@ begin
                 else
                     cmd = cmd_nop;
                 if (we_reg & !counter[0])
-                    dqm = sel_i[3:2];
+                    dqm = ~sel_i[3:2];
                 else if (we_reg & counter[0])
-                    dqm = sel_i[1:0];
+                    dqm = ~sel_i[1:0];
                 else
                     dqm = 2'b00;
                 if (we_reg)
