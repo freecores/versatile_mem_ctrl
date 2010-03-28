@@ -245,7 +245,7 @@ end
 
 // rd_adr goes high when next adr is fetched from sync RAM and during write burst
 assign fifo_rd_adr = ((state==adr) & (counter[1:0]==2'b00)) ? 1'b1 : 1'b0;
-assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b1 :
+assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b0 :
                       ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
                       1'b0;
 
@@ -271,7 +271,8 @@ always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {current_bank_closed_reg, current_row_open_reg} <= {1'b1, 1'b0};
     else
-        {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
+        if (state==adr & counter[1:0]==2'b10)
+            {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
         
 
 endmodule
