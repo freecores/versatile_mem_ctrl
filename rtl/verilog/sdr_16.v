@@ -774,6 +774,7 @@ parameter endofburst   = 3'b111;
 parameter idle = 2'b00;
 parameter rd   = 2'b01;
 parameter wr   = 2'b10;
+parameter fe   = 2'b11;
 reg [1:0] wb_state[0:nr_of_wb_ports-1];
 wire [35:0] wb_adr_i[0:nr_of_wb_ports-1];
 wire [35:0] wb_dat_i[0:nr_of_wb_ports-1];
@@ -781,6 +782,7 @@ wire [36*nr_of_wb_ports-1:0] egress_fifo_di;
 wire [31:0] wb_dat_o;
 wire [0:nr_of_wb_ports-1] wb_wr_ack, wb_rd_ack, wr_adr;
 reg  [0:nr_of_wb_ports-1] wb_rd_ack_dly;
+wire [0:nr_of_wb_ports-1] wb_ack_o_int;
 wire [0:nr_of_wb_ports-1] egress_fifo_full;
 wire [0:nr_of_wb_ports-1] ingress_fifo_empty;
 genvar i;
@@ -798,9 +800,9 @@ generate
     end
 endgenerate
 generate
-    assign wb_rd_ack[0] = ((wb_state[0]==rd) & wb_cyc_i[0] & wb_stb_i[0] & !ingress_fifo_empty[0]);
+    assign wb_rd_ack[0] = ((wb_state[0]==rd) & wb_cyc_i[0] & wb_stb_i[0] & !ingress_fifo_empty[0]) | (wb_state[0]==fe & !ingress_fifo_empty[0]);
     for (i=1;i<nr_of_wb_ports;i=i+1) begin : rd_ack
-        assign wb_rd_ack[i] = (|(wb_rd_ack[0:i-1])) ? 1'b0 : ((wb_state[i]==rd) & wb_cyc_i[i] & wb_stb_i[i] & !ingress_fifo_empty[i]);
+        assign wb_rd_ack[i] = (|(wb_rd_ack[0:i-1])) ? 1'b0 : ((wb_state[i]==rd) & wb_cyc_i[i] & wb_stb_i[i] & !ingress_fifo_empty[i]) | (wb_state[i]==fe & !ingress_fifo_empty[i]);
     end
 endgenerate
 always @ (posedge wb_clk or posedge wb_rst)
@@ -810,7 +812,8 @@ always @ (posedge wb_clk or posedge wb_rst)
         wb_rd_ack_dly <= wb_rd_ack;
 generate
     for (i=0;i<nr_of_wb_ports;i=i+1) begin : wb_ack
-        assign wb_ack_o[i] = (wb_state[i]==wr & wb_wr_ack[i]) | wb_rd_ack_dly[i];
+        assign wb_ack_o_int[i] = (wb_state[i]==wr & wb_wr_ack[i]) | wb_rd_ack_dly[i];
+        assign wb_ack_o[i] = (wb_state[i]==fe) ? 1'b0 : wb_ack_o_int[i];
     end
 endgenerate
 generate
@@ -826,10 +829,15 @@ generate
                 else if (wb_wr_ack[i])
                     wb_state[i] <= rd;
             rd:
-                if ((wb_adr_i[i][2:0]==classic | wb_adr_i[i][2:0]==endofburst | wb_adr_i[i][4:3]==linear) & wb_ack_o[i])
+                if (wb_adr_i[i][2:0]==endofburst & !ingress_fifo_empty[i])
+                    wb_state[i] <= fe;
+                else if ((wb_adr_i[i][2:0]==classic | wb_adr_i[i][2:0]==endofburst | wb_adr_i[i][4:3]==linear) & wb_ack_o_int[i])
                     wb_state[i] <= idle;
             wr:
-                if ((wb_adr_i[i][2:0]==classic | wb_adr_i[i][2:0]==endofburst | wb_adr_i[i][4:3]==linear) & wb_ack_o[i])
+                if ((wb_adr_i[i][2:0]==classic | wb_adr_i[i][2:0]==endofburst | wb_adr_i[i][4:3]==linear) & wb_ack_o_int[i])
+                    wb_state[i] <= idle;
+            fe:
+                if (ingress_fifo_empty[i])
                     wb_state[i] <= idle;
             default: ;
             endcase
