@@ -314,12 +314,13 @@ input                     write;
 input  [0:nr_of_queues-1] write_enable;
 input clk1;
 input rst1;
-output [data_width-1:0] q;
+output reg [data_width-1:0] q;
 output [0:nr_of_queues-1] fifo_empty;
 input                     read_adr, read_data;
 input  [0:nr_of_queues-1] read_enable;
 input clk2;
 input rst2;
+wire [data_width-1:0] fifo_q;
 wire [a_lo_size-1:0]  fifo_wadr_bin[0:nr_of_queues-1];
 wire [a_lo_size-1:0]  fifo_wadr_gray[0:nr_of_queues-1];
 wire [a_lo_size-1:0]  fifo_radr_bin[0:nr_of_queues-1];
@@ -412,9 +413,11 @@ vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_l
     .adr_a({onehot2bin(write_enable),wadr}), 
     .we_a(write),
     .clk_a(clk1),
-    .q_b(q),
+    .q_b(fifo_q),
     .adr_b({onehot2bin(read_enable_reg),radr}),
     .clk_b(clk2) );
+   always@(posedge clk2)
+     q <= fifo_q;
 endmodule
 module vfifo_dual_port_ram_dc_sw
   (
@@ -432,15 +435,15 @@ module vfifo_dual_port_ram_dc_sw
    input [(ADDR_WIDTH-1):0] 	 adr_a;
    input [(ADDR_WIDTH-1):0] 	 adr_b;
    input 			 we_a;
-   output [(DATA_WIDTH-1):0] 	 q_b;
+   output  [(DATA_WIDTH-1):0] q_b;
    input 			 clk_a, clk_b;
    reg [(ADDR_WIDTH-1):0] 	 adr_b_reg;
-   reg [DATA_WIDTH-1:0] ram [(1<<ADDR_WIDTH)-1:0] ;
+   reg [DATA_WIDTH-1:0] ram [(1<<ADDR_WIDTH)-1:0]  ;
    always @ (posedge clk_a)
    if (we_a)
      ram[adr_a] <= d_a;
    always @ (posedge clk_b)
-   adr_b_reg <= adr_b;   
+     adr_b_reg <= adr_b;   
    assign q_b = ram[adr_b_reg];
 endmodule 
 module dff_sr ( aclr, aset, clock, data, q);
@@ -613,7 +616,7 @@ always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00, {row_size{1'b0}}, {col_size{1'b0}}, 1'b0, 2'b00 };
     else
-        if (state==adr & counter[1:0]==2'b10)
+      if (state==adr & counter[2:0]==3'b011)
             {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
 always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
@@ -631,10 +634,11 @@ begin
             else                    next = idle;
     rfr:    if (counter==5'd5)      next = idle;
             else                    next = rfr;
-    adr:    if (current_row_open_reg & (counter[1:0]==2'b11) & we_reg)  next = w4d;
-            else if (current_row_open_reg & (counter[1:0]==2'b11))    next = rw;
-            else if (current_bank_closed_reg & (counter[1:0]==2'b11)) next = act;
-            else if ((counter[1:0]==2'b11))                       next = pch;
+    adr:    
+            if (current_row_open_reg & (counter[2:0]==3'b100) & we_reg)  next = w4d;
+            else if (current_row_open_reg & (counter[2:0]==3'b100))    next = rw;
+	    else if (current_bank_closed_reg & (counter[2:0]==3'b100)) next = act;
+	    else if ((counter[2:0]==3'b100))                       next = pch;
             else next = adr;
     pch:    if (counter[0])         next = act;
             else                    next = pch;
@@ -724,7 +728,7 @@ begin
         endcase
     end
 end
-assign fifo_rd_adr = ((state==adr) & (counter[1:0]==2'b00)) ? 1'b1 : 1'b0;
+assign fifo_rd_adr = ((state==adr) & (counter[2:0]==3'b000)) ? 1'b1 : 1'b0;
 assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b0 :
                       ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
                       1'b0;
@@ -732,11 +736,10 @@ assign state_idle = (state==idle);
 assign current_bank_closed = !(open_ba[bank]);
 assign current_row_open = open_ba[bank] & (open_row[bank]==row);
 always @ (posedge sdram_clk or posedge sdram_rst)
-    if (sdram_rst)
-        {current_bank_closed_reg, current_row_open_reg} <= {1'b1, 1'b0};
-    else
-        if (state==adr & counter[1:0]==2'b10)
-            {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
+  if (sdram_rst)
+    {current_bank_closed_reg, current_row_open_reg} <= {1'b1, 1'b0};
+  else
+    {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
 endmodule
 `timescale 1ns/1ns
 module versatile_mem_ctrl_wb (

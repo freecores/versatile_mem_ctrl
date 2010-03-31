@@ -17,13 +17,15 @@ input  [0:nr_of_queues-1] write_enable;
 input clk1;
 input rst1;
 
-output [data_width-1:0] q;
+output reg [data_width-1:0] q;
 output [0:nr_of_queues-1] fifo_empty;
 input                     read_adr, read_data;
 input  [0:nr_of_queues-1] read_enable;
 input clk2;
 input rst2;
 
+wire [data_width-1:0] fifo_q;
+   
 wire [a_lo_size-1:0]  fifo_wadr_bin[0:nr_of_queues-1];
 wire [a_lo_size-1:0]  fifo_wadr_gray[0:nr_of_queues-1];
 wire [a_lo_size-1:0]  fifo_radr_bin[0:nr_of_queues-1];
@@ -130,14 +132,21 @@ begin
     end
 end
 
+
+   
 vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_lo_size))
     dpram (
     .d_a(wdata),
     .adr_a({onehot2bin(write_enable),wadr}), 
     .we_a(write),
     .clk_a(clk1),
-    .q_b(q),
+    .q_b(fifo_q),
     .adr_b({onehot2bin(read_enable_reg),radr}),
     .clk_b(clk2) );
+
+   // Added registering of FIFO output to break a timing path
+   always@(posedge clk2)
+     q <= fifo_q;
+   
 
 endmodule

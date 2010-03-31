@@ -106,7 +106,8 @@ always @ (posedge sdram_clk or posedge sdram_rst)
     if (sdram_rst)
         {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00, {row_size{1'b0}}, {col_size{1'b0}}, 1'b0, 2'b00 };
     else
-        if (state==adr & counter[1:0]==2'b10)
+        //if (state==adr & counter[1:0]==2'b10)
+      if (state==adr & counter[2:0]==3'b011)
             {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
             
 always @ (posedge sdram_clk or posedge sdram_rst)
@@ -114,7 +115,8 @@ if (sdram_rst)
     state <= init;
 else
     state <= next;
-    
+
+
 always @*
 begin
     next = 3'bx;
@@ -126,10 +128,14 @@ begin
             else                    next = idle;
     rfr:    if (counter==5'd5)      next = idle;
             else                    next = rfr;
-    adr:    if (current_row_open_reg & (counter[1:0]==2'b11) & we_reg)  next = w4d;
-            else if (current_row_open_reg & (counter[1:0]==2'b11))    next = rw;
-            else if (current_bank_closed_reg & (counter[1:0]==2'b11)) next = act;
-            else if ((counter[1:0]==2'b11))                       next = pch;
+    adr:    //if (current_row_open_reg & (counter[1:0]==2'b11) & we_reg)  next = w4d;
+            if (current_row_open_reg & (counter[2:0]==3'b100) & we_reg)  next = w4d;
+//            else if (current_row_open_reg & (counter[1:0]==2'b11))    next = rw;
+            else if (current_row_open_reg & (counter[2:0]==3'b100))    next = rw;
+            //else if (current_bank_closed_reg & (counter[1:0]==2'b11)) next = act;
+	    else if (current_bank_closed_reg & (counter[2:0]==3'b100)) next = act;
+            //else if ((counter[1:0]==2'b11))                       next = pch;
+	    else if ((counter[2:0]==3'b100))                       next = pch;
             else next = adr;
     pch:    if (counter[0])         next = act;
             else                    next = pch;
@@ -244,7 +250,8 @@ begin
 end
 
 // rd_adr goes high when next adr is fetched from sync RAM and during write burst
-assign fifo_rd_adr = ((state==adr) & (counter[1:0]==2'b00)) ? 1'b1 : 1'b0;
+//assign fifo_rd_adr = ((state==adr) & (counter[1:0]==2'b00)) ? 1'b1 : 1'b0;
+assign fifo_rd_adr = ((state==adr) & (counter[2:0]==3'b000)) ? 1'b1 : 1'b0;
 assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b0 :
                       ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
                       1'b0;
@@ -268,11 +275,10 @@ assign current_row_open = ((open_ba[0] & bank==2'b00) & open_row[0]==row) ? 1'b1
                           1'b0;
 */
 always @ (posedge sdram_clk or posedge sdram_rst)
-    if (sdram_rst)
-        {current_bank_closed_reg, current_row_open_reg} <= {1'b1, 1'b0};
-    else
-        if (state==adr & counter[1:0]==2'b10)
-            {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
+  if (sdram_rst)
+    {current_bank_closed_reg, current_row_open_reg} <= {1'b1, 1'b0};
+  else
+    {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
         
 
 endmodule
