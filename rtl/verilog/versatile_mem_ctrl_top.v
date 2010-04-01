@@ -72,9 +72,9 @@ module versatile_mem_ctrl_top
    output         ras_pad_o;
    output         cas_pad_o;
    output         we_pad_o;
-   output reg [15:0] dq_o;
+   output reg [15:0] dq_o /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
    output [1:0] dqm_pad_o;
-   input  [15:0] dq_i;
+   input  [15:0] dq_i /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
    output        dq_oe;
    output        cke_pad_o;
 `endif

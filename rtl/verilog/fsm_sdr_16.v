@@ -25,10 +25,10 @@ output reg cmd_aref; // used for rerfresh ack
 output reg cmd_read; // used for ingress fifo control
 output state_idle; // state=idle
 
-output reg [1:0] ba;
-output reg [12:0] a;
-output reg [2:0] cmd;
-output reg [1:0] dqm;
+output reg [1:0] ba /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
+output reg [12:0] a /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
+output reg [2:0] cmd /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
+output reg [1:0] dqm /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
 output reg dq_oe;
 
 input sdram_clk, sdram_rst;
