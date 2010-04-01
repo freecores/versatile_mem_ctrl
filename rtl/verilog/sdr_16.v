@@ -435,15 +435,15 @@ module vfifo_dual_port_ram_dc_sw
    input [(ADDR_WIDTH-1):0] 	 adr_a;
    input [(ADDR_WIDTH-1):0] 	 adr_b;
    input 			 we_a;
-   output  [(DATA_WIDTH-1):0] q_b;
+   output [(DATA_WIDTH-1):0] 	 q_b;
    input 			 clk_a, clk_b;
    reg [(ADDR_WIDTH-1):0] 	 adr_b_reg;
-   reg [DATA_WIDTH-1:0] ram [(1<<ADDR_WIDTH)-1:0]  ;
+   reg [DATA_WIDTH-1:0] ram [(1<<ADDR_WIDTH)-1:0] ;
    always @ (posedge clk_a)
    if (we_a)
      ram[adr_a] <= d_a;
    always @ (posedge clk_b)
-     adr_b_reg <= adr_b;   
+   adr_b_reg <= adr_b;   
    assign q_b = ram[adr_b_reg];
 endmodule 
 module dff_sr ( aclr, aset, clock, data, q);
@@ -544,7 +544,7 @@ input [1:0] bte_i;
 input [3:0] sel_i;
 input  fifo_empty;
 output fifo_rd_adr, fifo_rd_data;
-output count0;
+output reg count0;
 input refresh_req;
 output reg cmd_aref; 
 output reg cmd_read; 
@@ -559,7 +559,8 @@ wire [ba_size-1:0] bank;
 wire [row_size-1:0] row;
 wire [col_size-1:0] col;
 wire [12:0]         col_reg_a10_fix;
-reg [4:0] counter;
+reg [0:31] shreg;
+wire stall; 
 reg [0:15] fifo_sel_reg_int;
 reg [1:0]  fifo_sel_domain_reg_int;
 reg [1:0]          ba_reg;  
@@ -613,12 +614,6 @@ end
 endfunction
 assign {bank,row,col} = adr_i;
 always @ (posedge sdram_clk or posedge sdram_rst)
-    if (sdram_rst)
-        {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00, {row_size{1'b0}}, {col_size{1'b0}}, 1'b0, 2'b00 };
-    else
-      if (state==adr & counter[2:0]==3'b011)
-            {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
-always @ (posedge sdram_clk or posedge sdram_rst)
 if (sdram_rst)
     state <= init;
 else
@@ -627,44 +622,53 @@ always @*
 begin
     next = 3'bx;
     case (state)
-    init:   if (counter==5'd31)     next = idle;
+    init:   if (shreg[31])     next = idle;
             else                    next = init;
     idle:   if (refresh_req)        next = rfr;
             else if (!fifo_empty)   next = adr;
             else                    next = idle;
-    rfr:    if (counter==5'd5)      next = idle;
+    rfr:    if (shreg[5])           next = idle;
             else                    next = rfr;
-    adr:    
-            if (current_row_open_reg & (counter[2:0]==3'b100) & we_reg)  next = w4d;
-            else if (current_row_open_reg & (counter[2:0]==3'b100))    next = rw;
-	    else if (current_bank_closed_reg & (counter[2:0]==3'b100)) next = act;
-	    else if ((counter[2:0]==3'b100))                       next = pch;
-            else next = adr;
-    pch:    if (counter[0])         next = act;
+    adr:    if (current_row_open_reg & (shreg[4]) & we_reg) next = w4d;
+            else if (current_row_open_reg & shreg[4])       next = rw;
+            else if (current_bank_closed_reg & shreg[4])    next = act;
+            else if (shreg[4])                              next = pch;
+            else                                            next = adr;
+    pch:    if (shreg[1])         next = act;
             else                    next = pch;
-    act:    if (counter[1:0]==2'd2 & (!fifo_empty | !we_reg))       next = rw;
-            else if (counter[1:0]==2'd2 & fifo_empty)   next = w4d;
-            else                                        next = act;
+    act:    if (shreg[2] & (!fifo_empty | !we_reg)) next = rw;
+            else if (shreg[2] & fifo_empty)         next = w4d;
+            else                                    next = act;
     w4d:    if (!fifo_empty) next = rw;
             else             next = w4d;
-    rw:     casex ({bte_reg,counter})
-            {linear,5'bxxxx1},{beat4,5'bxx111},{beat8,5'bx1111},{beat16,5'b11111}: next =  idle;
-            default: next = rw;
-            endcase
+    rw:     if (bte_reg==linear & shreg[1])
+                next = idle;
+            else if (bte_reg==beat4 & shreg[7])
+                next = idle;
+            else if (bte_reg==beat8 & shreg[15])
+                next = idle;
+            else if (bte_reg==beat16 & shreg[31])
+                next = idle;
+            else
+                next = rw;
     endcase
 end
+assign stall = state==rw & next==rw & fifo_empty & count0 & we_reg;
 always @ (posedge sdram_clk or posedge sdram_rst)
 begin
-    if (sdram_rst)
-        counter <= 5'd0;
-    else
-        if (state!=next)
-            counter <= 5'd0;
-        else
-            if (~(state==rw & next==rw & fifo_empty & counter[0] & we_reg))
-                counter <= counter + 5'd1;
+    if (sdram_rst) begin
+        shreg   <= {1'b1,{31{1'b0}}};
+        count0  <= 1'b0;
+    end else
+        if (state!=next) begin
+            shreg   <= {1'b1,{31{1'b0}}};
+            count0  <= 1'b0;
+        end else 
+            if (~stall) begin
+                shreg   <= shreg >> 1;
+                count0  <= ~count0;
+            end
 end
-assign count0 = counter[0];
 parameter [0:0] init_wb = 1'b0;
 parameter [2:0] init_cl = 3'b010;
 parameter [0:0] init_bt = 1'b0;
@@ -679,67 +683,78 @@ begin
         cmd_read = 1'b0;
         dq_oe = 1'b0;
         {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
+        {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00, {row_size{1'b0}}, {col_size{1'b0}}, 1'b0, 2'b00 };
     end else begin
         {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
         dqm = 2'b11;
         cmd_aref = 1'b0;
         cmd_read = 1'b0;
         dq_oe = 1'b0;
-        casex ({state,counter})
-        {init,5'd3}, {rfr,5'd0}: begin
-            {ba,a,cmd} = {2'b00, 13'b0010000000000, cmd_pch};
-            open_ba[ba_reg] <= 1'b0;
+        case (state)
+        init:
+            if (shreg[3]) begin
+                {ba,a,cmd} = {2'b00, 13'b0010000000000, cmd_pch};
+                open_ba[ba_reg] <= 1'b0;
+            end else if (shreg[7] | shreg[19])
+                {ba,a,cmd,cmd_aref} = {2'b00, 13'd0, cmd_rfr,1'b1};
+            else if (shreg[31])
+                {ba,a,cmd} = {2'b00,3'b000,init_wb,2'b00,init_cl,init_bt,init_bl, cmd_lmr};
+        rfr:
+            if (shreg[0]) begin
+                {ba,a,cmd} = {2'b00, 13'b0010000000000, cmd_pch};
+                open_ba[ba_reg] <= 1'b0;
+            end else if (shreg[2])
+                {ba,a,cmd,cmd_aref} = {2'b00, 13'd0, cmd_rfr,1'b1};
+        adr:
+            if (shreg[3])
+                {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
+        pch:
+            if (shreg[0]) begin
+                {ba,a,cmd} = {ba_reg,13'd0,cmd_pch};
+                open_ba <= 4'b0000;
             end
-        {init,5'd7}, {init,5'd19}, {rfr,5'd2}:
-            {ba,a,cmd,cmd_aref} = {2'b00, 13'd0, cmd_rfr,1'b1};  
-        {init,5'd31}:
-            {ba,a,cmd} = {2'b00,3'b000,init_wb,2'b00,init_cl,init_bt,init_bl, cmd_lmr};
-        {pch,5'bxxxx0}: begin
-            {ba,a,cmd} = {ba_reg,13'd0,cmd_pch};
-            open_ba <= 4'b0000;
+        act:
+            if (shreg[0]) begin
+                {ba,a,cmd} = {ba_reg,(13'd0 | row_reg),cmd_act};
+                {open_ba[ba_reg],open_row[ba_reg]} <= {1'b1,row_reg};
             end
-        {act,5'd0}: begin
-            {ba,a,cmd} = {ba_reg,(13'd0 | row_reg),cmd_act};
-            {open_ba[ba_reg],open_row[ba_reg]} <= {1'b1,row_reg};
-            end
-        {rw,5'bxxxxx}:
+        rw:
             begin
-                if (we_reg & !counter[0])
+                if (we_reg & !count0)
                     cmd = cmd_wr;
-                else if (!counter[0])
+                else if (!count0)
                     {cmd,cmd_read} = {cmd_rd,1'b1};
                 else
                     cmd = cmd_nop;
-                if (we_reg & !counter[0])
+                if (we_reg & !count0)
                     dqm = ~sel_i[3:2];
-                else if (we_reg & counter[0])
+                else if (we_reg & count0)
                     dqm = ~sel_i[1:0];
                 else
                     dqm = 2'b00;
                 if (we_reg)
                     dq_oe = 1'b1;
-                case (bte_reg)
-                linear: {ba,a} = {ba_reg,col_reg_a10_fix};
-                beat4:  {ba,a} = {ba_reg,col_reg_a10_fix[12:3],col_reg_a10_fix[2:0] + counter[2:0]};
-                beat8:  {ba,a} = {ba_reg,col_reg_a10_fix[12:4],col_reg_a10_fix[3:0] + counter[3:0]};
-                beat16: {ba,a} = {ba_reg,col_reg_a10_fix[12:5],col_reg_a10_fix[4:0] + counter[4:0]};
-                endcase
+                if (~stall)
+                    case (bte_reg)
+                    linear: {ba,a} = {ba_reg,col_reg_a10_fix};
+                    beat4:  {ba,a,col_reg[2:0]} = {ba_reg,col_reg_a10_fix, col_reg[2:0] + 3'd1};
+                    beat8:  {ba,a,col_reg[3:0]} = {ba_reg,col_reg_a10_fix, col_reg[3:0] + 4'd1};
+                    beat16: {ba,a,col_reg[4:0]} = {ba_reg,col_reg_a10_fix, col_reg[4:0] + 5'd1};
+                    endcase
             end
         endcase
     end
 end
-assign fifo_rd_adr = ((state==adr) & (counter[2:0]==3'b000)) ? 1'b1 : 1'b0;
-assign fifo_rd_data = (state==w4d & !fifo_empty) ? 1'b0 :
-                      ((state==rw & next==rw) & we_reg & !counter[0] & !fifo_empty) ? 1'b1 :
-                      1'b0;
+assign fifo_rd_adr  = state==adr & shreg[0];
+assign fifo_rd_data = ((state==rw & next==rw) & we_reg & !count0 & !fifo_empty);
 assign state_idle = (state==idle);
 assign current_bank_closed = !(open_ba[bank]);
 assign current_row_open = open_ba[bank] & (open_row[bank]==row);
 always @ (posedge sdram_clk or posedge sdram_rst)
-  if (sdram_rst)
-    {current_bank_closed_reg, current_row_open_reg} <= {1'b1, 1'b0};
-  else
-    {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
+    if (sdram_rst)
+        {current_bank_closed_reg, current_row_open_reg} <= {1'b1, 1'b0};
+    else
+            {current_bank_closed_reg, current_row_open_reg} <= {current_bank_closed, current_row_open};
 endmodule
 `timescale 1ns/1ns
 module versatile_mem_ctrl_wb (
