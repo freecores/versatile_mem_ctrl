@@ -186,69 +186,69 @@ assign col_reg_a10_fix = a10_fix(col_reg);
 always @ (posedge sdram_clk or posedge sdram_rst)
 begin
     if (sdram_rst) begin
-        {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
-        dqm = 2'b11;
-        cmd_aref = 1'b0;
-        cmd_read = 1'b0;
-        dq_oe = 1'b0;
+        {ba,a,cmd} <= {2'b00,13'd0,cmd_nop};
+        dqm <= 2'b11;
+        cmd_aref <= 1'b0;
+        cmd_read <= 1'b0;
+        dq_oe <= 1'b0;
         {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
         {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {2'b00, {row_size{1'b0}}, {col_size{1'b0}}, 1'b0, 2'b00 };
     end else begin
-        {ba,a,cmd} = {2'b00,13'd0,cmd_nop};
-        dqm = 2'b11;
-        cmd_aref = 1'b0;
-        cmd_read = 1'b0;
-        dq_oe = 1'b0;
+        {ba,a,cmd} <= {2'b00,13'd0,cmd_nop};
+        dqm <= 2'b11;
+        cmd_aref <= 1'b0;
+        cmd_read <= 1'b0;
+        dq_oe <= 1'b0;
         case (state)
         init:
             if (shreg[3]) begin
-                {ba,a,cmd} = {2'b00, 13'b0010000000000, cmd_pch};
+                {ba,a,cmd} <= {2'b00, 13'b0010000000000, cmd_pch};
                 open_ba[ba_reg] <= 1'b0;
             end else if (shreg[7] | shreg[19])
-                {ba,a,cmd,cmd_aref} = {2'b00, 13'd0, cmd_rfr,1'b1};
+                {ba,a,cmd,cmd_aref} <= {2'b00, 13'd0, cmd_rfr,1'b1};
             else if (shreg[31])
-                {ba,a,cmd} = {2'b00,3'b000,init_wb,2'b00,init_cl,init_bt,init_bl, cmd_lmr};
+                {ba,a,cmd} <= {2'b00,3'b000,init_wb,2'b00,init_cl,init_bt,init_bl, cmd_lmr};
         rfr:
             if (shreg[0]) begin
-                {ba,a,cmd} = {2'b00, 13'b0010000000000, cmd_pch};
+                {ba,a,cmd} <= {2'b00, 13'b0010000000000, cmd_pch};
                 open_ba[ba_reg] <= 1'b0;
             end else if (shreg[2])
-                {ba,a,cmd,cmd_aref} = {2'b00, 13'd0, cmd_rfr,1'b1};
+                {ba,a,cmd,cmd_aref} <= {2'b00, 13'd0, cmd_rfr,1'b1};
         adr:
             if (shreg[3])
                 {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= {bank,row,col,we_i,bte_i};
         pch:
             if (shreg[0]) begin
-                {ba,a,cmd} = {ba_reg,13'd0,cmd_pch};
+                {ba,a,cmd} <= {ba_reg,13'd0,cmd_pch};
                 open_ba <= 4'b0000;
             end
         act:
             if (shreg[0]) begin
-                {ba,a,cmd} = {ba_reg,(13'd0 | row_reg),cmd_act};
+                {ba,a,cmd} <= {ba_reg,(13'd0 | row_reg),cmd_act};
                 {open_ba[ba_reg],open_row[ba_reg]} <= {1'b1,row_reg};
             end
         rw:
             begin
                 if (we_reg & !count0)
-                    cmd = cmd_wr;
+                    cmd <= cmd_wr;
                 else if (!count0)
-                    {cmd,cmd_read} = {cmd_rd,1'b1};
+                    {cmd,cmd_read} <= {cmd_rd,1'b1};
                 else
-                    cmd = cmd_nop;
+                    cmd <= cmd_nop;
                 if (we_reg & !count0)
-                    dqm = ~sel_i[3:2];
+                    dqm <= ~sel_i[3:2];
                 else if (we_reg & count0)
-                    dqm = ~sel_i[1:0];
+                    dqm <= ~sel_i[1:0];
                 else
-                    dqm = 2'b00;
+                    dqm <= 2'b00;
                 if (we_reg)
-                    dq_oe = 1'b1;
+                    dq_oe <= 1'b1;
                 if (~stall)
                     case (bte_reg)
-                    linear: {ba,a} = {ba_reg,col_reg_a10_fix};
-                    beat4:  {ba,a,col_reg[2:0]} = {ba_reg,col_reg_a10_fix, col_reg[2:0] + 3'd1};
-                    beat8:  {ba,a,col_reg[3:0]} = {ba_reg,col_reg_a10_fix, col_reg[3:0] + 4'd1};
-                    beat16: {ba,a,col_reg[4:0]} = {ba_reg,col_reg_a10_fix, col_reg[4:0] + 5'd1};
+                    linear: {ba,a} <= {ba_reg,col_reg_a10_fix};
+                    beat4:  {ba,a,col_reg[2:0]} <= {ba_reg,col_reg_a10_fix, col_reg[2:0] + 3'd1};
+                    beat8:  {ba,a,col_reg[3:0]} <= {ba_reg,col_reg_a10_fix, col_reg[3:0] + 4'd1};
+                    beat16: {ba,a,col_reg[4:0]} <= {ba_reg,col_reg_a10_fix, col_reg[4:0] + 5'd1};
                     endcase
             end
         endcase
