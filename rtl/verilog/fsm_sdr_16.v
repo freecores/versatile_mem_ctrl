@@ -211,7 +211,7 @@ begin
         rfr:
             if (shreg[0]) begin
                 {ba,a,cmd} <= {2'b00, 13'b0010000000000, cmd_pch};
-                open_ba[ba_reg] <= 1'b0;
+                open_ba <= 4'b0000;
             end else if (shreg[2])
                 {ba,a,cmd,cmd_aref} <= {2'b00, 13'd0, cmd_rfr,1'b1};
         adr:
@@ -220,7 +220,8 @@ begin
         pch:
             if (shreg[0]) begin
                 {ba,a,cmd} <= {ba_reg,13'd0,cmd_pch};
-                open_ba <= 4'b0000;
+                //open_ba <= 4'b0000;
+	       open_ba[ba_reg] <= 1'b0;
             end
         act:
             if (shreg[0]) begin
