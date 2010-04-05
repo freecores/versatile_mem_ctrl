@@ -5,12 +5,13 @@
 //
 // either in this file or as command line option; +define+MT48LC16M16
 //
+// This file appears unused - it should either begin to be used again or deleted to avoid the confusion I just endured figuring this out! jb
 
 // number of adr lines to use
 // 2^2 = 4 32 bit word burst
 `define BURST_SIZE 2
 
-`define MT48LC16M16
+//`define MT48LC16M16
 `ifdef MT48LC16M16
 // using 1 of MT48LC16M16
 // SDRAM data width is 16
@@ -29,7 +30,7 @@
 `define WB_ADR_LO 2
 `endif //  `ifdef MT48LC16M16
 
-//`define DEVICE MT48LC4M16
+`define MT48LC4M16 // 8MB part
 `ifdef MT48LC4M16
 // using 1 of MT48LC4M16
 // SDRAM data width is 16
