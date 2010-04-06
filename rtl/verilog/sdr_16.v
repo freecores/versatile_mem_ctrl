@@ -6,7 +6,8 @@
 //
 // either in this file or as command line option; +define+MT48LC16M16
 //
-// This file appears unused - it should either begin to be used again or deleted to avoid the confusion I just endured figuring this out! jb
+
+// Most of these defines have an effect on things in fsm_sdr_16.v
 
 //`define MT48LC16M16 // 32MB part
  //  8MB part
@@ -22,7 +23,7 @@
  
 
 
-`line 23 "sdr_16_defines.v" 0
+`line 24 "sdr_16_defines.v" 0
  //  `ifdef MT48LC16M16
 
  
@@ -47,7 +48,7 @@
  
  
  
-`line 47 "sdr_16_defines.v" 2
+`line 48 "sdr_16_defines.v" 2
 `line 1 "versatile_fifo_async_cmp.v" 1
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
@@ -900,7 +901,8 @@ endmodule
 //
 // either in this file or as command line option; +define+MT48LC16M16
 //
-// This file appears unused - it should either begin to be used again or deleted to avoid the confusion I just endured figuring this out! jb
+
+// Most of these defines have an effect on things in fsm_sdr_16.v
 
 //`define MT48LC16M16 // 32MB part
  //  8MB part
@@ -916,7 +918,7 @@ endmodule
  
 
 
-`line 23 "sdr_16_defines.v" 0
+`line 24 "sdr_16_defines.v" 0
  //  `ifdef MT48LC16M16
 
  
@@ -941,7 +943,7 @@ endmodule
  
  
  
-`line 47 "sdr_16_defines.v" 2
+`line 48 "sdr_16_defines.v" 2
 `line 2 "fsm_sdr_16.v" 0
 
 module fsm_sdr_16 (
@@ -1290,84 +1292,49 @@ wire [35:0] wb_dat_i[0:nr_of_wb_ports-1];
 wire [36*nr_of_wb_ports-1:0] egress_fifo_di;
 wire [31:0] wb_dat_o;
 
-wire [0:nr_of_wb_ports-1] wb_wr_ack, wb_rd_ack, wr_adr;
-reg  [0:nr_of_wb_ports-1] wb_rd_ack_dly;
-wire [0:nr_of_wb_ports-1] wb_ack_o_int;
-wire [0:nr_of_wb_ports-1] egress_fifo_full;
-wire [0:nr_of_wb_ports-1] ingress_fifo_empty;
+wire [0:nr_of_wb_ports] stall;
+wire [0:nr_of_wb_ports-1] state_idle;
+wire [0:nr_of_wb_ports-1] egress_fifo_we,  egress_fifo_full;
+wire [0:nr_of_wb_ports-1] ingress_fifo_re, ingress_fifo_empty;
 
 genvar i;
+
+assign stall[0] = 1'b0;
 
  
 generate
     for (i=0;i<nr_of_wb_ports;i=i+1) begin : vector2array
         assign wb_adr_i[i] = wb_adr_i_v[(nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36];
         assign wb_dat_i[i] = wb_dat_i_v[(nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36];
-        assign egress_fifo_di[(nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36] = (wb_state[i]==idle) ? wb_adr_i[i] : wb_dat_i[i];
+        assign egress_fifo_di[(nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36] = (state_idle[i]) ? wb_adr_i[i] : wb_dat_i[i];        
     end
 endgenerate
 
-// wr_ack
-generate
-    assign wb_wr_ack[0] = ((wb_state[0]==idle | wb_state[0]==wr) & wb_cyc_i[0] & wb_stb_i[0] & !egress_fifo_full[0]);
-    for (i=1;i<nr_of_wb_ports;i=i+1) begin : wr_ack
-        assign wb_wr_ack[i] = (|(wb_wr_ack[0:i-1])) ? 1'b0 : ((wb_state[i]==idle | wb_state[i]==wr) & wb_cyc_i[i] & wb_stb_i[i] & !egress_fifo_full[i]);
-    end
-endgenerate
-
-// rd_ack
-generate
-    assign wb_rd_ack[0] = ((wb_state[0]==rd) & wb_cyc_i[0] & wb_stb_i[0] & !ingress_fifo_empty[0]) | (wb_state[0]==fe & !ingress_fifo_empty[0]);
-    for (i=1;i<nr_of_wb_ports;i=i+1) begin : rd_ack
-        assign wb_rd_ack[i] = (|(wb_rd_ack[0:i-1])) ? 1'b0 : ((wb_state[i]==rd) & wb_cyc_i[i] & wb_stb_i[i] & !ingress_fifo_empty[i]) | (wb_state[i]==fe & !ingress_fifo_empty[i]);
-    end
-endgenerate
-
-always @ (posedge wb_clk or posedge wb_rst)
-    if (wb_rst)
-        wb_rd_ack_dly <= {nr_of_wb_ports{1'b0}};
-    else
-        wb_rd_ack_dly <= wb_rd_ack;
-        
-generate
-    for (i=0;i<nr_of_wb_ports;i=i+1) begin : wb_ack
-        assign wb_ack_o_int[i] = (wb_state[i]==wr & wb_wr_ack[i]) | wb_rd_ack_dly[i];
-        assign wb_ack_o[i] = (wb_state[i]==fe) ? 1'b0 : wb_ack_o_int[i];
-    end
-endgenerate
-
-// trafic state machines
 generate
     for (i=0;i<nr_of_wb_ports;i=i+1) begin : fsm
-        always @ (posedge wb_clk or posedge wb_rst)
-        if (wb_rst)
-            wb_state[i] <= idle;
-        else
-            case (wb_state[i])
-            idle:
-                if (wb_wr_ack[i] & wb_adr_i[i][5])
-                    wb_state[i] <= wr;
-                else if (wb_wr_ack[i])
-                    wb_state[i] <= rd;
-            rd:
-                if (wb_adr_i[i][2:0]==endofburst & !ingress_fifo_empty[i])
-                    wb_state[i] <= fe;
-                else if ((wb_adr_i[i][2:0]==classic | wb_adr_i[i][2:0]==endofburst | wb_adr_i[i][4:3]==linear) & wb_ack_o_int[i])
-                    wb_state[i] <= idle;
-            wr:
-                if ((wb_adr_i[i][2:0]==classic | wb_adr_i[i][2:0]==endofburst | wb_adr_i[i][4:3]==linear) & wb_ack_o_int[i])
-                    wb_state[i] <= idle;
-            fe:
-                if (ingress_fifo_empty[i])
-                    wb_state[i] <= idle;
-            default: ;
-            endcase
+        fsm_wb fsm_wb_i (
+            .stall_i(stall[i]),
+            .stall_o(stall[i+1]),
+            .we_i (wb_adr_i[i][5]),
+            .cti_i(wb_adr_i[i][2:0]),
+            .bte_i(wb_adr_i[i][4:3]),
+            .stb_i(wb_stb_i[i]),
+            .cyc_i(wb_cyc_i[i]),
+            .ack_o(wb_ack_o[i]),
+            .egress_fifo_we(egress_fifo_we[i]),
+            .egress_fifo_full(egress_fifo_full[i]),
+            .ingress_fifo_re(ingress_fifo_re[i]),
+            .ingress_fifo_empty(ingress_fifo_empty[i]),
+            .state_idle(state_idle[i]),
+            .wb_clk(wb_clk),
+            .wb_rst(wb_rst)
+        );
     end
 endgenerate
 
 egress_fifo # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
 egress_FIFO(
-    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(wb_wr_ack)), .write_enable(wb_wr_ack),
+    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(egress_fifo_we)), .write_enable(egress_fifo_we),
     .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), .read_enable(sdram_fifo_re),
     .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), .rst2(sdram_rst)
 );
@@ -1375,14 +1342,14 @@ egress_FIFO(
 async_fifo_mq # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(32))
 ingress_FIFO(
     .d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), .write_enable(sdram_fifo_we),
-    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(|(wb_rd_ack)), .read_enable(wb_rd_ack),
+    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(|(ingress_fifo_re)), .read_enable(ingress_fifo_re),
     .clk1(sdram_clk), .rst1(sdram_rst), .clk2(wb_clk), .rst2(wb_rst)
 );
 
 assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
 
 endmodule
-`line 149 "versatile_mem_ctrl_wb.v" 2
+`line 114 "versatile_mem_ctrl_wb.v" 2
 `line 1 "versatile_mem_ctrl_top.v" 1
 `timescale 1ns/1ns
  
@@ -1401,7 +1368,8 @@ endmodule
 //
 // either in this file or as command line option; +define+MT48LC16M16
 //
-// This file appears unused - it should either begin to be used again or deleted to avoid the confusion I just endured figuring this out! jb
+
+// Most of these defines have an effect on things in fsm_sdr_16.v
 
 //`define MT48LC16M16 // 32MB part
  //  8MB part
@@ -1417,7 +1385,7 @@ endmodule
  
 
 
-`line 23 "sdr_16_defines.v" 0
+`line 24 "sdr_16_defines.v" 0
  //  `ifdef MT48LC16M16
 
  
@@ -1442,7 +1410,7 @@ endmodule
  
  
  
-`line 47 "sdr_16_defines.v" 2
+`line 48 "sdr_16_defines.v" 2
 `line 6 "versatile_mem_ctrl_top.v" 0
 
 

@@ -55,11 +55,6 @@ wire [35:0] wb_dat_i[0:nr_of_wb_ports-1];
 wire [36*nr_of_wb_ports-1:0] egress_fifo_di;
 wire [31:0] wb_dat_o;
 
-/*
-wire [0:nr_of_wb_ports-1] wb_wr_ack, wb_rd_ack, wr_adr;
-reg  [0:nr_of_wb_ports-1] wb_rd_ack_dly;
-wire [0:nr_of_wb_ports-1] wb_ack_o_int;
-*/
 wire [0:nr_of_wb_ports] stall;
 wire [0:nr_of_wb_ports-1] state_idle;
 wire [0:nr_of_wb_ports-1] egress_fifo_we,  egress_fifo_full;
@@ -99,65 +94,6 @@ generate
         );
     end
 endgenerate
-/*
-// wr_ack
-generate
-    assign wb_wr_ack[0] = ((wb_state[0]==idle | wb_state[0]==wr) & wb_cyc_i[0] & wb_stb_i[0] & !egress_fifo_full[0]);
-    for (i=1;i<nr_of_wb_ports;i=i+1) begin : wr_ack
-        assign wb_wr_ack[i] = (|(wb_wr_ack[0:i-1])) ? 1'b0 : ((wb_state[i]==idle | wb_state[i]==wr) & wb_cyc_i[i] & wb_stb_i[i] & !egress_fifo_full[i]);
-    end
-endgenerate
-
-// rd_ack
-generate
-    assign wb_rd_ack[0] = ((wb_state[0]==rd) & wb_cyc_i[0] & wb_stb_i[0] & !ingress_fifo_empty[0]) | (wb_state[0]==fe & !ingress_fifo_empty[0]);
-    for (i=1;i<nr_of_wb_ports;i=i+1) begin : rd_ack
-        assign wb_rd_ack[i] = (|(wb_rd_ack[0:i-1])) ? 1'b0 : ((wb_state[i]==rd) & wb_cyc_i[i] & wb_stb_i[i] & !ingress_fifo_empty[i]) | (wb_state[i]==fe & !ingress_fifo_empty[i]);
-    end
-endgenerate
-
-always @ (posedge wb_clk or posedge wb_rst)
-    if (wb_rst)
-        wb_rd_ack_dly <= {nr_of_wb_ports{1'b0}};
-    else
-        wb_rd_ack_dly <= wb_rd_ack;
-        
-generate
-    for (i=0;i<nr_of_wb_ports;i=i+1) begin : wb_ack
-        assign wb_ack_o_int[i] = (wb_state[i]==wr & wb_wr_ack[i]) | wb_rd_ack_dly[i];
-        assign wb_ack_o[i] = (wb_state[i]==fe) ? 1'b0 : wb_ack_o_int[i];
-    end
-endgenerate
-
-// trafic state machines
-generate
-    for (i=0;i<nr_of_wb_ports;i=i+1) begin : fsm
-        always @ (posedge wb_clk or posedge wb_rst)
-        if (wb_rst)
-            wb_state[i] <= idle;
-        else
-            case (wb_state[i])
-            idle:
-                if (wb_wr_ack[i] & wb_adr_i[i][`WE_I])
-                    wb_state[i] <= wr;
-                else if (wb_wr_ack[i])
-                    wb_state[i] <= rd;
-            rd:
-                if (wb_adr_i[i][`CTI_I]==endofburst & !ingress_fifo_empty[i])
-                    wb_state[i] <= fe;
-                else if ((wb_adr_i[i][`CTI_I]==classic | wb_adr_i[i][`CTI_I]==endofburst | wb_adr_i[i][`BTE_I]==linear) & wb_ack_o_int[i])
-                    wb_state[i] <= idle;
-            wr:
-                if ((wb_adr_i[i][`CTI_I]==classic | wb_adr_i[i][`CTI_I]==endofburst | wb_adr_i[i][`BTE_I]==linear) & wb_ack_o_int[i])
-                    wb_state[i] <= idle;
-            fe:
-                if (ingress_fifo_empty[i])
-                    wb_state[i] <= idle;
-            default: ;
-            endcase
-    end
-endgenerate
-*/
 
 egress_fifo # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
 egress_FIFO(
