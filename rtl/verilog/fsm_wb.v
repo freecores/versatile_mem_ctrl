@@ -77,7 +77,8 @@ reg [1:0] state;
         else
             ingress_fifo_read_reg <= ingress_fifo_read;
     
-    assign wb_ack_o = (ingress_fifo_read_reg) ? 1'b1;
+    assign wb_ack_o = (state==fe) ? 1'b0 :
+                      (ingress_fifo_read_reg) ? 1'b1;
                       (state==wr & stb_i & cyc_i & !egress_fifo_full & !stall_i) ? 1'b1 :
                       1'b0;
 
