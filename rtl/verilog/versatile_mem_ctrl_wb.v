@@ -55,23 +55,51 @@ wire [35:0] wb_dat_i[0:nr_of_wb_ports-1];
 wire [36*nr_of_wb_ports-1:0] egress_fifo_di;
 wire [31:0] wb_dat_o;
 
+/*
 wire [0:nr_of_wb_ports-1] wb_wr_ack, wb_rd_ack, wr_adr;
 reg  [0:nr_of_wb_ports-1] wb_rd_ack_dly;
 wire [0:nr_of_wb_ports-1] wb_ack_o_int;
-wire [0:nr_of_wb_ports-1] egress_fifo_full;
-wire [0:nr_of_wb_ports-1] ingress_fifo_empty;
+*/
+wire [0:nr_of_wb_ports] stall;
+wire [0:nr_of_wb_ports-1] state_idle;
+wire [0:nr_of_wb_ports-1] egress_fifo_we,  egress_fifo_full;
+wire [0:nr_of_wb_ports-1] ingress_fifo_re, ingress_fifo_empty;
 
 genvar i;
+
+assign stall[0] = 1'b0;
 
 `define INDEX (nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36 
 generate
     for (i=0;i<nr_of_wb_ports;i=i+1) begin : vector2array
         assign wb_adr_i[i] = wb_adr_i_v[`INDEX];
         assign wb_dat_i[i] = wb_dat_i_v[`INDEX];
-        assign egress_fifo_di[`INDEX] = (wb_state[i]==idle) ? wb_adr_i[i] : wb_dat_i[i];
+        assign egress_fifo_di[`INDEX] = (state_idle[i]) ? wb_adr_i[i] : wb_dat_i[i];        
     end
 endgenerate
 
+generate
+    for (i=0;i<nr_of_wb_ports;i=i+1) begin : fsm
+        fsm_wb fsm_wb_i (
+            .stall_i(stall[i]),
+            .stall_o(stall[i+1]),
+            .we_i (wb_adr_i[i][`WE_I]),
+            .cti_i(wb_adr_i[i][`CTI_I]),
+            .bte_i(wb_adr_i[i][`BTE_I]),
+            .stb_i(wb_stb_i[i]),
+            .cyc_i(wb_cyc_i[i]),
+            .ack_o(wb_ack_o[i]),
+            .egress_fifo_we(egress_fifo_we[i]),
+            .egress_fifo_full(egress_fifo_full[i]),
+            .ingress_fifo_re(ingress_fifo_re[i]),
+            .ingress_fifo_empty(ingress_fifo_empty[i]),
+            .state_idle(state_idle[i]),
+            .wb_clk(wb_clk),
+            .wb_rst(wb_rst)
+        );
+    end
+endgenerate
+/*
 // wr_ack
 generate
     assign wb_wr_ack[0] = ((wb_state[0]==idle | wb_state[0]==wr) & wb_cyc_i[0] & wb_stb_i[0] & !egress_fifo_full[0]);
@@ -129,10 +157,11 @@ generate
             endcase
     end
 endgenerate
+*/
 
 egress_fifo # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
 egress_FIFO(
-    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(wb_wr_ack)), .write_enable(wb_wr_ack),
+    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(egress_fifo_we)), .write_enable(egress_fifo_we),
     .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), .read_enable(sdram_fifo_re),
     .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), .rst2(sdram_rst)
 );
@@ -140,7 +169,7 @@ egress_FIFO(
 async_fifo_mq # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(32))
 ingress_FIFO(
     .d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), .write_enable(sdram_fifo_we),
-    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(|(wb_rd_ack)), .read_enable(wb_rd_ack),
+    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(|(ingress_fifo_re)), .read_enable(ingress_fifo_re),
     .clk1(sdram_clk), .rst1(sdram_rst), .clk2(wb_clk), .rst2(wb_rst)
 );
 
