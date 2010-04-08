@@ -1,4 +1,4 @@
-## File last modified by Fizzim: 3:40:29 PM on 2/23/10
+## File last modified by Fizzim: 10:11:38 AM on 4/6/10
 <version>
    8.04.05
 </version>
@@ -53,7 +53,7 @@
             ABS
             </status>
          <value>
-         sdram_clk
+         clk
             <status>
             GLOBAL_VAR
             </status>
@@ -97,7 +97,7 @@
             ABS
             </status>
          <value>
-         wb_rst
+         rst
             <status>
             GLOBAL_VAR
             </status>
@@ -314,7 +314,7 @@
          -1
          </page>
       </ref_req>
-      <sdram_clk>
+      <clk>
             <status>
             GLOBAL_FIXED
             </status>
@@ -357,8 +357,8 @@
          <page>
          -1
          </page>
-      </sdram_clk>
-      <wb_rst>
+      </clk>
+      <rst>
             <status>
             GLOBAL_FIXED
             </status>
@@ -401,8 +401,8 @@
          <page>
          -1
          </page>
-      </wb_rst>
-      <fifo_empty[7:0]>
+      </rst>
+      <fifo_empty>
             <status>
             GLOBAL_FIXED
             </status>
@@ -445,7 +445,7 @@
          <page>
          -1
          </page>
-      </fifo_empty[7:0]>
+      </fifo_empty>
       <fifo_sel[2:0]>
             <status>
             GLOBAL_FIXED
@@ -1163,7 +1163,7 @@
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -1196,6 +1196,50 @@
          -1
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         comb
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </state_idle>
    </outputs>
    <state>
       <name>
@@ -1693,7 +1737,7 @@
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -1726,6 +1770,50 @@
          -1
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         -1
+         </page>
+      </state_idle>
    </state>
    <trans>
       <name>
@@ -1869,7 +1957,7 @@
 </tabs>
 ## START PREFERENCES
 <SCounter>
-113
+115
 </SCounter>
 <TCounter>
 174
@@ -2407,7 +2495,7 @@ fzm_globalTable
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -2440,6 +2528,50 @@ fzm_globalTable
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -2962,7 +3094,7 @@ fzm_globalTable
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -2995,6 +3127,50 @@ fzm_globalTable
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -3736,7 +3912,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -3769,6 +3945,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -4021,7 +4241,7 @@ Initialization of SDRAM
             GLOBAL_FIXED
             </status>
          <value>
-         !(&fifo_empty)
+         !fifo_empty
             <status>
             LOCAL
             </status>
@@ -4291,7 +4511,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -4324,6 +4544,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b1
+            <status>
+            LOCAL
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            LOCAL
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         -1
+         </x2Obj>
+         <y2Obj>
+         -25
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    275
@@ -4846,7 +5110,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -4879,6 +5143,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    475
@@ -5641,6 +5949,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    275
@@ -6163,7 +6515,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -6196,6 +6548,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    475
@@ -7132,7 +7528,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -7165,6 +7561,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    675
@@ -7241,7 +7681,7 @@ Initialization of SDRAM
             ABS
             </status>
          <value>
-         !(&fifo_empty)
+         !fifo_empty
             <status>
             LOCAL
             </status>
@@ -8308,7 +8748,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -8341,6 +8781,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    475
@@ -9070,7 +9554,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -9103,6 +9587,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -9625,7 +10153,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -9658,6 +10186,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -10387,7 +10959,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -10420,6 +10992,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    375
@@ -10942,7 +11558,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -10975,6 +11591,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -11497,7 +12157,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -11530,6 +12190,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -12052,7 +12756,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -12085,6 +12789,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    375
@@ -12607,7 +13355,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -12640,6 +13388,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    375
@@ -13162,7 +13954,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -13195,6 +13987,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    375
@@ -13717,7 +14553,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -13750,6 +14586,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    675
@@ -14272,7 +15152,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -14305,6 +15185,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -14827,7 +15751,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -14860,6 +15784,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -15382,7 +16350,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -15415,6 +16383,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    375
@@ -15937,7 +16949,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -15970,6 +16982,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    375
@@ -16492,7 +17548,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -16525,6 +17581,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    375
@@ -17047,7 +18147,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -17080,6 +18180,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    375
@@ -17602,7 +18746,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -17635,6 +18779,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    675
@@ -18157,7 +19345,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -18190,6 +19378,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    675
@@ -18712,7 +19944,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -18745,6 +19977,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    675
@@ -19267,7 +20543,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -19300,6 +20576,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    675
@@ -19822,7 +21142,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -19855,6 +21175,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    675
@@ -20377,7 +21741,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -20410,6 +21774,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    675
@@ -24658,7 +26066,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -24691,6 +26099,50 @@ Initialization of SDRAM
          2
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         2
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    675
@@ -25420,7 +26872,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -25453,6 +26905,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    475
@@ -26596,7 +28092,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -26629,6 +28125,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -27151,7 +28691,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -27184,6 +28724,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -27913,7 +29497,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -27946,6 +29530,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    475
@@ -28468,7 +30096,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -28501,6 +30129,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    275
@@ -29023,7 +30695,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -29056,6 +30728,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -30199,7 +31915,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -30232,6 +31948,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    275
@@ -31825,7 +33585,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -31858,6 +33618,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    75
@@ -32794,7 +34598,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -32827,6 +34631,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    475
@@ -33349,7 +35197,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -33382,6 +35230,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    175
@@ -33577,420 +35469,6 @@ Initialization of SDRAM
    </startStateIndex>
    <endStateIndex>
    22
-   </endStateIndex>
-   <page>
-   3
-   </page>
-   <color>
-   -16777216
-   </color>
-   <pageSX>
-   0.0
-   </PageSX>
-   <pageSY>
-   0.0
-   </pageSY>
-   <pageSCX>
-   0.0
-   </PageSCX>
-   <pageSCY>
-   0.0
-   </pageSCY>
-   <pageEX>
-   0.0
-   </PageEX>
-   <pageEY>
-   0.0
-   </pageEY>
-   <pageECX>
-   0.0
-   </PageECX>
-   <pageECY>
-   0.0
-   </pageECY>
-   <stub>
-   false
-   </stub>
-</transition>
-## END STATE TRANSITION OBJECT
-## START STATE TRANSITION OBJECT
-<transition>
-   <attributes>
-      <name>
-            <status>
-            ABS
-            </status>
-         <value>
-         trans169
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         def_type
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         3
-         </page>
-      </name>
-      <equation>
-            <status>
-            ABS
-            </status>
-         <value>
-         !(tx_fifo_dat_o[5]) && (cur_row == tx_fifo_dat_o[26:14])
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         def_type
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         -19
-         </x2Obj>
-         <y2Obj>
-         -72
-         </y2Obj>
-         <page>
-         3
-         </page>
-      </equation>
-      <priority>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         10
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         2
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         -21
-         </x2Obj>
-         <y2Obj>
-         -79
-         </y2Obj>
-         <page>
-         3
-         </page>
-      </priority>
-   </attributes>
-   <startState>
-   NOP_tWR
-   </startState>
-   <endState>
-   READ_ADDR
-   </endState>
-   <startPtX>
-   342.0
-   </startPtX>
-   <startPtY>
-   1178.0
-   </startPtY>
-   <endPtX>
-   492.0
-   </endPtX>
-   <endPtY>
-   663.0
-   </endPtY>
-   <startCtrlPtX>
-   375.0
-   </startCtrlPtX>
-   <startCtrlPtY>
-   1038.0
-   </startCtrlPtY>
-   <endCtrlPtY>
-   438.0
-   </endCtrlPtY>
-   <endCtrlPtY>
-   756.0
-   </endCtrlPtY>
-   <startStateIndex>
-   29
-   </startStateIndex>
-   <endStateIndex>
-   13
-   </endStateIndex>
-   <page>
-   3
-   </page>
-   <color>
-   -16777216
-   </color>
-   <pageSX>
-   0.0
-   </PageSX>
-   <pageSY>
-   0.0
-   </pageSY>
-   <pageSCX>
-   0.0
-   </PageSCX>
-   <pageSCY>
-   0.0
-   </pageSCY>
-   <pageEX>
-   0.0
-   </PageEX>
-   <pageEY>
-   0.0
-   </pageEY>
-   <pageECX>
-   0.0
-   </PageECX>
-   <pageECY>
-   0.0
-   </pageECY>
-   <stub>
-   false
-   </stub>
-</transition>
-## END STATE TRANSITION OBJECT
-## START STATE TRANSITION OBJECT
-<transition>
-   <attributes>
-      <name>
-            <status>
-            ABS
-            </status>
-         <value>
-         trans170
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         0
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         def_type
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         0
-         </x2Obj>
-         <y2Obj>
-         0
-         </y2Obj>
-         <page>
-         3
-         </page>
-      </name>
-      <equation>
-            <status>
-            ABS
-            </status>
-         <value>
-         tx_fifo_dat_o[5] && (cur_row == tx_fifo_dat_o[26:14])
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         1
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         def_type
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         69
-         </x2Obj>
-         <y2Obj>
-         -250
-         </y2Obj>
-         <page>
-         3
-         </page>
-      </equation>
-      <priority>
-            <status>
-            GLOBAL_FIXED
-            </status>
-         <value>
-         100
-            <status>
-            LOCAL
-            </status>
-         </value>
-         <vis>
-         2
-            <status>
-            GLOBAL_VAR
-            </status>
-         </vis>
-         <type>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </type>
-         <comment>
-         
-            <status>
-            GLOBAL_VAR
-            </status>
-         </comment>
-         <color>
-         -16777216
-            <status>
-            GLOBAL_VAR
-            </status>
-         </color>
-         <x2Obj>
-         50
-         </x2Obj>
-         <y2Obj>
-         -259
-         </y2Obj>
-         <page>
-         3
-         </page>
-      </priority>
-   </attributes>
-   <startState>
-   NOP_tWR
-   </startState>
-   <endState>
-   WRITE_ADDR
-   </endState>
-   <startPtX>
-   307.0
-   </startPtX>
-   <startPtY>
-   1178.0
-   </startPtY>
-   <endPtX>
-   163.0
-   </endPtX>
-   <endPtY>
-   657.0
-   </endPtY>
-   <startCtrlPtX>
-   287.0
-   </startCtrlPtX>
-   <startCtrlPtY>
-   1090.0
-   </startCtrlPtY>
-   <endCtrlPtY>
-   216.0
-   </endCtrlPtY>
-   <endCtrlPtY>
-   763.0
-   </endCtrlPtY>
-   <startStateIndex>
-   25
-   </startStateIndex>
-   <endStateIndex>
-   4
    </endStateIndex>
    <page>
    3
@@ -34525,7 +36003,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -34558,6 +36036,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    475
@@ -35287,7 +36809,7 @@ Initialization of SDRAM
             </status>
          </value>
          <vis>
-         0
+         2
             <status>
             GLOBAL_VAR
             </status>
@@ -35320,6 +36842,50 @@ Initialization of SDRAM
          3
          </page>
       </cur_row[12:0]>
+      <state_idle>
+            <status>
+            GLOBAL_FIXED
+            </status>
+         <value>
+         1'b0
+            <status>
+            GLOBAL_VAR
+            </status>
+         </value>
+         <vis>
+         2
+            <status>
+            GLOBAL_VAR
+            </status>
+         </vis>
+         <type>
+         output
+            <status>
+            GLOBAL_VAR
+            </status>
+         </type>
+         <comment>
+         
+            <status>
+            GLOBAL_VAR
+            </status>
+         </comment>
+         <color>
+         -16777216
+            <status>
+            GLOBAL_VAR
+            </status>
+         </color>
+         <x2Obj>
+         0
+         </x2Obj>
+         <y2Obj>
+         0
+         </y2Obj>
+         <page>
+         3
+         </page>
+      </state_idle>
    </attributes>
    <x0>
    375

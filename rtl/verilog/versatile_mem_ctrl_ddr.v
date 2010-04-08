@@ -7,7 +7,7 @@ module versatile_mem_ctrl_ddr (
   // Memory controller side
   tx_dat_i, rx_dat_o,
   dq_en, dqm_en,
-  wb_rst, sdram_clk_0, sdram_clk_90, sdram_clk_180, sdram_clk_270
+  rst, clk_0, clk_90, clk_180, clk_270
   );
 
   output        ck_o;
@@ -19,14 +19,14 @@ module versatile_mem_ctrl_ddr (
   //input   [1:0] rdqs_n_i;
   //output        odt_o;
   input  [35:0] tx_dat_i;
-  output [35:0] rx_dat_o;
+  output [31:0] rx_dat_o;
   input         dq_en;
   input         dqm_en;
-  input         wb_rst;
-  input         sdram_clk_0;
-  input         sdram_clk_90;
-  input         sdram_clk_180;
-  input         sdram_clk_270;
+  input         rst;
+  input         clk_0;
+  input         clk_90;
+  input         clk_180;
+  input         clk_270;
 
   reg    [31:0] dq_rx_reg;
   wire   [31:0] dq_rx;
@@ -46,8 +46,8 @@ module versatile_mem_ctrl_ddr (
   // Generate clock with equal delay as data
   ddr_ff_out ddr_ff_out_ck (
     .Q(ck_o),
-    .C0(sdram_clk_0),
-    .C1(sdram_clk_180),
+    .C0(clk_0),
+    .C1(clk_180),
     .CE(1'b1),
     .D0(1'b1),
     .D1(1'b0),
@@ -56,8 +56,8 @@ module versatile_mem_ctrl_ddr (
 
   ddr_ff_out ddr_ff_out_ck_n (
     .Q(ck_n_o),
-    .C0(sdram_clk_0),
-    .C1(sdram_clk_180),
+    .C0(clk_0),
+    .C1(clk_180),
     .CE(1'b1),
     .D0(1'b0),
     .D1(1'b1),
@@ -69,8 +69,8 @@ module versatile_mem_ctrl_ddr (
     for (i=0; i<2; i=i+1) begin:dqs_oddr
       ddr_ff_out ddr_ff_out_dqs (
         .Q(dqs_o[i]),
-        .C0(sdram_clk_0),
-        .C1(sdram_clk_180),
+        .C0(clk_0),
+        .C1(clk_180),
         .CE(1'b1),
         .D0(1'b1),
         .D1(1'b0),
@@ -83,8 +83,8 @@ module versatile_mem_ctrl_ddr (
     for (i=0; i<2; i=i+1) begin:dqs_n_oddr
       ddr_ff_out ddr_ff_out_dqs_n (
         .Q(dqs_n_o[i]),
-        .C0(sdram_clk_0),
-        .C1(sdram_clk_180),
+        .C0(clk_0),
+        .C1(clk_180),
         .CE(1'b1),
         .D0(1'b0),
         .D1(1'b1),
@@ -142,7 +142,7 @@ module versatile_mem_ctrl_ddr (
 
 
   // Data from Tx FIFO
-  always @ (posedge sdram_clk_270 or posedge wb_rst)
+  always @ (posedge clk_270 or posedge wb_rst)
     if (wb_rst)
       dq_tx_reg[15:0] <= 16'h0;
     else
@@ -158,8 +158,8 @@ module versatile_mem_ctrl_ddr (
     for (i=0; i<16; i=i+1) begin:data_out_oddr
       ddr_ff_out ddr_ff_out_inst_0 (
         .Q(dq_o[i]),
-        .C0(sdram_clk_270),
-        .C1(sdram_clk_90),
+        .C0(clk_270),
+        .C1(clk_90),
         .CE(dq_en),
         .D0(dq_tx[i]),
         .D1(dq_tx_reg[i]),
@@ -169,7 +169,7 @@ module versatile_mem_ctrl_ddr (
   endgenerate
 
   // Data mask from Tx FIFO
-  always @ (posedge sdram_clk_270 or posedge wb_rst)
+  always @ (posedge clk_270 or posedge wb_rst)
     if (wb_rst)
       dqm_tx_reg[1:0] <= 2'b00;
     else
@@ -178,7 +178,7 @@ module versatile_mem_ctrl_ddr (
       else
         dqm_tx_reg[1:0] <= tx_dat_i[1:0];
 
-  always @ (posedge sdram_clk_180 or posedge wb_rst)
+  always @ (posedge clk_180 or posedge wb_rst)
     if (wb_rst)
       dqm_tx_reg[3:2] <= 2'b00;
     else
@@ -194,8 +194,8 @@ module versatile_mem_ctrl_ddr (
     for (i=0; i<2; i=i+1) begin:data_mask_oddr
       ddr_ff_out ddr_ff_out_inst_1 (
         .Q(dqm_o[i]),
-        .C0(sdram_clk_270),
-        .C1(sdram_clk_90),
+        .C0(clk_270),
+        .C1(clk_90),
         .CE(dq_en),
         .D0(!dqm_tx[i]),
         .D1(!dqm_tx_reg[i]),
@@ -224,8 +224,8 @@ module versatile_mem_ctrl_ddr (
       ddr_ff_in ddr_ff_in_inst_0 (
         .Q0(dq_rx[i]), 
         .Q1(dq_rx[i+16]), 
-        .C0(sdram_clk_270), 
-        .C1(sdram_clk_90),
+        .C0(clk_270), 
+        .C1(clk_90),
         .CE(1'b1), 
         .D(dq_io[i]),   
         .R(wb_rst),  
@@ -234,19 +234,19 @@ module versatile_mem_ctrl_ddr (
   endgenerate
 
   // Data to Rx FIFO
-  always @ (posedge sdram_clk_0 or posedge wb_rst)
+  always @ (posedge clk_0 or posedge wb_rst)
     if (wb_rst)
       dq_rx_reg[31:16] <= 16'h0;
     else
       dq_rx_reg[31:16] <= dq_rx[31:16];
 
-  always @ (posedge sdram_clk_180 or posedge wb_rst)
+  always @ (posedge clk_180 or posedge wb_rst)
     if (wb_rst)
       dq_rx_reg[15:0] <= 16'h0;
     else
       dq_rx_reg[15:0] <= dq_rx[15:0];
 
-  assign rx_dat_o = {dq_rx_reg, 4'h0};
+  assign rx_dat_o = dq_rx_reg;
 `endif   // INT_CLOCKED_DATA_CAPTURE
 
 
@@ -274,19 +274,19 @@ module versatile_mem_ctrl_ddr (
   endgenerate
 
   // Data to Rx FIFO
-  always @ (posedge sdram_clk_0 or posedge wb_rst)
+  always @ (posedge clk_0 or posedge wb_rst)
     if (wb_rst)
       dq_rx_reg[31:16] <= 16'h0;
     else
       dq_rx_reg[31:16] <= dq_rx[31:16];
 
-  always @ (posedge sdram_clk_0 or posedge wb_rst)
+  always @ (posedge clk_0 or posedge wb_rst)
     if (wb_rst)
       dq_rx_reg[15:0] <= 16'h0;
     else
       dq_rx_reg[15:0] <= dq_rx[15:0];
 
-  assign rx_dat_o = {dq_rx_reg, 4'h0};
+  assign rx_dat_o = dq_rx_reg;
   
 `endif   // DEL_DQS_DATA_CAPTURE_1
 
@@ -342,7 +342,7 @@ module versatile_mem_ctrl_ddr (
   endgenerate
    
   // Rise & fall clocked FF
-  always @ (posedge sdram_clk_0 or posedge wb_rst)
+  always @ (posedge clk_0 or posedge wb_rst)
     if (wb_rst) begin
       dq_fall_1 <= 16'h0;
       dq_rise_1 <= 16'h0;
@@ -351,7 +351,7 @@ module versatile_mem_ctrl_ddr (
       dq_rise_1 <= dq_iddr_rise;
     end
 
-  always @ (posedge sdram_clk_180 or posedge wb_rst)
+  always @ (posedge clk_180 or posedge wb_rst)
     if (wb_rst) begin
       dq_fall_2 <= 16'h0;
       dq_rise_2 <= 16'h0;
@@ -361,7 +361,7 @@ module versatile_mem_ctrl_ddr (
     end
    
   // Fall sync FF
-  always @ (posedge sdram_clk_0 or posedge wb_rst)
+  always @ (posedge clk_0 or posedge wb_rst)
     if (wb_rst) begin
       dq_fall_3 <= 16'h0;
       dq_rise_3 <= 16'h0;
@@ -371,7 +371,6 @@ module versatile_mem_ctrl_ddr (
     end
   
   // Mux
-  assign rx_dat_o[35:32] = 4'h0;
   assign rx_dat_o[31:16] = dq_fall_1;
   assign rx_dat_o[15:0]  = dq_rise_1;
 
@@ -420,8 +419,8 @@ module versatile_mem_ctrl_ddr (
     for (i=0; i<16; i=i+1) begin:data_out_oddr
       ddr_ff_out ddr_ff_out_inst_0 (
         .Q(dq_o[i]),
-        .C0(sdram_clk_270),
-        .C1(sdram_clk_90),
+        .C0(clk_270),
+        .C1(clk_90),
         .CE(dq_en),
         .D0(tx_dat_i[i+16+4]),
         .D1(tx_dat_i[i+4]),
@@ -442,8 +441,8 @@ module versatile_mem_ctrl_ddr (
     for (i=0; i<2; i=i+1) begin:data_mask_oddr
       ddr_ff_out ddr_ff_out_inst_1 (
         .Q(dqm_o[i]),
-        .C0(sdram_clk_270),
-        .C1(sdram_clk_90),
+        .C0(clk_270),
+        .C1(clk_90),
         .CE(dq_en),
         .D0(!dqm_tx[i+2]),
         .D1(!dqm_tx[i]),
@@ -464,8 +463,8 @@ module versatile_mem_ctrl_ddr (
       ddr_ff_in ddr_ff_in_inst_0 (
         .Q0(dq_rx[i]), 
         .Q1(dq_rx[i+16]), 
-        .C0(sdram_clk_270), 
-        .C1(sdram_clk_90),
+        .C0(clk_270), 
+        .C1(clk_90),
         .CE(1'b1), 
         .D(dq_io[i]),   
         .R(wb_rst),  
@@ -474,13 +473,13 @@ module versatile_mem_ctrl_ddr (
   endgenerate
 
   // Data to Rx FIFO
-  always @ (posedge sdram_clk_180 or posedge wb_rst)
+  always @ (posedge clk_180 or posedge wb_rst)
     if (wb_rst)
       dq_rx_reg <= 32'h0;
     else
       dq_rx_reg <= dq_rx;
 
-  assign rx_dat_o = {dq_rx_reg, 4'h0};
+  assign rx_dat_o = dq_rx_reg;
 `endif   // INT_CLOCKED_DATA_CAPTURE
 
 `ifdef DEL_DQS_DATA_CAPTURE_1

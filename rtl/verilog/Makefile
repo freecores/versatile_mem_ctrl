@@ -37,11 +37,11 @@ ddr_16_generated.v: ddr_16.fzm ddr_16_defines.v
 ddr_16.v: ddr_16_generated.v
 	vppreproc --simple $^ > $@
 
-fifo_adr_counter.v:
-	@echo;echo "\tThis file,"$@", doesn't exist, is it still needed?!. \n\tMake will now stop";echo
-	ls notexisting
+#fifo_adr_counter.v:
+#	@echo;echo "\tThis file,"$@", doesn't exist, is it still needed?!. \n\tMake will now stop";echo
+#	ls notexisting
 
-VERSATILE_MEM_CTRL_IP_FILES=versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v fifo_adr_counter.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v sdr_16.v ddr_16.v delay.v ddr_ff.v dcm_pll.v dff_sr.v versatile_mem_ctrl_ddr.v versatile_mem_ctrl_top.v
+VERSATILE_MEM_CTRL_IP_FILES=versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v sdr_16.v ddr_16.v fsm_wb.v delay.v ddr_ff.v dcm_pll.v dff_sr.v versatile_mem_ctrl_ddr.v versatile_mem_ctrl_top.v
 
 versatile_mem_ctrl_ip.v: $(VERSATILE_MEM_CTRL_IP_FILES)
 	cat $^  | cat copyright.v - > $@
