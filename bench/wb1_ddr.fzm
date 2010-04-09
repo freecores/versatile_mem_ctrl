@@ -1,4 +1,4 @@
-## File last modified by Fizzim: 2:03:15 PM on 1/18/10
+## File last modified by Fizzim: 4:57:07 PM on 4/8/10
 <version>
    8.04.05
 </version>
@@ -2938,9 +2938,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         32'h2000
+         32'h0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -3070,9 +3070,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         2'b01
+         2'b00
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -3114,9 +3114,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         3'b010
+         3'b000
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -3158,9 +3158,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         ack
+         1'b0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -3202,9 +3202,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         ack
+         1'b0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -3947,9 +3947,9 @@ fzm_globalTable
             ABS
             </status>
          <value>
-         !ack
+         1
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -4533,9 +4533,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         32'h2004
+         32'h0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -4665,9 +4665,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         2'b01
+         2'b00
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -4709,9 +4709,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         3'b010
+         3'b000
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -4753,9 +4753,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         ack
+         1'b0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -4797,9 +4797,9 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         ack
+         1'b0
             <status>
-            LOCAL
+            GLOBAL_VAR
             </status>
          </value>
          <vis>
@@ -7463,9 +7463,9 @@ fzm_globalTable
             ABS
             </status>
          <value>
-         1
+         ack
             <status>
-            GLOBAL_VAR
+            LOCAL
             </status>
          </value>
          <vis>

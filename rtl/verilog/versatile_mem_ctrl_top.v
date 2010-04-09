@@ -385,14 +385,14 @@ endgenerate
    wire        sdram_clk_90, sdram_clk_180, sdram_clk_270;
    wire        ck_fb;
    reg         cke, ras, cas, we, cs_n;
-   reg         cke_d, ras_d, cas_d, we_d, cs_n_d;
+   wire        cke_d, ras_d, cas_d, we_d, cs_n_d;
    wire        ras_o, cas_o, we_o, cs_n_o;
    wire  [1:0] ba_o;
    wire [12:0] addr_o;
    reg   [1:0] ba;
-   reg   [1:0] ba_d;
+   wire  [1:0] ba_d;
    reg  [12:0] addr;
-   reg  [12:0] addr_d;
+   wire [12:0] addr_d;
    wire        dq_en, dqm_en;
    reg  [15:0] dq_tx_reg;
    wire [15:0] dq_tx;
@@ -411,7 +411,7 @@ endgenerate
    wire  [3:0] burst_next_cnt, burst_length;
    wire        burst_mask;
    wire [12:0] cur_row;
-   // new
+   //
    wire  [3:0] burst_adr;
    wire  [2:0] tx_fifo_b_sel_i_cur;
    wire  [2:0] rx_fifo_a_sel_i;
@@ -503,110 +503,68 @@ endgenerate
    // Burst Mask
    assign burst_mask = (burst_cnt >= burst_length) ? 1'b1 : 1'b0;
 
-   // Control outports, DDR2 SDRAM
-   always @ (posedge sdram_clk_180 or posedge sdram_rst)
-     if (sdram_rst) begin
-       cs_n <= 1'b0;
-       cke  <= 1'b0;
-       ras  <= 1'b0;
-       cas  <= 1'b0;
-       we   <= 1'b0;
-       ba   <= 2'b00;
-       addr <= 13'b0000000000000;
-     end
-     else begin
-       cs_n <= cs_n_o;
-       cke  <= 1'b1;
-       ras  <= ras_o;
-       cas  <= cas_o;
-       we   <= we_o;
-       ba   <= ba_o;
-       addr <= addr_o;
-     end
-
-   // Add one cycle delay to address and control to compensate for increased delay i wb fifos
-   always @ (posedge sdram_clk_180 or posedge sdram_rst)
-     if (sdram_rst) begin
-       cs_n_d <= 1'b0;
-       cke_d  <= 1'b0;
-       ras_d  <= 1'b0;
-       cas_d  <= 1'b0;
-       we_d   <= 1'b0;
-       ba_d   <= 2'b00;
-       addr_d <= 13'b0000000000000;
-     end
-     else begin
-       cs_n_d <= cs_n;
-       cke_d  <= cke;
-       ras_d  <= ras;
-       cas_d  <= cas;
-       we_d   <= we;
-       ba_d   <= ba;
-       addr_d <= addr;
-     end
+   // Delay address and control to compensate for delay in Tx FIOFs
+   defparam delay0.depth=2; 
+   defparam delay0.width=20;
+   delay delay0 (
+      .d({cs_n_o,1'b1,ras_o,cas_o,we_o,ba_o,addr_o}),
+      .q({cs_n_d,cke_d,ras_d,cas_d,we_d,ba_d,addr_d}),
+      .clk(sdram_clk_180),
+      .rst(sdram_rst));
 
    // Assing outputs
    // Non-DDR outputs
-   assign cke_pad_o  = cke_d;
-   assign ras_pad_o  = ras_d;
-   assign cas_pad_o  = cas_d;
-   assign we_pad_o   = we_d;
-   assign ba_pad_o   = ba_d;
-   assign addr_pad_o = addr_d;
-   assign cs_n_pad_o = cs_n_d;
-
+   assign cs_n_pad_o  = cs_n_d;
+   assign cke_pad_o   = cke_d;
+   assign ras_pad_o   = ras_d;
+   assign cas_pad_o   = cas_d;
+   assign we_pad_o    = we_d;
+   assign ba_pad_o    = ba_d;
+   assign addr_pad_o  = addr_d;
    assign ck_fb_pad_o = ck_fb;
    assign dqs_oe      = dq_en;
 
    // Read latency, delay the control signals to fit latency of the DDR2 SDRAM
-   defparam delay0.depth=`CL+`AL+2; 
-   defparam delay0.width=4;
-   delay delay0 (
-      .d({read && !burst_mask,tx_fifo_b_sel_i_cur}),
-      .q({rx_fifo_we,rx_fifo_a_sel_i}),
-      .clk(sdram_clk_0),
-      .rst(sdram_rst)
-      );
-
-   // temp assign rx_fifo_we to fifo_wr
-   assign fifo_wr = rx_fifo_we;
-   
-   // write latency, delay the control signals to fit latency of the DDR2 SDRAM
-//   defparam delay1.depth=`CL+`AL-1;
-   defparam delay1.depth=`CL+`AL;
-   defparam delay1.width=2;
+   defparam delay1.depth=`CL+`AL+3; 
+   defparam delay1.width=1;
    delay delay1 (
+      .d(read && !burst_mask),
+      .q(fifo_wr),
+      .clk(sdram_clk_0),
+      .rst(sdram_rst));
+
+   // write latency, delay the control signals to fit latency of the DDR2 SDRAM
+   defparam delay2.depth=`CL+`AL;
+   defparam delay2.width=2;
+   delay delay2 (
       .d({write, burst_mask}),
       .q({dq_en, dqm_en}),
       .clk(sdram_clk_270),
-      .rst(sdram_rst)
-      );
+      .rst(sdram_rst));
 
 /*   // if CL>3 delay read from Tx FIFO
-   defparam delay2.depth=`CL+`AL-3;
-   defparam delay2.width=1;
-   delay delay2 (
+   defparam delay3.depth=`CL+`AL-3;
+   defparam delay3.width=1;
+   delay delay3 (
       .d(tx_fifo_re_i && !burst_mask),
       .q(tx_fifo_re),
       .clk(sdram_clk_0),
-      .rst(sdram_rst)
-      );
+      .rst(sdram_rst));
 */
+
    // if CL=3, no delay
    assign tx_fifo_re = tx_fifo_re_i && !burst_mask;
-
-
-   // temp assign tx_fifo_re to fifo_rd_adr
+   // assign tx_fifo_re to fifo_rd_adr
    assign fifo_rd_adr = tx_fifo_re;
 
-   // New
+   //
    genvar i;
    generate
      for (i=0; i < 16; i=i+1) begin : dly
 
-       defparam delay10.depth=cl+2;   
-       defparam delay10.width=1;
-       delay delay10 (
+       defparam delay4.depth=cl+2;   
+       defparam delay4.width=1;
+       delay delay4 (
          .d(fifo_sel_reg[i]),
          .q(fifo_sel_dly[i]),
          .clk(sdram_clk),
@@ -614,9 +572,9 @@ endgenerate
        );
      end
     
-     defparam delay11.depth=cl+2;   
-     defparam delay11.width=2;
-     delay delay11 (
+     defparam delay5.depth=cl+2;   
+     defparam delay5.width=2;
+     delay delay5 (
        .d(fifo_sel_domain_reg),
        .q(fifo_sel_domain_dly),
        .clk(sdram_clk),
@@ -626,9 +584,9 @@ endgenerate
 
 
    // Increment address
-   defparam delay3.depth=`CL+`AL-1;
-   defparam delay3.width=1;
-   delay delay3 (
+   defparam delay6.depth=`CL+`AL-1;
+   defparam delay6.width=1;
+   delay delay6 (
       .d({write|read}),
       .q({adr_inc}),
       .clk(sdram_clk_0),
