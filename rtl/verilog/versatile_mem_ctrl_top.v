@@ -507,7 +507,7 @@ module versatile_mem_ctrl_top
       .cs_n(cs_n_o),
       .cur_row(cur_row),
       .clk(sdram_clk_0),
-      .rst(wb_rst)
+      .rst(sdram_rst)
       );
 
    inc_adr inc_adr0
@@ -601,7 +601,7 @@ module versatile_mem_ctrl_top
       .rst(sdram_rst)
       );
 
-   // if CL>3 delay read from Tx FIFO
+/*   // if CL>3 delay read from Tx FIFO
    defparam delay3.depth=`CL+`AL-3;
    defparam delay3.width=1;
    delay delay3 
@@ -611,6 +611,7 @@ module versatile_mem_ctrl_top
 		 .clk(sdram_clk_0),
 		 .rst(sdram_rst)
 		 );
+*/
 
    // if CL=3, no delay
    assign tx_fifo_re = tx_fifo_re_i && !burst_mask;
@@ -621,7 +622,7 @@ module versatile_mem_ctrl_top
    generate
      for (i=0; i < 16; i=i+1) begin : dly
 
-       defparam delay4.depth=cl+2;   
+       defparam delay4.depth=`CL+2;   
        defparam delay4.width=1;
        delay delay4 (
          .d(fifo_sel_reg[i]),
@@ -631,7 +632,7 @@ module versatile_mem_ctrl_top
        );
      end
     
-     defparam delay5.depth=cl+2;   
+     defparam delay5.depth=`CL+2;   
      defparam delay5.width=2;
      delay delay5 (
        .d(fifo_sel_domain_reg),
@@ -688,18 +689,6 @@ endgenerate
       .clk_90(sdram_clk_90),
       .clk_180(sdram_clk_180),
       .clk_270(sdram_clk_270));
-
-   // Assing outputs
-   // Non-DDR outputs
-   assign ba_pad_o     = ba;
-   assign addr_pad_o   = addr;
-   assign dqs_oe       = dq_en;
-   assign cke_pad_o    = cke;
-   assign ras_pad_o    = ras;
-   assign cas_pad_o    = cas;
-   assign we_pad_o     = we;
-   assign cs_n_pad_o   = cs_n;
-   assign ck_fb_pad_o  = ck_fb;
 
 `endif //  `ifdef DDR_16
    
