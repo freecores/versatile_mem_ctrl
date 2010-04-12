@@ -138,11 +138,8 @@ reg [1:0] state;
                    (state==wr & stb_i & cyc_i & !egress_fifo_full & !stall_i) ? 1'b1 :
                    1'b0;
    
-/*   assign ack_o = ingress_fifo_read_reg | 
-		  ((state==wr) & stb_i & cyc_i & !egress_fifo_full);
-*/
 endmodule
-`line 92 "fsm_wb.v" 2
+`line 89 "fsm_wb.v" 2
 `line 1 "versatile_fifo_async_cmp.v" 1
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
@@ -1543,14 +1540,6 @@ module versatile_mem_ctrl_top
    parameter nr_of_wb_ports_clk1  = 0;
    parameter nr_of_wb_ports_clk2  = 0;
    parameter nr_of_wb_ports_clk3  = 0;
-
-   /*
-   // Now these are defines, synthesis tool was doing strange things! jb
-   parameter ba_size = 2;
-   parameter row_size = 13;
-   parameter col_size = 9;
-   parameter [2:0] cl = 3'b010; // valid options 010, 011 used for SDR LMR
-   */
    
    input  [36*nr_of_wb_ports_clk0-1:0] wb_adr_i_0;
    input [36*nr_of_wb_ports_clk0-1:0]  wb_dat_i_0;
@@ -1613,7 +1602,7 @@ module versatile_mem_ctrl_top
      			       
     			       
 
-`line 110 "versatile_mem_ctrl_top.v" 0
+`line 102 "versatile_mem_ctrl_top.v" 0
 
    input 			       sdram_clk, sdram_rst;
 
@@ -1632,7 +1621,7 @@ module versatile_mem_ctrl_top
 
    reg 				       refresh_req;
    
-   wire [35:0] 			       tx_fifo_dat_o;   // tmp added /MF
+   wire [35:0] 			       tx_fifo_dat_o;
 
    generate   
       if (nr_of_wb_clk_domains > 0) begin    
@@ -1842,12 +1831,7 @@ module versatile_mem_ctrl_top
       .sdram_clk(sdram_clk), 
       .sdram_rst(sdram_rst)
       );
-   /*
-   defparam fsm_sdr_16_0.ba_size = ba_size;
-   defparam fsm_sdr_16_0.row_size = row_size;
-   defparam fsm_sdr_16_0.col_size = col_size;
-   defparam fsm_sdr_16_0.init_cl = cl;
-   */
+
    assign cs_pad_o = 1'b0;
    assign cke_pad_o = 1'b1;
 
@@ -1954,11 +1938,14 @@ module versatile_mem_ctrl_top
              
            
                 
+               
               
       
      
        
       
+      
+     
             
       
      
@@ -1970,17 +1957,40 @@ module versatile_mem_ctrl_top
         
             
             
-           
+            
            
             
        
        
            
      
+      
+      
+      
+      
+           
+
+    
+    
+      
+   
+     
+     
+     
+     
+         
+    
+       
+   
+      
+         
+       
+         
 
    
     
      
+      
       
       
       
@@ -2053,34 +2063,25 @@ module versatile_mem_ctrl_top
             
 
    
+     
+    
+     
+      
+      
+      
+      
+
+   
+   
+       
+        
+        
+        
+         
          
        
-	  
-	   
-	   
-	   
-	    
-	    
-	  
-     
       
-	  
-	   
-	   
-	   
-	    
-	    
-	  
-     
-
-       
-       
-       
-        
-        
-      
-      
-
+           
 
    
      
@@ -2116,7 +2117,34 @@ module versatile_mem_ctrl_top
 		 
 
    
+        
+      
+
    
+    
+   
+             
+
+           
+        
+         
+         
+         
+         
+         
+       
+     
+    
+         
+      
+       
+       
+       
+       
+       
+     
+  
+
 
    
     
@@ -2178,8 +2206,8 @@ module versatile_mem_ctrl_top
        
 
 
-`line 673 "versatile_mem_ctrl_top.v" 0
+`line 704 "versatile_mem_ctrl_top.v" 0
  //  `ifdef DDR_16
    
 endmodule // wb_sdram_ctrl_top
-`line 676 "versatile_mem_ctrl_top.v" 2
+`line 707 "versatile_mem_ctrl_top.v" 2

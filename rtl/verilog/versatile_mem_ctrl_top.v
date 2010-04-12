@@ -117,7 +117,7 @@ module versatile_mem_ctrl_top
 
    reg 				       refresh_req;
    
-   wire [35:0] 			       tx_fifo_dat_o;   // tmp added /MF
+   wire [35:0] 			       tx_fifo_dat_o;
 
    generate   
       if (nr_of_wb_clk_domains > 0) begin    
@@ -434,11 +434,14 @@ module versatile_mem_ctrl_top
    wire        sdram_clk_90, sdram_clk_180, sdram_clk_270;
    wire        ck_fb;
    reg         cke, ras, cas, we, cs_n;
+   wire        cke_d, ras_d, cas_d, we_d, cs_n_d;
    wire        ras_o, cas_o, we_o, cs_n_o;
    wire [1:0]  ba_o;
    wire [12:0] addr_o;
-   reg [1:0]   ba;
+   reg  [1:0]  ba;
+   wire [1:0]  ba_d;
    reg [12:0]  addr;
+   wire [12:0] addr_d;
    wire        dq_en, dqm_en;
    reg [15:0]  dq_tx_reg;
    wire [15:0] dq_tx;
@@ -450,13 +453,35 @@ module versatile_mem_ctrl_top
    wire [1:0]  dqm_o, dqs_o, dqs_n_o;
    wire        ref_delay, ref_delay_ack;
    wire        bl_en, bl_ack;
-   wire        tx_fifo_re_i;
+   wire        tx_fifo_re, tx_fifo_re_i;
    wire        adr_init_delay;
    reg         adr_init_delay_i;
    reg [3:0]   burst_cnt;
    wire [3:0]  burst_next_cnt, burst_length;
    wire        burst_mask;
    wire [12:0] cur_row;
+   wire  [3:0] burst_adr;
+   wire  [2:0] tx_fifo_b_sel_i_cur;
+   wire  [2:0] rx_fifo_a_sel_i;
+   wire  [7:0] tx_fifo_empty;
+   wire        rx_fifo_we;
+
+   wire ref_cnt_zero;
+   wire cmd_aref;
+      
+   // refresh counter
+   ref_counter ref_counter0( 
+     .zq(ref_cnt_zero),
+     .rst(sdram_rst),
+     .clk(sdram_clk));
+   always @ (posedge sdram_clk or posedge sdram_rst)
+   if (sdram_rst)
+     refresh_req <= 1'b0;
+   else
+     if (ref_cnt_zero)
+       refresh_req <= 1'b1;
+     else if (cmd_aref)
+       refresh_req <= 1'b0;
 
    // DDR SDRAM 16 FSM
    ddr_16 ddr_16_0
@@ -464,15 +489,16 @@ module versatile_mem_ctrl_top
       .adr_init(adr_init),
       .fifo_re(tx_fifo_re_i),
       .fifo_re_d(tx_fifo_re),
-      .tx_fifo_dat_o(tx_fifo_dat_o),
+      .tx_fifo_dat_o(fifo_dat_o[fifo_sel_domain_reg]),
       .burst_adr(burst_adr),
-      .fifo_empty(tx_fifo_empty),
+      .fifo_empty(current_fifo_empty),
       .fifo_sel(tx_fifo_b_sel_i_cur),
       .read(read),
       .write(write),
-      .ref_req(ref_req),
-      .ref_ack(ref_ack),
+      .ref_req(refresh_req),
+      .ref_ack(cmd_aref),
       .ref_delay(ref_delay),
+      .state_idle(idle),
       .ref_delay_ack(ref_delay_ack),
       .bl_en(bl_en),
       .bl_ack(bl_ack),
@@ -480,21 +506,21 @@ module versatile_mem_ctrl_top
       .cmd({ras_o,cas_o,we_o}),
       .cs_n(cs_n_o),
       .cur_row(cur_row),
-      .sdram_clk(sdram_clk_0),
-      .wb_rst(wb_rst)
+      .clk(sdram_clk_0),
+      .rst(wb_rst)
       );
 
    inc_adr inc_adr0
      (
-      .adr_i(tx_fifo_dat_o[9:6]),
-      .bte_i(tx_fifo_dat_o[4:3]),
-      .cti_i(tx_fifo_dat_o[2:0]),
+      .adr_i(fifo_dat_o[fifo_sel_domain_reg][9:6]),
+      .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
+      .cti_i(fifo_dat_o[fifo_sel_domain_reg][2:0]),
       .init(adr_init),
       .inc(),
       .adr_o(burst_adr),
       .done(done),
       .clk(sdram_clk_0),
-      .rst(wb_rst)
+      .rst(sdram_rst)
       );
 
    // Delay, refresh to activate/refresh
@@ -503,7 +529,7 @@ module versatile_mem_ctrl_top
       .cke(ref_delay),
       .zq(ref_delay_ack),
       .clk(sdram_clk_0),
-      .rst(wb_rst)
+      .rst(sdram_rst)
       );
    
    // Burst length, DDR2 SDRAM
@@ -512,19 +538,19 @@ module versatile_mem_ctrl_top
       .cke(bl_en),
       .zq(bl_ack),
       .clk(sdram_clk_0),
-      .rst(wb_rst)
+      .rst(sdram_rst)
       );
 
    // Wishbone burst length
-   assign burst_length = (adr_init && tx_fifo_dat_o[2:0] == 3'b000) ? 4'd1 :   // classic cycle
-                         (adr_init && tx_fifo_dat_o[2:0] == 3'b010) ? 4'd4 :   // incremental burst cycle
+   assign burst_length = (adr_init && fifo_dat_o[fifo_sel_domain_reg][2:0] == 3'b000) ? 4'd1 :   // classic cycle
+                         (adr_init && fifo_dat_o[fifo_sel_domain_reg][2:0] == 3'b010) ? 4'd4 :   // incremental burst cycle
                          burst_length;
 
    // Burst mask
    // Burst length counter
    assign burst_next_cnt = (burst_cnt == 3) ? 4'd0 : burst_cnt + 4'd1;
-   always @ (posedge sdram_clk_0 or posedge wb_rst)
-     if (wb_rst)
+   always @ (posedge sdram_clk_0 or posedge sdram_rst)
+     if (sdram_rst)
        burst_cnt <= 4'h0;
      else
        if (bl_en)
@@ -532,81 +558,99 @@ module versatile_mem_ctrl_top
    // Burst Mask
    assign burst_mask = (burst_cnt >= burst_length) ? 1'b1 : 1'b0;
 
-   // Control outports, DDR2 SDRAM
-   always @ (posedge sdram_clk_180 or posedge wb_rst)
-     if (wb_rst) begin
-	cs_n <= 1'b0;
-	cke  <= 1'b0;
-	ras  <= 1'b0;
-	cas  <= 1'b0;
-	we   <= 1'b0;
-	ba   <= 2'b00;
-	addr <= 13'b0000000000000;
-     end
-     else begin
-	cs_n <= cs_n_o;
-	cke  <= 1'b1;
-	ras  <= ras_o;
-	cas  <= cas_o;
-	we   <= we_o;
-	ba   <= ba_o;
-	addr <= addr_o;
-     end
+   // Delay address and control to compensate for delay in Tx FIOFs
+   defparam delay0.depth=2; 
+   defparam delay0.width=20;
+   delay delay0 (
+      .d({cs_n_o,1'b1,ras_o,cas_o,we_o,ba_o,addr_o}),
+      .q({cs_n_d,cke_d,ras_d,cas_d,we_d,ba_d,addr_d}),
+      .clk(sdram_clk_180),
+      .rst(sdram_rst));
 
-   assign cke_pad_o  = cke;
-   assign ras_pad_o  = ras;
-   assign cas_pad_o  = cas;
-   assign we_pad_o   = we;
-   assign ba_pad_o   = ba;
-   assign addr_pad_o = addr;
-   assign cs_n_pad_o = cs_n;
-
+   // Assing outputs
+   // Non-DDR outputs
+   assign cs_n_pad_o  = cs_n_d;
+   assign cke_pad_o   = cke_d;
+   assign ras_pad_o   = ras_d;
+   assign cas_pad_o   = cas_d;
+   assign we_pad_o    = we_d;
+   assign ba_pad_o    = ba_d;
+   assign addr_pad_o  = addr_d;
+   assign ck_fb_pad_o = ck_fb;
+   assign dqs_oe      = dq_en;
 
    // Read latency, delay the control signals to fit latency of the DDR2 SDRAM
-   defparam delay0.depth=`CL+`AL+2; 
-   defparam delay0.width=4;
-   delay delay0 
+   defparam delay1.depth=`CL+`AL+3; 
+   defparam delay1.width=1;
+   delay delay1 
      (
-      .d({read && !burst_mask,tx_fifo_b_sel_i_cur}),
-      .q({rx_fifo_we,rx_fifo_a_sel_i}),
+      .d(read && !burst_mask),
+      .q(fifo_wr),
       .clk(sdram_clk_0),
-      .rst(wb_rst)
+      .rst(sdram_rst)
       );
    
    // write latency, delay the control signals to fit latency of the DDR2 SDRAM
-   defparam delay1.depth=`CL+`AL-1;
-   defparam delay1.width=2;
-   delay delay1 
+   defparam delay2.depth=`CL+`AL;
+   defparam delay2.width=2;
+   delay delay2 
      (
       .d({write, burst_mask}),
       .q({dq_en, dqm_en}),
       .clk(sdram_clk_270),
-      .rst(wb_rst)
+      .rst(sdram_rst)
       );
 
    // if CL>3 delay read from Tx FIFO
-   defparam delay2.depth=`CL+`AL-3;
-   defparam delay2.width=1;
-   delay delay2 
+   defparam delay3.depth=`CL+`AL-3;
+   defparam delay3.width=1;
+   delay delay3 
      (		 
 		 .d(tx_fifo_re_i && !burst_mask),
 		 .q(tx_fifo_re),
 		 .clk(sdram_clk_0),
-		 .rst(wb_rst)
+		 .rst(sdram_rst)
 		 );
 
    // if CL=3, no delay
-   //assign tx_fifo_re = tx_fifo_re_i && !burst_mask;
+   assign tx_fifo_re = tx_fifo_re_i && !burst_mask;
+   assign fifo_rd_adr = tx_fifo_re;
+
+   //
+   genvar i;
+   generate
+     for (i=0; i < 16; i=i+1) begin : dly
+
+       defparam delay4.depth=cl+2;   
+       defparam delay4.width=1;
+       delay delay4 (
+         .d(fifo_sel_reg[i]),
+         .q(fifo_sel_dly[i]),
+         .clk(sdram_clk),
+         .rst(sdram_rst)
+       );
+     end
+    
+     defparam delay5.depth=cl+2;   
+     defparam delay5.width=2;
+     delay delay5 (
+       .d(fifo_sel_domain_reg),
+       .q(fifo_sel_domain_dly),
+       .clk(sdram_clk),
+       .rst(sdram_rst)
+     );
+endgenerate  
+
 
    // Increment address
-   defparam delay3.depth=`CL+`AL-1;
-   defparam delay3.width=1;
-   delay delay3 
+   defparam delay6.depth=`CL+`AL-1;
+   defparam delay6.width=1;
+   delay delay6 
      (
       .d({write|read}),
       .q({adr_inc}),
       .clk(sdram_clk_0),
-      .rst(wb_rst)
+      .rst(sdram_rst)
       );
 
    // DCM/PLL with internal and external feedback
@@ -614,7 +658,7 @@ module versatile_mem_ctrl_top
    // Parameters are set in dcm_pll.v
    dcm_pll dcm_pll_0 
      (
-      .rst(wb_rst),
+      .rst(sdram_rst),
       .clk_in(sdram_clk),
       .clkfb_in(ck_fb_pad_i),
       .clk0_out(sdram_clk_0),
@@ -635,15 +679,15 @@ module versatile_mem_ctrl_top
       .dqs_n_io(dqs_n_pad_io), 
       .dm_rdqs_io(dm_rdqs_pad_io),
       // Memory controller side
-      .tx_dat_i(tx_fifo_dat_o),
-      .rx_dat_o(rx_fifo_dat_i),
+      .tx_dat_i(fifo_dat_o[fifo_sel_domain_reg]),
+      .rx_dat_o(fifo_dat_i),
       .dq_en(dq_en),
       .dqm_en(dqm_en),
-      .wb_rst(wb_rst),
-      .sdram_clk_0(sdram_clk_0),
-      .sdram_clk_90(sdram_clk_90),
-      .sdram_clk_180(sdram_clk_180),
-      .sdram_clk_270(sdram_clk_270));
+      .rst(sdram_rst),
+      .clk_0(sdram_clk_0),
+      .clk_90(sdram_clk_90),
+      .clk_180(sdram_clk_180),
+      .clk_270(sdram_clk_270));
 
    // Assing outputs
    // Non-DDR outputs
