@@ -47,7 +47,7 @@ versatile_mem_ctrl_ip.v: $(VERSATILE_MEM_CTRL_IP_FILES)
 	cat $^  | cat copyright.v - > $@
 
 # SDRAM 16-bit wide databus dependency files - force a recompile
-SDR_16_FILES=sdr_16_defines.v versatile_fifo_async_cmp.v async_fifo_mq.v  delay.v codec.v gray_counter.v egress_fifo.v versatile_fifo_dual_port_ram_dc_sw.v dff_sr.v versatile_fifo_async_cmp.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v
+SDR_16_FILES=sdr_16_defines.v fsm_wb.v versatile_fifo_async_cmp.v async_fifo_mq.v  delay.v codec.v gray_counter.v egress_fifo.v versatile_fifo_dual_port_ram_dc_sw.v dff_sr.v versatile_fifo_async_cmp.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v
 sdr_16.v: $(SDR_16_FILES)
 	vppreproc +define+SDR_16 +incdir+.  $^ > $@
 
