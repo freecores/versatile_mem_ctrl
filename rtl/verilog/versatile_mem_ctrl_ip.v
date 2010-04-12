@@ -163,6 +163,116 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk,
        {fifo_empty,fifo_empty2} <= {fifo_empty2,async_empty};   
 
 endmodule // async_comp
+// async FIFO with multiple queues
+
+module async_fifo_mq (
+    d, fifo_full, write, write_enable, clk1, rst1,
+    q, fifo_empty, read, read_enable, clk2, rst2
+);
+
+parameter a_hi_size = 4;
+parameter a_lo_size = 4;
+parameter nr_of_queues = 16;
+parameter data_width = 36;
+
+input [data_width-1:0] d;
+output [0:nr_of_queues-1] fifo_full;
+input                     write;
+input  [0:nr_of_queues-1] write_enable;
+input clk1;
+input rst1;
+
+output [data_width-1:0] q;
+output [0:nr_of_queues-1] fifo_empty;
+input                     read;
+input  [0:nr_of_queues-1] read_enable;
+input clk2;
+input rst2;
+
+wire [a_lo_size-1:0]  fifo_wadr_bin[0:nr_of_queues-1];
+wire [a_lo_size-1:0]  fifo_wadr_gray[0:nr_of_queues-1];
+wire [a_lo_size-1:0]  fifo_radr_bin[0:nr_of_queues-1];
+wire [a_lo_size-1:0]  fifo_radr_gray[0:nr_of_queues-1];
+reg [a_lo_size-1:0] wadr;
+reg [a_lo_size-1:0] radr;
+reg [data_width-1:0] wdata;
+wire [data_width-1:0] wdataa[0:nr_of_queues-1];
+
+genvar i;
+integer j,k,l;
+
+function [a_lo_size-1:0] onehot2bin;
+input [0:nr_of_queues-1] a;
+integer i;
+begin
+    onehot2bin = {a_lo_size{1'b0}};
+    for (i=1;i<nr_of_queues;i=i+1) begin
+        if (a[i])
+            onehot2bin = i;
+    end
+end
+endfunction
+
+generate
+    for (i=0;i<nr_of_queues;i=i+1) begin : fifo_adr
+        
+        gray_counter wadrcnt (
+            .cke(write & write_enable[i]),
+            .q(fifo_wadr_gray[i]),
+            .q_bin(fifo_wadr_bin[i]),
+            .rst(rst1),
+            .clk(clk1));
+        
+        gray_counter radrcnt (
+            .cke(read & read_enable[i]),
+            .q(fifo_radr_gray[i]),
+            .q_bin(fifo_radr_bin[i]),
+            .rst(rst2),
+            .clk(clk2));
+        
+	versatile_fifo_async_cmp
+            #(.ADDR_WIDTH(a_lo_size))
+            egresscmp ( 
+                .wptr(fifo_wadr_gray[i]), 
+		.rptr(fifo_radr_gray[i]), 
+		.fifo_empty(fifo_empty[i]), 
+		.fifo_full(fifo_full[i]), 
+		.wclk(clk1), 
+		.rclk(clk2), 
+		.rst(rst1));
+        
+    end
+endgenerate
+
+// and-or mux write address
+always @*
+begin
+    wadr = {a_lo_size{1'b0}};
+    for (j=0;j<nr_of_queues;j=j+1) begin
+        wadr = (fifo_wadr_bin[j] & {a_lo_size{write_enable[j]}}) | wadr;
+    end
+end
+
+// and-or mux read address
+always @*
+begin
+    radr = {a_lo_size{1'b0}};
+    for (k=0;k<nr_of_queues;k=k+1) begin
+        radr = (fifo_radr_bin[k] & {a_lo_size{read_enable[k]}}) | radr;
+    end
+end
+
+vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_lo_size))
+    dpram (
+    .d_a(d),
+    .adr_a({onehot2bin(write_enable),wadr}), 
+    .we_a(write),
+    .clk_a(clk1),
+    .q_b(q),
+    .adr_b({onehot2bin(read_enable),radr}),
+    .clk_b(clk2) );
+
+endmodule
 module vfifo_dual_port_ram_dc_dw
   (
    d_a,
@@ -4045,6 +4155,119 @@ module fsm_sdr_16 (
 
 endmodule
 `timescale 1ns/1ns
+module versatile_mem_ctrl_wb (
+    // wishbone side
+    wb_adr_i_v, wb_dat_i_v, wb_dat_o_v,
+    wb_stb_i, wb_cyc_i, wb_ack_o,
+    wb_clk, wb_rst,
+    // SDRAM controller interface
+    sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd_adr, sdram_fifo_rd_data, sdram_fifo_re,
+    sdram_dat_i, sdram_fifo_wr, sdram_fifo_we,
+    sdram_clk, sdram_rst
+
+);
+
+parameter nr_of_wb_ports = 3;
+    
+input  [36*nr_of_wb_ports-1:0]  wb_adr_i_v;
+input  [36*nr_of_wb_ports-1:0]  wb_dat_i_v;
+input  [0:nr_of_wb_ports-1]     wb_stb_i;
+input  [0:nr_of_wb_ports-1]     wb_cyc_i;
+output [32*nr_of_wb_ports-1:0]  wb_dat_o_v;
+output [0:nr_of_wb_ports-1]     wb_ack_o;
+input                           wb_clk;
+input                           wb_rst;
+
+output [35:0]               sdram_dat_o;
+output [0:nr_of_wb_ports-1] sdram_fifo_empty;
+input                       sdram_fifo_rd_adr, sdram_fifo_rd_data;
+input  [0:nr_of_wb_ports-1] sdram_fifo_re;
+input  [31:0]               sdram_dat_i;
+input                       sdram_fifo_wr;
+input  [0:nr_of_wb_ports-1] sdram_fifo_we;
+input                       sdram_clk;
+input                       sdram_rst;
+
+parameter linear       = 2'b00;
+parameter wrap4        = 2'b01;
+parameter wrap8        = 2'b10;
+parameter wrap16       = 2'b11;
+parameter classic      = 3'b000;
+parameter endofburst   = 3'b111;
+
+`define CTI_I 2:0
+`define BTE_I 4:3
+`define WE_I  5
+
+parameter idle = 2'b00;
+parameter rd   = 2'b01;
+parameter wr   = 2'b10;
+parameter fe   = 2'b11;
+
+reg [1:0] wb_state[0:nr_of_wb_ports-1];
+
+wire [35:0] wb_adr_i[0:nr_of_wb_ports-1];
+wire [35:0] wb_dat_i[0:nr_of_wb_ports-1];
+wire [36*nr_of_wb_ports-1:0] egress_fifo_di;
+wire [31:0] wb_dat_o;
+
+wire [0:nr_of_wb_ports] stall;
+wire [0:nr_of_wb_ports-1] state_idle;
+wire [0:nr_of_wb_ports-1] egress_fifo_we,  egress_fifo_full;
+wire [0:nr_of_wb_ports-1] ingress_fifo_re, ingress_fifo_empty;
+
+genvar i;
+
+assign stall[0] = 1'b0;
+
+`define INDEX (nr_of_wb_ports-i)*36-1:(nr_of_wb_ports-1-i)*36 
+generate
+    for (i=0;i<nr_of_wb_ports;i=i+1) begin : vector2array
+        assign wb_adr_i[i] = wb_adr_i_v[`INDEX];
+        assign wb_dat_i[i] = wb_dat_i_v[`INDEX];
+        assign egress_fifo_di[`INDEX] = (state_idle[i]) ? wb_adr_i[i] : wb_dat_i[i];        
+    end
+endgenerate
+
+generate
+    for (i=0;i<nr_of_wb_ports;i=i+1) begin : fsm
+        fsm_wb fsm_wb_i (
+            .stall_i(stall[i]),
+            .stall_o(stall[i+1]),
+            .we_i (wb_adr_i[i][`WE_I]),
+            .cti_i(wb_adr_i[i][`CTI_I]),
+            .bte_i(wb_adr_i[i][`BTE_I]),
+            .stb_i(wb_stb_i[i]),
+            .cyc_i(wb_cyc_i[i]),
+            .ack_o(wb_ack_o[i]),
+            .egress_fifo_we(egress_fifo_we[i]),
+            .egress_fifo_full(egress_fifo_full[i]),
+            .ingress_fifo_re(ingress_fifo_re[i]),
+            .ingress_fifo_empty(ingress_fifo_empty[i]),
+            .state_idle(state_idle[i]),
+            .wb_clk(wb_clk),
+            .wb_rst(wb_rst)
+        );
+    end
+endgenerate
+
+egress_fifo # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
+egress_FIFO(
+    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(egress_fifo_we)), .write_enable(egress_fifo_we),
+    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), .read_enable(sdram_fifo_re),
+    .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), .rst2(sdram_rst)
+);
+
+async_fifo_mq # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(32))
+ingress_FIFO(
+    .d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), .write_enable(sdram_fifo_we),
+    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(|(ingress_fifo_re)), .read_enable(ingress_fifo_re),
+    .clk1(sdram_clk), .rst1(sdram_rst), .clk2(wb_clk), .rst2(wb_rst)
+);
+
+assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
+
+endmodule`timescale 1ns/1ns
 `ifdef DDR_16
  `include "ddr_16_defines.v"
 `endif

@@ -41,13 +41,13 @@ ddr_16.v: ddr_16_generated.v
 #	@echo;echo "\tThis file,"$@", doesn't exist, is it still needed?!. \n\tMake will now stop";echo
 #	ls notexisting
 
-VERSATILE_MEM_CTRL_IP_FILES=versatile_fifo_async_cmp.v versatile_fifo_dual_port_ram_dc_dw.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v ddr_16.v fsm_wb.v delay.v ddr_ff.v dcm_pll.v dff_sr.v versatile_mem_ctrl_ddr.v ddr_16_defines.v sdr_16_defines.v codec.v gray_counter.v egress_fifo.v versatile_fifo_dual_port_ram_dc_sw.v fsm_sdr_16.v versatile_mem_ctrl_top.v
+VERSATILE_MEM_CTRL_IP_FILES=versatile_fifo_async_cmp.v async_fifo_mq.v versatile_fifo_dual_port_ram_dc_dw.v ctrl_counter.v fifo.v fifo_fill.v inc_adr.v ref_counter.v ref_delay_counter.v pre_delay_counter.v burst_length_counter.v ddr_16.v fsm_wb.v delay.v ddr_ff.v dcm_pll.v dff_sr.v versatile_mem_ctrl_ddr.v ddr_16_defines.v sdr_16_defines.v codec.v gray_counter.v egress_fifo.v versatile_fifo_dual_port_ram_dc_sw.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v
 
 versatile_mem_ctrl_ip.v: $(VERSATILE_MEM_CTRL_IP_FILES)
 	cat $^  | cat copyright.v - > $@
 
 # SDRAM 16-bit wide databus dependency files - force a recompile
-SDR_16_FILES=sdr_16_defines.v fsm_wb.v versatile_fifo_async_cmp.v async_fifo_mq.v  delay.v codec.v gray_counter.v egress_fifo.v versatile_fifo_dual_port_ram_dc_sw.v dff_sr.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v
+SDR_16_FILES=sdr_16_defines.v fsm_wb.v versatile_fifo_async_cmp.v async_fifo_mq.v delay.v codec.v gray_counter.v egress_fifo.v versatile_fifo_dual_port_ram_dc_sw.v dff_sr.v ref_counter.v fsm_sdr_16.v versatile_mem_ctrl_wb.v versatile_mem_ctrl_top.v
 sdr_16.v: $(SDR_16_FILES)
 	vppreproc +define+SDR_16 +incdir+.  $^ > $@
 
