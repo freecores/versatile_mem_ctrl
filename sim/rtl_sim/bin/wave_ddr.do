@@ -22,54 +22,56 @@ add wave -noupdate -group DCM/PLL -format Logic /versatile_mem_ctrl_tb/dut/dcm_p
 add wave -noupdate -group {WISHBONE IF} -divider {Clock & reset}
 add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_rst
 add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_clk
-add wave -noupdate -group {WISHBONE IF} -divider wb0
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_i_0
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_adr_i_0
-add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_stb_i_0
-add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_cyc_i_0
-add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_ack_o_0
-add wave -noupdate -group {WISHBONE IF} -format Logic {/versatile_mem_ctrl_tb/dut/wb_stb_i_0[1]}
-add wave -noupdate -group {WISHBONE IF} -format Logic {/versatile_mem_ctrl_tb/dut/wb_cyc_i_0[1]}
-add wave -noupdate -group {WISHBONE IF} -format Logic {/versatile_mem_ctrl_tb/dut/wb_ack_o_0[1]}
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_o_0
-add wave -noupdate -group {WISHBONE IF} -divider wb1
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_i_1
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_adr_i_1
-add wave -noupdate -group {WISHBONE IF} -format Logic /versatile_mem_ctrl_tb/dut/wb_stb_i_1
-add wave -noupdate -group {WISHBONE IF} -format Logic /versatile_mem_ctrl_tb/dut/wb_cyc_i_1
-add wave -noupdate -group {WISHBONE IF} -format Logic /versatile_mem_ctrl_tb/dut/wb_ack_o_1
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_o_1
-add wave -noupdate -group {WISHBONE IF} -divider wb2
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_i_2
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_adr_i_2
-add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_stb_i_2
-add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_cyc_i_2
-add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_ack_o_2
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_o_2
-add wave -noupdate -group {WISHBONE IF} -divider wb3
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_i_3
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_adr_i_3
-add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_stb_i_3
-add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_cyc_i_3
-add wave -noupdate -group {WISHBONE IF} -format Literal /versatile_mem_ctrl_tb/dut/wb_ack_o_3
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_o_3
-add wave -noupdate -group {WISHBONE IF} -divider Testbench
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix ascii /versatile_mem_ctrl_tb/wb0i/statename
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix ascii /versatile_mem_ctrl_tb/wb0i/statename
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb0_dat_i
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb0_adr_i
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb0_dat_o
-add wave -noupdate -group {WISHBONE IF} -format Logic /versatile_mem_ctrl_tb/wb0_ack_o
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix ascii /versatile_mem_ctrl_tb/wb1i/statename
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb1_dat_i
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb1_adr_i
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb1_dat_o
-add wave -noupdate -group {WISHBONE IF} -format Logic /versatile_mem_ctrl_tb/wb1_ack_o
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix ascii /versatile_mem_ctrl_tb/wb4i/statename
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb4_dat_i
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb4_adr_i
-add wave -noupdate -group {WISHBONE IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb4_dat_o
-add wave -noupdate -group {WISHBONE IF} -format Logic /versatile_mem_ctrl_tb/wb4_ack_o
+add wave -noupdate -group {WISHBONE IF} -divider <NULL>
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_i_0
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_adr_i_0
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -format Literal /versatile_mem_ctrl_tb/dut/wb_stb_i_0
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -format Literal /versatile_mem_ctrl_tb/dut/wb_cyc_i_0
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -format Literal /versatile_mem_ctrl_tb/dut/wb_ack_o_0
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -format Logic {/versatile_mem_ctrl_tb/dut/wb_stb_i_0[1]}
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -format Logic {/versatile_mem_ctrl_tb/dut/wb_cyc_i_0[1]}
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -format Logic {/versatile_mem_ctrl_tb/dut/wb_ack_o_0[1]}
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_o_0
+add wave -noupdate -group {WISHBONE IF} -expand -group wb0 -divider <NULL>
+add wave -noupdate -group {WISHBONE IF} -expand -group wb1 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_i_1
+add wave -noupdate -group {WISHBONE IF} -expand -group wb1 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_adr_i_1
+add wave -noupdate -group {WISHBONE IF} -expand -group wb1 -format Logic /versatile_mem_ctrl_tb/dut/wb_stb_i_1
+add wave -noupdate -group {WISHBONE IF} -expand -group wb1 -format Logic /versatile_mem_ctrl_tb/dut/wb_cyc_i_1
+add wave -noupdate -group {WISHBONE IF} -expand -group wb1 -format Logic /versatile_mem_ctrl_tb/dut/wb_ack_o_1
+add wave -noupdate -group {WISHBONE IF} -expand -group wb1 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_o_1
+add wave -noupdate -group {WISHBONE IF} -expand -group wb1 -divider <NULL>
+add wave -noupdate -group {WISHBONE IF} -group wb2 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_i_2
+add wave -noupdate -group {WISHBONE IF} -group wb2 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_adr_i_2
+add wave -noupdate -group {WISHBONE IF} -group wb2 -format Literal /versatile_mem_ctrl_tb/dut/wb_stb_i_2
+add wave -noupdate -group {WISHBONE IF} -group wb2 -format Literal /versatile_mem_ctrl_tb/dut/wb_cyc_i_2
+add wave -noupdate -group {WISHBONE IF} -group wb2 -format Literal /versatile_mem_ctrl_tb/dut/wb_ack_o_2
+add wave -noupdate -group {WISHBONE IF} -group wb2 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_o_2
+add wave -noupdate -group {WISHBONE IF} -group wb2 -divider <NULL>
+add wave -noupdate -group {WISHBONE IF} -group wb3 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_i_3
+add wave -noupdate -group {WISHBONE IF} -group wb3 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_adr_i_3
+add wave -noupdate -group {WISHBONE IF} -group wb3 -format Literal /versatile_mem_ctrl_tb/dut/wb_stb_i_3
+add wave -noupdate -group {WISHBONE IF} -group wb3 -format Literal /versatile_mem_ctrl_tb/dut/wb_cyc_i_3
+add wave -noupdate -group {WISHBONE IF} -group wb3 -format Literal /versatile_mem_ctrl_tb/dut/wb_ack_o_3
+add wave -noupdate -group {WISHBONE IF} -group wb3 -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/wb_dat_o_3
+add wave -noupdate -group {WISHBONE IF} -group wb3 -divider <NULL>
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix ascii /versatile_mem_ctrl_tb/wb0i/statename
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb0_dat_i
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb0_adr_i
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb0_dat_o
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Logic /versatile_mem_ctrl_tb/wb0_ack_o
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -divider <NULL>
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix ascii /versatile_mem_ctrl_tb/wb1i/statename
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb1_dat_i
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb1_adr_i
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb1_dat_o
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Logic /versatile_mem_ctrl_tb/wb1_ack_o
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -divider <NULL>
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix ascii /versatile_mem_ctrl_tb/wb4i/statename
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb4_dat_i
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb4_adr_i
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/wb4_dat_o
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -format Logic /versatile_mem_ctrl_tb/wb4_ack_o
+add wave -noupdate -group {WISHBONE IF} -expand -group Testbench -divider <NULL>
 add wave -noupdate -group {TX FIFO} -divider {Tx FIFO Control}
 add wave -noupdate -group {TX FIFO} -expand -group {Tx FIFO 0} -expand -group FIFO_0_1 -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/dpram/ram[31]}
 add wave -noupdate -group {TX FIFO} -expand -group {Tx FIFO 0} -expand -group FIFO_0_1 -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/dpram/ram[30]}
@@ -156,6 +158,7 @@ add wave -noupdate -group {MAIN STATE MACHINE} -format Literal -radix hexadecima
 add wave -noupdate -group {MAIN STATE MACHINE} -divider <NULL>
 add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/tx_fifo_re_i
 add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/tx_fifo_re
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/burst_mask
 add wave -noupdate -group {DDR2 SDRAM SIMULATIOM MODEL} -divider {Micron DDR2 SDRAM}
 add wave -noupdate -group {DDR2 SDRAM SIMULATIOM MODEL} -format Literal -radix ascii /versatile_mem_ctrl_tb/dut/ddr_16_0/statename
 add wave -noupdate -group {DDR2 SDRAM SIMULATIOM MODEL} -format Logic /versatile_mem_ctrl_tb/ddr2_sdram/ck
@@ -174,101 +177,95 @@ add wave -noupdate -group {DDR2 SDRAM SIMULATIOM MODEL} -format Literal /versati
 add wave -noupdate -group {DDR2 SDRAM SIMULATIOM MODEL} -format Literal /versatile_mem_ctrl_tb/ddr2_sdram/dqs_n
 add wave -noupdate -group {DDR2 SDRAM SIMULATIOM MODEL} -format Literal /versatile_mem_ctrl_tb/ddr2_sdram/rdqs_n
 add wave -noupdate -group {RX FIFO} -divider {Rx FIFO 0}
-add wave -noupdate -group {RX FIFO} -divider Control
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/d
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/write
-add wave -noupdate -group {RX FIFO} -format Literal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/write_enable
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/clk1
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/rst1
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/read
-add wave -noupdate -group {RX FIFO} -format Literal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/read_enable
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/clk2
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/rst2
-add wave -noupdate -group {RX FIFO} -format Literal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/fifo_full
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/q
-add wave -noupdate -group {RX FIFO} -format Literal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/fifo_empty
-add wave -noupdate -group {RX FIFO} -divider FIFO_0_1
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[31]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[30]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[29]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[28]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[27]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[26]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[25]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[24]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[23]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[22]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[21]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[20]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[19]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[18]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[17]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[16]}
-add wave -noupdate -group {RX FIFO} -divider FIFO_0_0
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[15]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[14]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[13]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[12]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[11]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[10]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[9]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[8]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[7]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[6]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[5]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[4]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[3]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[2]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[1]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[0]}
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/d
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/write
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Literal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/write_enable
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/clk1
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/rst1
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/read
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Literal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/read_enable
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/clk2
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/rst2
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Literal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/fifo_full
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/q
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Literal /versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/fifo_empty
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/d
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/write
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/write_enable
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/clk1
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/rst1
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/read
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/read_enable
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/clk2
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/rst2
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/fifo_full
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/q
+add wave -noupdate -group {RX FIFO} -group {Fifo Control} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/fifo_empty
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[31]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[30]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[29]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[28]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[27]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[26]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[25]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[24]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[23]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[22]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[21]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[20]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[19]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[18]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[17]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[16]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[15]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[14]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[13]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[12]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[11]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[10]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[9]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[8]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[7]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[6]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[5]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[4]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[3]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[2]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[1]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 0 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk1/wb0/ingress_FIFO/dpram/ram[0]}
 add wave -noupdate -group {RX FIFO} -divider {Rx FIFO 1}
-add wave -noupdate -group {RX FIFO} -divider Control
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/d
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/write
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/write_enable
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/clk1
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/rst1
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/read
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/read_enable
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/clk2
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/rst2
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/fifo_full
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/q
-add wave -noupdate -group {RX FIFO} -format Logic /versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/fifo_empty
-add wave -noupdate -group {RX FIFO} -divider FIFO_1_1
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[31]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[30]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[29]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[28]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[27]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[26]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[25]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[24]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[23]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[22]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[21]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[20]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[19]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[18]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[17]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[16]}
-add wave -noupdate -group {RX FIFO} -divider FIFO_1_0
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[15]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[14]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[13]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[12]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[11]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[10]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[9]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[8]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[7]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[6]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[5]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[4]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[3]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[2]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[1]}
-add wave -noupdate -group {RX FIFO} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[0]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[31]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[30]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[29]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[28]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[27]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[26]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[25]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[24]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[23]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[22]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[21]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[20]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[19]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[18]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[17]}
+add wave -noupdate -group {RX FIFO} -group {Fifo 1 1} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[16]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[15]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[14]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[13]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[12]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[11]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[10]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[9]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[8]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[7]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[6]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[5]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[4]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[3]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[2]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[1]}
+add wave -noupdate -group {RX FIFO} -expand -group {Fifo 1 0} -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/ingress_FIFO/dpram/ram[0]}
 add wave -noupdate -group {ADDRESS INCREMENT} -format Logic /versatile_mem_ctrl_tb/dut/write
 add wave -noupdate -group {ADDRESS INCREMENT} -format Logic /versatile_mem_ctrl_tb/dut/read
 add wave -noupdate -group {ADDRESS INCREMENT} -format Logic /versatile_mem_ctrl_tb/dut/inc_adr0/rst
@@ -282,6 +279,16 @@ add wave -noupdate -group {ADDRESS INCREMENT} -format Logic /versatile_mem_ctrl_
 add wave -noupdate -group {ADDRESS INCREMENT} -format Literal -radix unsigned /versatile_mem_ctrl_tb/dut/inc_adr0/cnt
 add wave -noupdate -group {ADDRESS INCREMENT} -format Literal -radix unsigned /versatile_mem_ctrl_tb/dut/inc_adr0/adr_o
 add wave -noupdate -group {ADDRESS INCREMENT} -format Logic /versatile_mem_ctrl_tb/dut/inc_adr0/done
+add wave -noupdate -group {Burst length} -format Logic /versatile_mem_ctrl_tb/dut/burst_length_counter0/rst
+add wave -noupdate -group {Burst length} -format Logic /versatile_mem_ctrl_tb/dut/burst_length_counter0/clk
+add wave -noupdate -group {Burst length} -format Logic /versatile_mem_ctrl_tb/dut/burst_length_counter0/cke
+add wave -noupdate -group {Burst length} -format Literal /versatile_mem_ctrl_tb/dut/burst_length_counter0/length
+add wave -noupdate -group {Burst length} -format Literal /versatile_mem_ctrl_tb/dut/burst_length_counter0/clear_value
+add wave -noupdate -group {Burst length} -format Literal /versatile_mem_ctrl_tb/dut/burst_length_counter0/set_value
+add wave -noupdate -group {Burst length} -format Literal /versatile_mem_ctrl_tb/dut/burst_length_counter0/wrap_value
+add wave -noupdate -group {Burst length} -format Literal -radix unsigned /versatile_mem_ctrl_tb/dut/burst_length_counter0/qi
+add wave -noupdate -group {Burst length} -format Literal -radix unsigned /versatile_mem_ctrl_tb/dut/burst_length_counter0/q_next
+add wave -noupdate -group {Burst length} -format Logic /versatile_mem_ctrl_tb/dut/burst_length_counter0/zq
 add wave -noupdate -group {DDR2 IF} -divider FSM
 add wave -noupdate -group {DDR2 IF} -format Literal -radix ascii /versatile_mem_ctrl_tb/dut/ddr_16_0/statename
 add wave -noupdate -group {DDR2 IF} -divider {Controller side}
@@ -321,20 +328,10 @@ add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/ver
 add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/dq_en
 add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/dqm_en
 add wave -noupdate -group {DDR2 IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/tx_dat_i
-add wave -noupdate -group {Burst length} -format Logic /versatile_mem_ctrl_tb/dut/burst_length_counter0/rst
-add wave -noupdate -group {Burst length} -format Logic /versatile_mem_ctrl_tb/dut/burst_length_counter0/clk
-add wave -noupdate -group {Burst length} -format Logic /versatile_mem_ctrl_tb/dut/burst_length_counter0/cke
-add wave -noupdate -group {Burst length} -format Literal /versatile_mem_ctrl_tb/dut/burst_length_counter0/length
-add wave -noupdate -group {Burst length} -format Literal /versatile_mem_ctrl_tb/dut/burst_length_counter0/clear_value
-add wave -noupdate -group {Burst length} -format Literal /versatile_mem_ctrl_tb/dut/burst_length_counter0/set_value
-add wave -noupdate -group {Burst length} -format Literal /versatile_mem_ctrl_tb/dut/burst_length_counter0/wrap_value
-add wave -noupdate -group {Burst length} -format Literal -radix unsigned /versatile_mem_ctrl_tb/dut/burst_length_counter0/qi
-add wave -noupdate -group {Burst length} -format Literal -radix unsigned /versatile_mem_ctrl_tb/dut/burst_length_counter0/q_next
-add wave -noupdate -group {Burst length} -format Logic /versatile_mem_ctrl_tb/dut/burst_length_counter0/zq
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {287800000 ps} 0}
-configure wave -namecolwidth 321
-configure wave -valuecolwidth 121
+WaveRestoreCursors {{Cursor 1} {287500000 ps} 0}
+configure wave -namecolwidth 362
+configure wave -valuecolwidth 136
 configure wave -justifyvalue left
 configure wave -signalnamewidth 0
 configure wave -snapdistance 10
@@ -347,4 +344,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {346500 ns}
+WaveRestoreZoom {287392403 ps} {287565725 ps}

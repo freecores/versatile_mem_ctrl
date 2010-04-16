@@ -1958,16 +1958,17 @@ module versatile_mem_ctrl_top
             
             
             
-           
+   
+   
+       
+       
+   
             
-       
-       
-           
      
       
+   
       
-      
-      
+   
            
 
     
@@ -2060,7 +2061,14 @@ module versatile_mem_ctrl_top
         
            
    
-            
+   
+
+   
+         
+      
+         
+     
+               
 
    
      
@@ -2099,8 +2107,19 @@ module versatile_mem_ctrl_top
     
      
      
-       
-       
+      
+      
+      
+      
+      
+
+   
+    
+    
+     
+     
+      
+      
       
       
       
@@ -2185,8 +2204,8 @@ module versatile_mem_ctrl_top
       
 
 
-`line 693 "versatile_mem_ctrl_top.v" 0
+`line 712 "versatile_mem_ctrl_top.v" 0
  //  `ifdef DDR_16
    
 endmodule // wb_sdram_ctrl_top
-`line 696 "versatile_mem_ctrl_top.v" 2
+`line 715 "versatile_mem_ctrl_top.v" 2

@@ -1830,11 +1830,9 @@ module ddr_16 (
       end
       state[NOP21]      : begin
         adr_init = 1'b1;
-        if (!fifo_re_d) begin
+        fifo_re = 1'b1;
+        begin
           nextstate[NOP22] = 1'b1;
-        end
-        else begin
-          nextstate[NOP21] = 1'b1; 
         end
       end
       state[NOP22]      : begin
@@ -1857,6 +1855,7 @@ module ddr_16 (
       end
       state[NOP31]      : begin
         adr_init = 1'b1;
+        fifo_re = 1'b1;
         begin
           nextstate[NOP32] = 1'b1;
         end
@@ -1954,7 +1953,6 @@ module ddr_16 (
       end
       state[READ_BURST] : begin
         bl_en = !bl_ack;
-        fifo_re = bl_ack;
         read = !bl_ack;
         if (bl_ack) begin
           nextstate[NOP30] = 1'b1;
@@ -1965,7 +1963,6 @@ module ddr_16 (
       end
       state[WRITE_ADDR] : begin
         bl_en = 1'b1;
-        fifo_re = 1'b1;
         write = 1'b1;
         begin
           nextstate[WRITE_BURST] = 1'b1;
@@ -4723,16 +4720,17 @@ module versatile_mem_ctrl_top
    wire        ref_delay, ref_delay_ack;
    wire        bl_en, bl_ack;
    wire        tx_fifo_re, tx_fifo_re_i;
-   wire        adr_init_delay;
-   reg         adr_init_delay_i;
+   //wire        adr_init_delay;
+   //reg         adr_init_delay_i;
    reg [3:0]   burst_cnt;
    wire [3:0]  burst_next_cnt, burst_length;
-   wire        burst_mask;
+   //wire        burst_mask;
+   reg         burst_mask;
    wire [12:0] cur_row;
    wire  [3:0] burst_adr;
-   wire  [2:0] tx_fifo_b_sel_i_cur;
+   //wire  [2:0] tx_fifo_b_sel_i_cur;
    wire  [2:0] rx_fifo_a_sel_i;
-   wire  [7:0] tx_fifo_empty;
+   //wire  [7:0] tx_fifo_empty;
    wire        rx_fifo_we;
 
    wire ref_cnt_zero;
@@ -4761,7 +4759,7 @@ module versatile_mem_ctrl_top
       .tx_fifo_dat_o(fifo_dat_o[fifo_sel_domain_reg]),
       .burst_adr(burst_adr),
       .fifo_empty(current_fifo_empty),
-      .fifo_sel(tx_fifo_b_sel_i_cur),
+      .fifo_sel(),
       .read(read),
       .write(write),
       .ref_req(refresh_req),
@@ -4825,10 +4823,17 @@ module versatile_mem_ctrl_top
        if (bl_en)
          burst_cnt <= burst_next_cnt;
    // Burst Mask
-   assign burst_mask = (burst_cnt >= burst_length) ? 1'b1 : 1'b0;
+   //assign burst_mask = (burst_cnt >= burst_length) ? 1'b1 : 1'b0;
+
+   // Burst Mask
+   always @ (posedge sdram_clk_0 or posedge sdram_rst)
+     if (sdram_rst)
+       burst_mask <= 1'b0;
+     else
+       burst_mask <= (burst_cnt >= burst_length) ? 1'b1 : 1'b0;
 
    // Delay address and control to compensate for delay in Tx FIOFs
-   defparam delay0.depth=2; 
+   defparam delay0.depth=3; 
    defparam delay0.width=20;
    delay delay0 (
       .d({cs_n_o,1'b1,ras_o,cas_o,we_o,ba_o,addr_o}),
@@ -4849,7 +4854,7 @@ module versatile_mem_ctrl_top
    assign dqs_oe      = dq_en;
 
    // Read latency, delay the control signals to fit latency of the DDR2 SDRAM
-   defparam delay1.depth=`CL+`AL+3; 
+   defparam delay1.depth=`CL+`AL+4; 
    defparam delay1.width=1;
    delay delay1 
      (
@@ -4860,12 +4865,23 @@ module versatile_mem_ctrl_top
       );
    
    // write latency, delay the control signals to fit latency of the DDR2 SDRAM
-   defparam delay2.depth=`CL+`AL;
-   defparam delay2.width=2;
+   defparam delay2.depth=`CL+`AL+1;
+   defparam delay2.width=1;
    delay delay2 
      (
-      .d({write, burst_mask}),
-      .q({dq_en, dqm_en}),
+      .d(write),
+      .q(dq_en),
+      .clk(sdram_clk_270),
+      .rst(sdram_rst)
+      );
+
+   // write latency, delay the control signals to fit latency of the DDR2 SDRAM
+   defparam delay21.depth=`CL+`AL;
+   defparam delay21.width=1;
+   delay delay21 
+     (
+      .d(burst_mask),
+      .q(dqm_en),
       .clk(sdram_clk_270),
       .rst(sdram_rst)
       );

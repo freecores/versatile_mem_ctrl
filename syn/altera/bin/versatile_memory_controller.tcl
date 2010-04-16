@@ -20,9 +20,9 @@ if {[is_project_open]} {
 } else {
    # Only open if not already open
    if {[project_exists versatile_memory_controller]} {
-      project_open -revision wb_sdram_ctrl_top versatile_memory_controller
+      project_open -revision versatile_mem_ctrl_top versatile_memory_controller
    } else {
-      project_new -revision wb_sdram_ctrl_top versatile_memory_controller
+      project_new -revision versatile_mem_ctrl_top versatile_memory_controller
    }
    set need_to_close_project 1
 }
@@ -46,7 +46,7 @@ if {$make_assignments} {
    set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
    set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
    set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
-   set_global_assignment -name MISC_FILE /home/mikael/opencores/versatile_mem_ctrl/trunk/syn/altera/run/wb_sdram_ctrl_top.dpf
+   set_global_assignment -name MISC_FILE /home/mikael/opencores/versatile_mem_ctrl/trunk/syn/altera/run/versatile_mem_ctrl_top.dpf
    set_global_assignment -name SDC_FILE ../bin/versatile_memory_controller.sdc
    set_global_assignment -name VERILOG_FILE ../../../rtl/verilog/versatile_mem_ctrl_ip.v
    set_global_assignment -name EDA_USER_COMPILED_SIMULATION_LIBRARY_DIRECTORY /home/mikael/opencores/versatile_mem_ctrl/trunk/syn/altera/run -section_id eda_simulation

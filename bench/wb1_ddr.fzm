@@ -1,4 +1,4 @@
-## File last modified by Fizzim: 4:57:07 PM on 4/8/10
+## File last modified by Fizzim: 1:27:11 PM on 4/13/10
 <version>
    8.04.05
 </version>
@@ -6890,7 +6890,7 @@ fzm_globalTable
             GLOBAL_FIXED
             </status>
          <value>
-         3'b010
+         3'b111
             <status>
             LOCAL
             </status>
@@ -8203,6 +8203,54 @@ fzm_globalTable
    </x>
    <y>
    33
+   </y>
+   <page>
+   1
+   </page>
+</textObj>
+<textObj>
+(Burst write)
+   <x>
+   288
+   </x>
+   <y>
+   280
+   </y>
+   <page>
+   1
+   </page>
+</textObj>
+<textObj>
+(Read burst)
+   <x>
+   542
+   </x>
+   <y>
+   274
+   </y>
+   <page>
+   1
+   </page>
+</textObj>
+<textObj>
+(NOP)
+   <x>
+   541
+   </x>
+   <y>
+   531
+   </y>
+   <page>
+   1
+   </page>
+</textObj>
+<textObj>
+(Read burst)
+   <x>
+   508
+   </x>
+   <y>
+   1035
    </y>
    <page>
    1
