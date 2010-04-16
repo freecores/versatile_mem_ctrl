@@ -8,8 +8,8 @@
 
 // Most of these defines have an effect on things in fsm_sdr_16.v
 
-//`define MT48LC16M16 // 32MB part
-`define MT48LC4M16  //  8MB part
+`define MT48LC16M16 // 32MB part
+//`define MT48LC4M16  //  8MB part
 
 
 `ifdef MT48LC16M16

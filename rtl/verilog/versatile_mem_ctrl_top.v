@@ -76,7 +76,7 @@ module versatile_mem_ctrl_top
    output 			       we_pad_o;
    output reg [(`SDRAM_DATA_WIDTH)-1:0] 		       dq_o /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
    output [1:0] 		       dqm_pad_o;
-   input [(`SDRAM_DATA_WIDTH)-1:0] 		       dq_i /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
+   input [(`SDRAM_DATA_WIDTH)-1:0] 		       dq_i ;
    output 			       dq_oe;
    output 			       cke_pad_o;
 `endif
@@ -290,7 +290,8 @@ module versatile_mem_ctrl_top
 `ifdef SDR_16
 
    wire ref_cnt_zero;
-   reg [(`SDRAM_DATA_WIDTH)-1:0] dq_i_reg, dq_i_tmp_reg;
+   reg [(`SDRAM_DATA_WIDTH)-1:0] dq_i_reg /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
+   reg [(`SDRAM_DATA_WIDTH)-1:0] dq_i_tmp_reg;
    reg [17:0] dq_o_tmp_reg;
    wire       cmd_aref, cmd_read;
    
@@ -368,13 +369,13 @@ module versatile_mem_ctrl_top
    // output registers
    assign cs_n_pad_o = 1'b0;
    assign cke_pad_o  = 1'b1;
-   
-   always @ (posedge sdram_clk or posedge sdram_rst)
-     if (sdram_rst)
-       {dq_i_reg, dq_i_tmp_reg} <= {16'h0000,16'h0000};
-     else
-       {dq_i_reg, dq_i_tmp_reg} <= {dq_i, dq_i_reg};
+ 
+   always @ (posedge sdram_clk)
+     dq_i_reg <= dq_i;
 
+   always @(posedge sdram_clk)
+     dq_i_tmp_reg <= dq_i_reg;
+   
    assign fifo_dat_i = {dq_i_tmp_reg, dq_i_reg};
    
    always @ (posedge sdram_clk or posedge sdram_rst)
