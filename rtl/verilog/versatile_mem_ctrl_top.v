@@ -305,6 +305,10 @@ module versatile_mem_ctrl_top
          refresh_req <= 1'b1;
        else if (cmd_aref)
          refresh_req <= 1'b0;
+
+   reg 	      current_fifo_empty_r;
+   always @(posedge sdram_clk)
+     current_fifo_empty_r <= current_fifo_empty;
    
    // SDR SDRAM 16 FSM
    fsm_sdr_16 fsm_sdr_16_0 
@@ -313,7 +317,7 @@ module versatile_mem_ctrl_top
       .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
       .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
       .sel_i({fifo_dat_o[fifo_sel_domain_reg][3:2],dq_o_tmp_reg[1:0]}),
-      .fifo_empty(current_fifo_empty), 
+      .fifo_empty(current_fifo_empty_r), 
       .fifo_rd_adr(fifo_rd_adr), 
       .fifo_rd_data(fifo_rd_data),
       .state_idle(idle), 

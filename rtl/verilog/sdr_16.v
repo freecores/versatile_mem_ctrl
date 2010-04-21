@@ -9,25 +9,12 @@
 
 // Most of these defines have an effect on things in fsm_sdr_16.v
 
-//`define MT48LC16M16 // 32MB part
- //  8MB part
+ // 32MB part
+//`define MT48LC4M16  //  8MB part
 
 
  
-
-
-  
- 
- 
- 
- 
-
-
-`line 24 "sdr_16_defines.v" 0
- //  `ifdef MT48LC16M16
-
- 
-// using 1 of MT48LC4M16
+// using 1 of MT48LC16M16
 // SDRAM data width is 16
   
  
@@ -35,6 +22,19 @@
  
  
 
+ //  `ifdef MT48LC16M16
+
+ 
+
+
+  
+ 
+ 
+ 
+ 
+
+
+`line 35 "sdr_16_defines.v" 0
  //  `ifdef MT48LC4M16
 
 // LMR
@@ -51,95 +51,99 @@
 `line 48 "sdr_16_defines.v" 2
 `line 1 "fsm_wb.v" 1
 module fsm_wb (
-    stall_i, stall_o,
-    we_i, cti_i, bte_i, stb_i, cyc_i, ack_o,
-    egress_fifo_we, egress_fifo_full,
-    ingress_fifo_re, ingress_fifo_empty,
-    state_idle,
-    wb_clk, wb_rst
-);
+	       stall_i, stall_o,
+	       we_i, cti_i, bte_i, stb_i, cyc_i, ack_o,
+	       egress_fifo_we, egress_fifo_full,
+	       ingress_fifo_re, ingress_fifo_empty,
+	       state_idle,
+	       wb_clk, wb_rst
+	       );
 
-input stall_i;
-output stall_o;
+   input stall_i;
+   output stall_o;
 
-input [2:0] cti_i;
-input [1:0] bte_i;
-input we_i, stb_i, cyc_i;
-output ack_o;
-output egress_fifo_we, ingress_fifo_re;
-input egress_fifo_full, ingress_fifo_empty;
-output state_idle;
-input wb_clk, wb_rst;
+   input [2:0] cti_i;
+   input [1:0] bte_i;
+   input       we_i, stb_i, cyc_i;
+   output      ack_o;
+   output      egress_fifo_we, ingress_fifo_re;
+   input       egress_fifo_full, ingress_fifo_empty;
+   output      state_idle;
+   input       wb_clk, wb_rst;
 
-reg ingress_fifo_read_reg;
+   reg 	       ingress_fifo_read_reg;
 
-// bte
-parameter linear       = 2'b00;
-parameter wrap4        = 2'b01;
-parameter wrap8        = 2'b10;
-parameter wrap16       = 2'b11;
-// cti
-parameter classic      = 3'b000;
-parameter endofburst   = 3'b111;
+   // bte
+   parameter linear       = 2'b00;
+   parameter wrap4        = 2'b01;
+   parameter wrap8        = 2'b10;
+   parameter wrap16       = 2'b11;
+   // cti
+   parameter classic      = 3'b000;
+   parameter endofburst   = 3'b111;
 
-parameter idle = 2'b00;
-parameter rd   = 2'b01;
-parameter wr   = 2'b10;
-parameter fe   = 2'b11;
-reg [1:0] state;
+   parameter idle = 2'b00;
+   parameter rd   = 2'b01;
+   parameter wr   = 2'b10;
+   parameter fe   = 2'b11;
+   reg [1:0]   state;
 
-    always @ (posedge wb_clk or posedge wb_rst)
-        if (wb_rst)
-            state <= idle;
-        else
-            case (state)
-            idle:
-                if (we_i & stb_i & cyc_i & !egress_fifo_full & !stall_i)
-                    state <= wr;
-                else if (!we_i & stb_i & cyc_i & !egress_fifo_full & !stall_i)
-                    state <= rd;
-            wr:
-                if ((cti_i==classic | cti_i==endofburst | bte_i==linear) & stb_i & cyc_i & !egress_fifo_full & !stall_i)
-                    state <= idle;
-            rd:
-                if ((cti_i==classic | cti_i==endofburst | bte_i==linear) & stb_i & cyc_i & ack_o)
-                    state <= fe;
-            fe:
-                if (ingress_fifo_empty)
-                    state <= idle;
-            default: ;
-            endcase
- 
-    assign state_idle = (state==idle);
-    
-    assign stall_o = (stall_i) ? 1'b1 :
-                     (state==idle & stb_i & cyc_i & !egress_fifo_full) ? 1'b1 :
-                     (state==wr   & stb_i & cyc_i & !egress_fifo_full) ? 1'b1 :
-                     (state==rd   & stb_i & cyc_i & !ingress_fifo_empty) ? 1'b1 :
-                     (state==fe   & !ingress_fifo_empty) ? 1'b1 :
-                     1'b0;
-                     
-    assign egress_fifo_we = (state==idle & stb_i & cyc_i & !egress_fifo_full & !stall_i) ? 1'b1 :
-                            (state==wr   & stb_i & cyc_i & !egress_fifo_full & !stall_i) ? 1'b1 :
+   always @ (posedge wb_clk or posedge wb_rst)
+     if (wb_rst)
+       state <= idle;
+     else
+       case (state)
+         idle:
+           if (we_i & stb_i & cyc_i & !egress_fifo_full & !stall_i)
+             state <= wr;
+           else if (!we_i & stb_i & cyc_i & !egress_fifo_full & !stall_i)
+             state <= rd;
+         wr:
+           if ((cti_i==classic | cti_i==endofburst | bte_i==linear) & 
+	       stb_i & cyc_i & !egress_fifo_full & !stall_i)
+             state <= idle;
+         rd:
+           if ((cti_i==classic | cti_i==endofburst | bte_i==linear) & 
+	       stb_i & cyc_i & ack_o)
+             state <= fe;
+         fe:
+           if (ingress_fifo_empty)
+             state <= idle;
+         default: ;
+       endcase
+   
+   assign state_idle = (state==idle);
+   
+   assign stall_o = (stall_i) ? 1'b1 :
+                    (state==idle & stb_i & cyc_i & !egress_fifo_full) ? 1'b1 :
+                    (state==wr   & stb_i & cyc_i & !egress_fifo_full) ? 1'b1 :
+                    (state==rd   & stb_i & cyc_i & !ingress_fifo_empty) ? 1'b1 :
+                    (state==fe   & !ingress_fifo_empty) ? 1'b1 :
+                    1'b0;
+   
+   assign egress_fifo_we = (state==idle & stb_i & cyc_i & !egress_fifo_full & !stall_i) ? 1'b1 :
+                           (state==wr   & stb_i & cyc_i & !egress_fifo_full & !stall_i) ? 1'b1 :
+                           1'b0;
+   
+   assign ingress_fifo_re = (state==rd & stb_i & cyc_i & !ingress_fifo_empty & !stall_i) ? 1'b1 :
+                            (state==fe & !ingress_fifo_empty & !stall_i) ? 1'b1:
                             1'b0;
-    
-    assign ingress_fifo_re = (state==rd & stb_i & cyc_i & !ingress_fifo_empty & !stall_i) ? 1'b1 :
-                             (state==fe & !ingress_fifo_empty & !stall_i) ? 1'b1:
-                             1'b0;
-    
-    always @ (posedge wb_clk or posedge wb_rst)
-        if (wb_rst)
-            ingress_fifo_read_reg <= 1'b0;
-        else
-            ingress_fifo_read_reg <= ingress_fifo_re;
-    
-   assign ack_o = (ingress_fifo_read_reg) ? 1'b1 :
-                   (state==fe) ? 1'b0 :
-                   (state==wr & stb_i & cyc_i & !egress_fifo_full & !stall_i) ? 1'b1 :
-                   1'b0;
+   
+   always @ (posedge wb_clk or posedge wb_rst)
+     if (wb_rst)
+       ingress_fifo_read_reg <= 1'b0;
+     else
+       ingress_fifo_read_reg <= ingress_fifo_re;
+   
+   /*assign ack_o = (ingress_fifo_read_reg & stb_i) ? 1'b1 :
+                  (state==fe) ? 1'b0 :
+                  (state==wr & stb_i & cyc_i & !egress_fifo_full & !stall_i) ? 1'b1 :
+                  1'b0;*/
+
+   assign ack_o = !(state==fe) & ((ingress_fifo_read_reg & stb_i) | (state==wr & stb_i & cyc_i & !egress_fifo_full & !stall_i));
    
 endmodule
-`line 89 "fsm_wb.v" 2
+`line 93 "fsm_wb.v" 2
 `line 1 "versatile_fifo_async_cmp.v" 1
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
@@ -995,25 +999,12 @@ endmodule
 
 // Most of these defines have an effect on things in fsm_sdr_16.v
 
-//`define MT48LC16M16 // 32MB part
- //  8MB part
+ // 32MB part
+//`define MT48LC4M16  //  8MB part
 
 
  
-
-
-  
- 
- 
- 
- 
-
-
-`line 24 "sdr_16_defines.v" 0
- //  `ifdef MT48LC16M16
-
- 
-// using 1 of MT48LC4M16
+// using 1 of MT48LC16M16
 // SDRAM data width is 16
   
  
@@ -1021,6 +1012,19 @@ endmodule
  
  
 
+ //  `ifdef MT48LC16M16
+
+ 
+
+
+  
+ 
+ 
+ 
+ 
+
+
+`line 35 "sdr_16_defines.v" 0
  //  `ifdef MT48LC4M16
 
 // LMR
@@ -1051,7 +1055,7 @@ module fsm_sdr_16 (
     parameter col_size = 9;   
     */
    
-   input [2+12+8-1:0] adr_i;
+   input [2+13+9-1:0] adr_i;
    input 				 we_i;
    input [1:0] 				 bte_i;
    input [3:0] 				 sel_i;
@@ -1074,8 +1078,8 @@ module fsm_sdr_16 (
    input 				 sdram_clk, sdram_rst;
 
    wire [2-1:0] 			 bank;
-   wire [12-1:0] 			 row;
-   wire [8-1:0] 			 col;
+   wire [13-1:0] 			 row;
+   wire [9-1:0] 			 col;
    wire [12:0] 				 col_reg_a10_fix;
    reg [0:31] 				 shreg;
    wire 				 stall; // active if write burst need data
@@ -1085,13 +1089,13 @@ module fsm_sdr_16 (
 
    // adr_reg {ba,row,col,we}
    reg [1:0] 				 ba_reg;  
-   reg [12-1:0] 			 row_reg;
-   reg [8-1:0] 			 col_reg;
+   reg [13-1:0] 			 row_reg;
+   reg [9-1:0] 			 col_reg;
    reg 					 we_reg;
    reg [1:0] 				 bte_reg;
 
    // to keep track of open rows per bank
-   reg [12-1:0] 			 open_row[0:3];
+   reg [13-1:0] 			 open_row[0:3];
    reg [0:3] 				 open_ba;
    wire 				 current_bank_closed, current_row_open;
    reg 					 current_bank_closed_reg, current_row_open_reg;
@@ -1133,19 +1137,19 @@ module fsm_sdr_16 (
    reg [2:0] 				 state, next;
 
    function [12:0] a10_fix;
-      input [8-1:0] 		 a;
+      input [9-1:0] 		 a;
       integer 				 i;
       begin
 	 for (i=0;i<13;i=i+1) begin
             if (i<10)
-              if (i<8)
+              if (i<9)
                 a10_fix[i] = a[i];
               else
                 a10_fix[i] = 1'b0;
             else if (i==10)
               a10_fix[i] = 1'b0;
             else
-              if (i<8)
+              if (i<9)
                 a10_fix[i] = a[i-1];
               else
                 a10_fix[i] = 1'b0;
@@ -1166,33 +1170,52 @@ module fsm_sdr_16 (
      begin
 	next = 3'bx;
 	case (state)
-	  3'b000:   if (shreg[31])     next = 3'b001;
-          else                    next = 3'b000;
-	  3'b001:   if (refresh_req)        next = 3'b010;
-          else if (!fifo_empty)   next = 3'b011;
-          else                    next = 3'b001;
-	  3'b010:    if (shreg[5])           next = 3'b001;
-          else                    next = 3'b010;
-	  3'b011:    if (current_row_open_reg & (shreg[4]) & we_reg) next = 3'b110;
-          else if (current_row_open_reg & shreg[4])       next = 3'b111;
-          else if (current_bank_closed_reg & shreg[4])    next = 3'b101;
-          else if (shreg[4])                              next = 3'b100;
-          else                                            next = 3'b011;
+	  3'b000:
+	    if (shreg[31])          next = 3'b001;
+            else                    next = 3'b000;
+	  3'b001:   
+	    if (refresh_req)        next = 3'b010;
+            else if (!shreg[0] & !fifo_empty)   next = 3'b011;
+            else                    next = 3'b001;
+	  3'b010: 
+	    if (shreg[5])           next = 3'b001;
+            else                    next = 3'b010;
+	  3'b011:
+	    if (shreg[5])
+	      begin
+		 if (current_bank_closed_reg)   next = 3'b101;
+		 else if (current_row_open_reg)
+		   next = (we_reg) ?  3'b110 : 3'b111;
+		 else 		                     next = 3'b100;
+	      end
+            else                                            next = 3'b011;
 	  3'b100:    if (shreg[1])         next = 3'b101;
           else                    next = 3'b100;
-	  3'b101:    if (shreg[2] & (!fifo_empty | !we_reg)) next = 3'b111;
-          else if (shreg[2] & fifo_empty)         next = 3'b110;
-          else                                    next = 3'b101;
+	  3'b101:
+	    if (shreg[2])
+	      begin
+		 if ((!fifo_empty | !we_reg)) next = 3'b111;
+		 else if (fifo_empty)         next = 3'b110;
+	      end
+            else                                    next = 3'b101;
 	  3'b110:    if (!fifo_empty) next = 3'b111;
           else             next = 3'b110;
 	  3'b111:     if (bte_reg==linear & shreg[1])
             next = 3'b001;
           else if (bte_reg==beat4 & shreg[7])
             next = 3'b001;
-          else if (bte_reg==beat8 & shreg[15])
-            next = 3'b001;
-          else if (bte_reg==beat16 & shreg[31])
-            next = 3'b001;
+           
+              
+              
+          
+`line 169 "fsm_sdr_16.v" 0
+
+           
+              
+              
+          
+`line 173 "fsm_sdr_16.v" 0
+
           else
             next = 3'b111;
 	endcase
@@ -1232,9 +1255,9 @@ module fsm_sdr_16 (
            cmd_read <= 1'b0;
            dq_oe <= 1'b0;
            {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= 
-                                                  {4'b0000,{12*4{1'b0}}};
+                                                  {4'b0000,{13*4{1'b0}}};
            {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= 
-                     {2'b00, {12{1'b0}}, {8{1'b0}}, 1'b0, 2'b00 };
+                     {2'b00, {13{1'b0}}, {9{1'b0}}, 1'b0, 2'b00 };
 	end else begin
            {ba,a,cmd} <= {2'b00,13'd0,cmd_nop};
            dqm <= 2'b11;
@@ -1258,7 +1281,7 @@ module fsm_sdr_16 (
                end else if (shreg[2])
                  {ba,a,cmd,cmd_aref} <= {2'b00, 13'd0, cmd_rfr,1'b1};
              3'b011:
-               if (shreg[3])
+               if (shreg[4])
                  {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= 
 						      {bank,row,col,we_i,bte_i};
              3'b100:
@@ -1293,10 +1316,18 @@ module fsm_sdr_16 (
                       linear: {ba,a} <= {ba_reg,col_reg_a10_fix};
                       beat4:  {ba,a,col_reg[2:0]} <= 
 				  {ba_reg,col_reg_a10_fix, col_reg[2:0] + 3'd1};
-                      beat8:  {ba,a,col_reg[3:0]} <= 
-				  {ba_reg,col_reg_a10_fix, col_reg[3:0] + 4'd1};
-                      beat16: {ba,a,col_reg[4:0]} <= 
-				  {ba_reg,col_reg_a10_fix, col_reg[4:0] + 5'd1};
+                       
+                          
+				     
+                      
+`line 277 "fsm_sdr_16.v" 0
+
+                       
+                         
+				     
+                      
+`line 281 "fsm_sdr_16.v" 0
+
                     endcase
                end
            endcase
@@ -1304,7 +1335,7 @@ module fsm_sdr_16 (
      end
 
    // rd_adr goes high when next adr is fetched from sync RAM and during write burst
-   assign fifo_rd_adr  = state==3'b011 & shreg[0];
+   assign fifo_rd_adr  = state==3'b011 & shreg[1];
    assign fifo_rd_data = ((state==3'b111 & next==3'b111) & 
 			  we_reg & !count0 & !fifo_empty);
 
@@ -1312,7 +1343,7 @@ module fsm_sdr_16 (
 
    // bank and row open ?
    assign current_bank_closed = !(open_ba[bank]);
-   assign current_row_open = open_ba[bank] & (open_row[bank]==row);
+   assign current_row_open = /*open_ba[bank] &*/ (open_row[bank]==row);
 
    always @ (posedge sdram_clk or posedge sdram_rst)
      if (sdram_rst)
@@ -1324,7 +1355,7 @@ module fsm_sdr_16 (
    
 
 endmodule
-`line 290 "fsm_sdr_16.v" 2
+`line 309 "fsm_sdr_16.v" 2
 `line 1 "versatile_mem_ctrl_wb.v" 1
 `timescale 1ns/1ns
 module versatile_mem_ctrl_wb (
@@ -1423,24 +1454,34 @@ generate
     end
 endgenerate
 
-egress_fifo # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
-egress_FIFO(
-    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(egress_fifo_we)), .write_enable(egress_fifo_we),
-    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), .read_enable(sdram_fifo_re),
-    .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), .rst2(sdram_rst)
-);
-
-async_fifo_mq # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(32))
-ingress_FIFO(
-    .d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), .write_enable(sdram_fifo_we),
-    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(|(ingress_fifo_re)), .read_enable(ingress_fifo_re),
-    .clk1(sdram_clk), .rst1(sdram_rst), .clk2(wb_clk), .rst2(wb_rst)
-);
+egress_fifo # (
+	       .a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),
+	       .data_width(36))
+   egress_FIFO(
+	       .d(egress_fifo_di), .fifo_full(egress_fifo_full), 
+	       .write(|(egress_fifo_we)), .write_enable(egress_fifo_we),
+	       .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), 
+	       .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), 
+	       .read_enable(sdram_fifo_re),
+	       .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), 
+	       .rst2(sdram_rst)
+	       );
+   
+   async_fifo_mq # (
+		    .a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),
+		    .data_width(32))
+   ingress_FIFO(
+		.d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), 
+		.write_enable(sdram_fifo_we), .q(wb_dat_o), 
+		.fifo_empty(ingress_fifo_empty), .read(|(ingress_fifo_re)), 
+		.read_enable(ingress_fifo_re), .clk1(sdram_clk), 
+		.rst1(sdram_rst), .clk2(wb_clk), .rst2(wb_rst)
+		);
 
 assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
 
 endmodule
-`line 114 "versatile_mem_ctrl_wb.v" 2
+`line 124 "versatile_mem_ctrl_wb.v" 2
 `line 1 "versatile_mem_ctrl_top.v" 1
 `timescale 1ns/1ns
  
@@ -1462,25 +1503,12 @@ endmodule
 
 // Most of these defines have an effect on things in fsm_sdr_16.v
 
-//`define MT48LC16M16 // 32MB part
- //  8MB part
+ // 32MB part
+//`define MT48LC4M16  //  8MB part
 
 
  
-
-
-  
- 
- 
- 
- 
-
-
-`line 24 "sdr_16_defines.v" 0
- //  `ifdef MT48LC16M16
-
- 
-// using 1 of MT48LC4M16
+// using 1 of MT48LC16M16
 // SDRAM data width is 16
   
  
@@ -1488,6 +1516,19 @@ endmodule
  
  
 
+ //  `ifdef MT48LC16M16
+
+ 
+
+
+  
+ 
+ 
+ 
+ 
+
+
+`line 35 "sdr_16_defines.v" 0
  //  `ifdef MT48LC4M16
 
 // LMR
@@ -1578,7 +1619,7 @@ module versatile_mem_ctrl_top
    output 			       we_pad_o;
    output reg [(16)-1:0] 		       dq_o /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
    output [1:0] 		       dqm_pad_o;
-   input [(16)-1:0] 		       dq_i /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
+   input [(16)-1:0] 		       dq_i ;
    output 			       dq_oe;
    output 			       cke_pad_o;
 
@@ -1794,7 +1835,8 @@ module versatile_mem_ctrl_top
  
 
    wire ref_cnt_zero;
-   reg [(16)-1:0] dq_i_reg, dq_i_tmp_reg;
+   reg [(16)-1:0] dq_i_reg /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
+   reg [(16)-1:0] dq_i_tmp_reg;
    reg [17:0] dq_o_tmp_reg;
    wire       cmd_aref, cmd_read;
    
@@ -1808,15 +1850,19 @@ module versatile_mem_ctrl_top
          refresh_req <= 1'b1;
        else if (cmd_aref)
          refresh_req <= 1'b0;
+
+   reg 	      current_fifo_empty_r;
+   always @(posedge sdram_clk)
+     current_fifo_empty_r <= current_fifo_empty;
    
    // SDR SDRAM 16 FSM
    fsm_sdr_16 fsm_sdr_16_0 
      (
-      .adr_i({fifo_dat_o[fifo_sel_domain_reg][2+12+8+6-2:6],1'b0}),
+      .adr_i({fifo_dat_o[fifo_sel_domain_reg][2+13+9+6-2:6],1'b0}),
       .we_i(fifo_dat_o[fifo_sel_domain_reg][5]),
       .bte_i(fifo_dat_o[fifo_sel_domain_reg][4:3]),
       .sel_i({fifo_dat_o[fifo_sel_domain_reg][3:2],dq_o_tmp_reg[1:0]}),
-      .fifo_empty(current_fifo_empty), 
+      .fifo_empty(current_fifo_empty_r), 
       .fifo_rd_adr(fifo_rd_adr), 
       .fifo_rd_data(fifo_rd_data),
       .state_idle(idle), 
@@ -1872,13 +1918,13 @@ module versatile_mem_ctrl_top
    // output registers
    assign cs_n_pad_o = 1'b0;
    assign cke_pad_o  = 1'b1;
-   
-   always @ (posedge sdram_clk or posedge sdram_rst)
-     if (sdram_rst)
-       {dq_i_reg, dq_i_tmp_reg} <= {16'h0000,16'h0000};
-     else
-       {dq_i_reg, dq_i_tmp_reg} <= {dq_i, dq_i_reg};
+ 
+   always @ (posedge sdram_clk)
+     dq_i_reg <= dq_i;
 
+   always @(posedge sdram_clk)
+     dq_i_tmp_reg <= dq_i_reg;
+   
    assign fifo_dat_i = {dq_i_tmp_reg, dq_i_reg};
    
    always @ (posedge sdram_clk or posedge sdram_rst)
@@ -2204,8 +2250,8 @@ module versatile_mem_ctrl_top
       
 
 
-`line 712 "versatile_mem_ctrl_top.v" 0
+`line 717 "versatile_mem_ctrl_top.v" 0
  //  `ifdef DDR_16
    
 endmodule // wb_sdram_ctrl_top
-`line 715 "versatile_mem_ctrl_top.v" 2
+`line 720 "versatile_mem_ctrl_top.v" 2

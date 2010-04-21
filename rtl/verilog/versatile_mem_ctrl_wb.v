@@ -95,19 +95,29 @@ generate
     end
 endgenerate
 
-egress_fifo # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(36))
-egress_FIFO(
-    .d(egress_fifo_di), .fifo_full(egress_fifo_full), .write(|(egress_fifo_we)), .write_enable(egress_fifo_we),
-    .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), .read_enable(sdram_fifo_re),
-    .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), .rst2(sdram_rst)
-);
-
-async_fifo_mq # (.a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),.data_width(32))
-ingress_FIFO(
-    .d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), .write_enable(sdram_fifo_we),
-    .q(wb_dat_o), .fifo_empty(ingress_fifo_empty), .read(|(ingress_fifo_re)), .read_enable(ingress_fifo_re),
-    .clk1(sdram_clk), .rst1(sdram_rst), .clk2(wb_clk), .rst2(wb_rst)
-);
+egress_fifo # (
+	       .a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),
+	       .data_width(36))
+   egress_FIFO(
+	       .d(egress_fifo_di), .fifo_full(egress_fifo_full), 
+	       .write(|(egress_fifo_we)), .write_enable(egress_fifo_we),
+	       .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), 
+	       .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), 
+	       .read_enable(sdram_fifo_re),
+	       .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), 
+	       .rst2(sdram_rst)
+	       );
+   
+   async_fifo_mq # (
+		    .a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),
+		    .data_width(32))
+   ingress_FIFO(
+		.d(sdram_dat_i), .fifo_full(), .write(sdram_fifo_wr), 
+		.write_enable(sdram_fifo_we), .q(wb_dat_o), 
+		.fifo_empty(ingress_fifo_empty), .read(|(ingress_fifo_re)), 
+		.read_enable(ingress_fifo_re), .clk1(sdram_clk), 
+		.rst1(sdram_rst), .clk2(wb_clk), .rst2(wb_rst)
+		);
 
 assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
 

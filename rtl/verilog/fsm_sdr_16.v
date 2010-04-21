@@ -129,33 +129,48 @@ module fsm_sdr_16 (
      begin
 	next = 3'bx;
 	case (state)
-	  `FSM_INIT:   if (shreg[31])     next = `FSM_IDLE;
-          else                    next = `FSM_INIT;
-	  `FSM_IDLE:   if (refresh_req)        next = `FSM_RFR;
-          else if (!fifo_empty)   next = `FSM_ADR;
-          else                    next = `FSM_IDLE;
-	  `FSM_RFR:    if (shreg[5])           next = `FSM_IDLE;
-          else                    next = `FSM_RFR;
-	  `FSM_ADR:    if (current_row_open_reg & (shreg[4]) & we_reg) next = `FSM_W4D;
-          else if (current_row_open_reg & shreg[4])       next = `FSM_RW;
-          else if (current_bank_closed_reg & shreg[4])    next = `FSM_ACT;
-          else if (shreg[4])                              next = `FSM_PCH;
-          else                                            next = `FSM_ADR;
+	  `FSM_INIT:
+	    if (shreg[31])          next = `FSM_IDLE;
+            else                    next = `FSM_INIT;
+	  `FSM_IDLE:   
+	    if (refresh_req)        next = `FSM_RFR;
+            else if (!shreg[0] & !fifo_empty)   next = `FSM_ADR;
+            else                    next = `FSM_IDLE;
+	  `FSM_RFR: 
+	    if (shreg[5])           next = `FSM_IDLE;
+            else                    next = `FSM_RFR;
+	  `FSM_ADR:
+	    if (shreg[5])
+	      begin
+		 if (current_bank_closed_reg)   next = `FSM_ACT;
+		 else if (current_row_open_reg)
+		   next = (we_reg) ?  `FSM_W4D : `FSM_RW;
+		 else 		                     next = `FSM_PCH;
+	      end
+            else                                            next = `FSM_ADR;
 	  `FSM_PCH:    if (shreg[1])         next = `FSM_ACT;
           else                    next = `FSM_PCH;
-	  `FSM_ACT:    if (shreg[2] & (!fifo_empty | !we_reg)) next = `FSM_RW;
-          else if (shreg[2] & fifo_empty)         next = `FSM_W4D;
-          else                                    next = `FSM_ACT;
+	  `FSM_ACT:
+	    if (shreg[2])
+	      begin
+		 if ((!fifo_empty | !we_reg)) next = `FSM_RW;
+		 else if (fifo_empty)         next = `FSM_W4D;
+	      end
+            else                                    next = `FSM_ACT;
 	  `FSM_W4D:    if (!fifo_empty) next = `FSM_RW;
           else             next = `FSM_W4D;
 	  `FSM_RW:     if (bte_reg==linear & shreg[1])
             next = `FSM_IDLE;
           else if (bte_reg==beat4 & shreg[7])
             next = `FSM_IDLE;
+          `ifdef BEAT8
           else if (bte_reg==beat8 & shreg[15])
             next = `FSM_IDLE;
+          `endif
+          `ifdef BEAT16
           else if (bte_reg==beat16 & shreg[31])
             next = `FSM_IDLE;
+          `endif
           else
             next = `FSM_RW;
 	endcase
@@ -221,7 +236,7 @@ module fsm_sdr_16 (
                end else if (shreg[2])
                  {ba,a,cmd,cmd_aref} <= {2'b00, 13'd0, cmd_rfr,1'b1};
              `FSM_ADR:
-               if (shreg[3])
+               if (shreg[4])
                  {ba_reg,row_reg,col_reg,we_reg,bte_reg} <= 
 						      {bank,row,col,we_i,bte_i};
              `FSM_PCH:
@@ -256,10 +271,14 @@ module fsm_sdr_16 (
                       linear: {ba,a} <= {ba_reg,col_reg_a10_fix};
                       beat4:  {ba,a,col_reg[2:0]} <= 
 				  {ba_reg,col_reg_a10_fix, col_reg[2:0] + 3'd1};
+                      `ifdef BEAT8
                       beat8:  {ba,a,col_reg[3:0]} <= 
 				  {ba_reg,col_reg_a10_fix, col_reg[3:0] + 4'd1};
+                      `endif
+                      `ifdef BEAT16
                       beat16: {ba,a,col_reg[4:0]} <= 
 				  {ba_reg,col_reg_a10_fix, col_reg[4:0] + 5'd1};
+                      `endif
                     endcase
                end
            endcase
@@ -267,7 +286,7 @@ module fsm_sdr_16 (
      end
 
    // rd_adr goes high when next adr is fetched from sync RAM and during write burst
-   assign fifo_rd_adr  = state==`FSM_ADR & shreg[0];
+   assign fifo_rd_adr  = state==`FSM_ADR & shreg[1];
    assign fifo_rd_data = ((state==`FSM_RW & next==`FSM_RW) & 
 			  we_reg & !count0 & !fifo_empty);
 
@@ -275,7 +294,7 @@ module fsm_sdr_16 (
 
    // bank and row open ?
    assign current_bank_closed = !(open_ba[bank]);
-   assign current_row_open = open_ba[bank] & (open_row[bank]==row);
+   assign current_row_open = /*open_ba[bank] &*/ (open_row[bank]==row);
 
    always @ (posedge sdram_clk or posedge sdram_rst)
      if (sdram_rst)
