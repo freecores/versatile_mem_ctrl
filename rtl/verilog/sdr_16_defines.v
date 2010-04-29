@@ -11,6 +11,11 @@
 `define MT48LC16M16 // 32MB part
 //`define MT48LC4M16  //  8MB part
 
+// Define this to allow indication that a burst read is still going
+// to the wishbone state machine, so it doesn't start emptying the
+// ingress fifo after a aborted burst before the burst read is
+// actually finished.
+//`define SDRAM_WB_SAME_CLOCKS
 
 `ifdef MT48LC16M16
 // using 1 of MT48LC16M16

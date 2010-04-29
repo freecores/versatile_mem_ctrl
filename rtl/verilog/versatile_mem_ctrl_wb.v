@@ -6,7 +6,7 @@ module versatile_mem_ctrl_wb (
     wb_clk, wb_rst,
     // SDRAM controller interface
     sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd_adr, sdram_fifo_rd_data, sdram_fifo_re,
-    sdram_dat_i, sdram_fifo_wr, sdram_fifo_we,
+    sdram_dat_i, sdram_fifo_wr, sdram_fifo_we, sdram_burst_reading,
     sdram_clk, sdram_rst
 
 );
@@ -29,6 +29,7 @@ input  [0:nr_of_wb_ports-1] sdram_fifo_re;
 input  [31:0]               sdram_dat_i;
 input                       sdram_fifo_wr;
 input  [0:nr_of_wb_ports-1] sdram_fifo_we;
+input   		    sdram_burst_reading;
 input                       sdram_clk;
 input                       sdram_rst;
 
@@ -89,6 +90,7 @@ generate
             .ingress_fifo_re(ingress_fifo_re[i]),
             .ingress_fifo_empty(ingress_fifo_empty[i]),
             .state_idle(state_idle[i]),
+	    .sdram_burst_reading(sdram_burst_reading),
             .wb_clk(wb_clk),
             .wb_rst(wb_rst)
         );

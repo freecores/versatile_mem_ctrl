@@ -5,7 +5,8 @@ module fsm_sdr_16 (
 		   fifo_empty, fifo_rd_adr, fifo_rd_data, count0,
 		   refresh_req, cmd_aref, cmd_read, state_idle,
 		   ba, a, cmd, dqm, dq_oe,
-		   sdram_clk, sdram_rst
+		   sdram_burst_reading,
+		   sdram_clk, sdram_fifo_wr, sdram_rst
 		   );
 
    /* Now these are defined
@@ -34,7 +35,8 @@ module fsm_sdr_16 (
    output reg [1:0] 			 dqm /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
    output reg 				 dq_oe;
 
-   input 				 sdram_clk, sdram_rst;
+   output 				 sdram_burst_reading;   
+   input 				 sdram_clk, sdram_fifo_wr, sdram_rst;
 
    wire [`BA_SIZE-1:0] 			 bank;
    wire [`ROW_SIZE-1:0] 			 row;
@@ -285,16 +287,42 @@ module fsm_sdr_16 (
 	end
      end
 
+   reg fifo_read_data_en;
+   always @(posedge sdram_clk)
+     if (sdram_rst)
+       fifo_read_data_en <= 1;
+     else if (next==`FSM_RW)
+       fifo_read_data_en <= ~fifo_read_data_en;
+     else
+       fifo_read_data_en <= 1;
+
+   reg [3:0] beat4_data_read_limiter; // Use this to record how many times we've pulsed fifo_rd_data
+   // Only 3 bits, becuase we're looking at when fifo_read_data_en goes low - should only happen 3
+   // times for a 4-beat burst
+   always @(posedge sdram_clk)
+     if (sdram_rst)
+       beat4_data_read_limiter <= 0;
+     else if(state==`FSM_ADR)
+       beat4_data_read_limiter <= 0;
+     else if (!fifo_read_data_en)
+       beat4_data_read_limiter <= {beat4_data_read_limiter[2:0],1'b1};
+   
+   
+
    // rd_adr goes high when next adr is fetched from sync RAM and during write burst
    assign fifo_rd_adr  = state==`FSM_ADR & shreg[1];
+
+   assign fifo_rd_data = (((state!=`FSM_RW & next==`FSM_RW)|(state==`FSM_RW & (bte_reg==beat4 & fifo_read_data_en & !(&beat4_data_read_limiter)))) & we_reg & !fifo_empty);
+   
+   /*
    assign fifo_rd_data = ((state==`FSM_RW & next==`FSM_RW) & 
 			  we_reg & !count0 & !fifo_empty);
-
+*/
    assign state_idle = (state==`FSM_IDLE);
 
    // bank and row open ?
    assign current_bank_closed = !(open_ba[bank]);
-   assign current_row_open = /*open_ba[bank] &*/ (open_row[bank]==row);
+   assign current_row_open = open_row[bank]==row;
 
    always @ (posedge sdram_clk or posedge sdram_rst)
      if (sdram_rst)
@@ -303,6 +331,25 @@ module fsm_sdr_16 (
        //if (state==adr & counter[1:0]==2'b10)
        {current_bank_closed_reg, current_row_open_reg} <= 
 				        {current_bank_closed, current_row_open};
+
+   // Record the number of write enables going to INGRESS fifo (ie. that we 
+   // generate when we're reading) - this makes sure we keep track of when a
+   // burst read is in progress, and we can signal the wishbone bus to wait
+   // for this data to be put into the FIFO before it'll empty it when it's
+   // had a terminated burst transfer.
+   reg [3:0] fifo_we_record;
+   always @(posedge sdram_clk) 
+     if (sdram_rst)
+       fifo_we_record <= 0;
+     else if (next==`FSM_RW & ((state==`FSM_ADR)|(state==`FSM_ACT)) & (bte_reg==beat4) & !we_reg)
+       fifo_we_record <= 4'b0001;
+     else if (sdram_fifo_wr)
+       fifo_we_record <= {fifo_we_record[2:0],1'b0};
+`ifdef SDRAM_WB_SAME_CLOCKS   
+   assign sdram_burst_reading = |fifo_we_record;
+`else   
+   assign sdram_burst_reading = 0;
+`endif
    
 
 endmodule

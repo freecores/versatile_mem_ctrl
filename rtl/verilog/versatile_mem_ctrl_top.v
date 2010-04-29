@@ -74,9 +74,9 @@ module versatile_mem_ctrl_top
    output 			       ras_pad_o;
    output 			       cas_pad_o;
    output 			       we_pad_o;
-   output reg [(`SDRAM_DATA_WIDTH)-1:0] 		       dq_o /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
+   output reg [(`SDRAM_DATA_WIDTH)-1:0] dq_o /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
    output [1:0] 		       dqm_pad_o;
-   input [(`SDRAM_DATA_WIDTH)-1:0] 		       dq_i ;
+   input [(`SDRAM_DATA_WIDTH)-1:0]     dq_i ;
    output 			       dq_oe;
    output 			       cke_pad_o;
 `endif
@@ -119,6 +119,11 @@ module versatile_mem_ctrl_top
    
    wire [35:0] 			       tx_fifo_dat_o;
 
+   wire 			       burst_reading;
+   reg 				       sdram_fifo_wr_r;
+   
+   
+
    generate   
       if (nr_of_wb_clk_domains > 0) begin    
          versatile_mem_ctrl_wb
@@ -143,6 +148,7 @@ module versatile_mem_ctrl_top
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
             .sdram_fifo_we(fifo_we[0][0:nr_of_wb_ports_clk0-1]),
+	    .sdram_burst_reading(burst_reading),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
       end
@@ -175,6 +181,7 @@ module versatile_mem_ctrl_top
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
             .sdram_fifo_we(fifo_we[1][0:nr_of_wb_ports_clk1-1]),
+	    .sdram_burst_reading(burst_reading),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk1 < 16) begin
@@ -210,6 +217,7 @@ module versatile_mem_ctrl_top
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
             .sdram_fifo_we(fifo_we[2][0:nr_of_wb_ports_clk2-1]),
+	    .sdram_burst_reading(burst_reading),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk2 < 16) begin
@@ -245,6 +253,7 @@ module versatile_mem_ctrl_top
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
             .sdram_fifo_we(fifo_we[3][0:nr_of_wb_ports_clk3-1]),
+	    .sdram_burst_reading(burst_reading),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk3 < 16) begin
@@ -310,6 +319,11 @@ module versatile_mem_ctrl_top
    always @(posedge sdram_clk)
      current_fifo_empty_r <= current_fifo_empty;
    
+   always @(posedge sdram_clk)
+     sdram_fifo_wr_r <= fifo_wr;
+   
+   
+   
    // SDR SDRAM 16 FSM
    fsm_sdr_16 fsm_sdr_16_0 
      (
@@ -329,6 +343,8 @@ module versatile_mem_ctrl_top
       .cmd({ras_pad_o, cas_pad_o, we_pad_o}), 
       .dq_oe(dq_oe), 
       .dqm(dqm_pad_o),
+      .sdram_fifo_wr(sdram_fifo_wr_r),
+      .sdram_burst_reading(burst_reading),
       .sdram_clk(sdram_clk), 
       .sdram_rst(sdram_rst)
       );

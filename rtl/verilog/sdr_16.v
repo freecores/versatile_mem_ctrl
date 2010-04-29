@@ -12,6 +12,11 @@
  // 32MB part
 //`define MT48LC4M16  //  8MB part
 
+// Define this to allow indication that a burst read is still going
+// to the wishbone state machine, so it doesn't start emptying the
+// ingress fifo after a aborted burst before the burst read is
+// actually finished.
+//`define SDRAM_WB_SAME_CLOCKS
 
  
 // using 1 of MT48LC16M16
@@ -34,7 +39,7 @@
  
 
 
-`line 35 "sdr_16_defines.v" 0
+`line 40 "sdr_16_defines.v" 0
  //  `ifdef MT48LC4M16
 
 // LMR
@@ -48,7 +53,7 @@
  
  
  
-`line 48 "sdr_16_defines.v" 2
+`line 53 "sdr_16_defines.v" 2
 `line 1 "fsm_wb.v" 1
 module fsm_wb (
 	       stall_i, stall_o,
@@ -56,6 +61,7 @@ module fsm_wb (
 	       egress_fifo_we, egress_fifo_full,
 	       ingress_fifo_re, ingress_fifo_empty,
 	       state_idle,
+	       sdram_burst_reading,
 	       wb_clk, wb_rst
 	       );
 
@@ -68,8 +74,10 @@ module fsm_wb (
    output      ack_o;
    output      egress_fifo_we, ingress_fifo_re;
    input       egress_fifo_full, ingress_fifo_empty;
+   input       sdram_burst_reading;
    output      state_idle;
    input       wb_clk, wb_rst;
+   
 
    reg 	       ingress_fifo_read_reg;
 
@@ -87,6 +95,10 @@ module fsm_wb (
    parameter wr   = 2'b10;
    parameter fe   = 2'b11;
    reg [1:0]   state;
+
+   reg 	       sdram_burst_reading_1, sdram_burst_reading_2;
+   wire        sdram_burst_reading_wb_clk;
+   
 
    always @ (posedge wb_clk or posedge wb_rst)
      if (wb_rst)
@@ -107,7 +119,7 @@ module fsm_wb (
 	       stb_i & cyc_i & ack_o)
              state <= fe;
          fe:
-           if (ingress_fifo_empty)
+           if (ingress_fifo_empty & !sdram_burst_reading_wb_clk)
              state <= idle;
          default: ;
        endcase
@@ -141,9 +153,19 @@ module fsm_wb (
                   1'b0;*/
 
    assign ack_o = !(state==fe) & ((ingress_fifo_read_reg & stb_i) | (state==wr & stb_i & cyc_i & !egress_fifo_full & !stall_i));
+
+
+   // Sample the SDRAM burst reading signal in WB domain
+   always @(posedge wb_clk)
+     sdram_burst_reading_1 <= sdram_burst_reading;
+   
+   always @(posedge wb_clk)
+     sdram_burst_reading_2 <= sdram_burst_reading_1;
+
+   assign sdram_burst_reading_wb_clk = sdram_burst_reading_2;
    
 endmodule
-`line 93 "fsm_wb.v" 2
+`line 110 "fsm_wb.v" 2
 `line 1 "versatile_fifo_async_cmp.v" 1
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
@@ -1002,6 +1024,11 @@ endmodule
  // 32MB part
 //`define MT48LC4M16  //  8MB part
 
+// Define this to allow indication that a burst read is still going
+// to the wishbone state machine, so it doesn't start emptying the
+// ingress fifo after a aborted burst before the burst read is
+// actually finished.
+//`define SDRAM_WB_SAME_CLOCKS
 
  
 // using 1 of MT48LC16M16
@@ -1024,7 +1051,7 @@ endmodule
  
 
 
-`line 35 "sdr_16_defines.v" 0
+`line 40 "sdr_16_defines.v" 0
  //  `ifdef MT48LC4M16
 
 // LMR
@@ -1038,7 +1065,7 @@ endmodule
  
  
  
-`line 48 "sdr_16_defines.v" 2
+`line 53 "sdr_16_defines.v" 2
 `line 2 "fsm_sdr_16.v" 0
 
 module fsm_sdr_16 (
@@ -1046,7 +1073,8 @@ module fsm_sdr_16 (
 		   fifo_empty, fifo_rd_adr, fifo_rd_data, count0,
 		   refresh_req, cmd_aref, cmd_read, state_idle,
 		   ba, a, cmd, dqm, dq_oe,
-		   sdram_clk, sdram_rst
+		   sdram_burst_reading,
+		   sdram_clk, sdram_fifo_wr, sdram_rst
 		   );
 
    /* Now these are defined
@@ -1075,7 +1103,8 @@ module fsm_sdr_16 (
    output reg [1:0] 			 dqm /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
    output reg 				 dq_oe;
 
-   input 				 sdram_clk, sdram_rst;
+   output 				 sdram_burst_reading;   
+   input 				 sdram_clk, sdram_fifo_wr, sdram_rst;
 
    wire [2-1:0] 			 bank;
    wire [13-1:0] 			 row;
@@ -1208,13 +1237,13 @@ module fsm_sdr_16 (
               
               
           
-`line 169 "fsm_sdr_16.v" 0
+`line 171 "fsm_sdr_16.v" 0
 
            
               
               
           
-`line 173 "fsm_sdr_16.v" 0
+`line 175 "fsm_sdr_16.v" 0
 
           else
             next = 3'b111;
@@ -1320,13 +1349,13 @@ module fsm_sdr_16 (
                           
 				     
                       
-`line 277 "fsm_sdr_16.v" 0
+`line 279 "fsm_sdr_16.v" 0
 
                        
                          
 				     
                       
-`line 281 "fsm_sdr_16.v" 0
+`line 283 "fsm_sdr_16.v" 0
 
                     endcase
                end
@@ -1334,16 +1363,42 @@ module fsm_sdr_16 (
 	end
      end
 
+   reg fifo_read_data_en;
+   always @(posedge sdram_clk)
+     if (sdram_rst)
+       fifo_read_data_en <= 1;
+     else if (next==3'b111)
+       fifo_read_data_en <= ~fifo_read_data_en;
+     else
+       fifo_read_data_en <= 1;
+
+   reg [3:0] beat4_data_read_limiter; // Use this to record how many times we've pulsed fifo_rd_data
+   // Only 3 bits, becuase we're looking at when fifo_read_data_en goes low - should only happen 3
+   // times for a 4-beat burst
+   always @(posedge sdram_clk)
+     if (sdram_rst)
+       beat4_data_read_limiter <= 0;
+     else if(state==3'b011)
+       beat4_data_read_limiter <= 0;
+     else if (!fifo_read_data_en)
+       beat4_data_read_limiter <= {beat4_data_read_limiter[2:0],1'b1};
+   
+   
+
    // rd_adr goes high when next adr is fetched from sync RAM and during write burst
    assign fifo_rd_adr  = state==3'b011 & shreg[1];
-   assign fifo_rd_data = ((state==3'b111 & next==3'b111) & 
-			  we_reg & !count0 & !fifo_empty);
 
+   assign fifo_rd_data = (((state!=3'b111 & next==3'b111)|(state==3'b111 & (bte_reg==beat4 & fifo_read_data_en & !(&beat4_data_read_limiter)))) & we_reg & !fifo_empty);
+   
+   /*
+   assign fifo_rd_data = ((state==`FSM_RW & next==`FSM_RW) & 
+			  we_reg & !count0 & !fifo_empty);
+*/
    assign state_idle = (state==3'b001);
 
    // bank and row open ?
    assign current_bank_closed = !(open_ba[bank]);
-   assign current_row_open = /*open_ba[bank] &*/ (open_row[bank]==row);
+   assign current_row_open = open_row[bank]==row;
 
    always @ (posedge sdram_clk or posedge sdram_rst)
      if (sdram_rst)
@@ -1352,10 +1407,31 @@ module fsm_sdr_16 (
        //if (state==adr & counter[1:0]==2'b10)
        {current_bank_closed_reg, current_row_open_reg} <= 
 				        {current_bank_closed, current_row_open};
+
+   // Record the number of write enables going to INGRESS fifo (ie. that we 
+   // generate when we're reading) - this makes sure we keep track of when a
+   // burst read is in progress, and we can signal the wishbone bus to wait
+   // for this data to be put into the FIFO before it'll empty it when it's
+   // had a terminated burst transfer.
+   reg [3:0] fifo_we_record;
+   always @(posedge sdram_clk) 
+     if (sdram_rst)
+       fifo_we_record <= 0;
+     else if (next==3'b111 & ((state==3'b011)|(state==3'b101)) & (bte_reg==beat4) & !we_reg)
+       fifo_we_record <= 4'b0001;
+     else if (sdram_fifo_wr)
+       fifo_we_record <= {fifo_we_record[2:0],1'b0};
+    
+      
+
+`line 350 "fsm_sdr_16.v" 0
+   
+   assign sdram_burst_reading = 0;
+
    
 
 endmodule
-`line 309 "fsm_sdr_16.v" 2
+`line 356 "fsm_sdr_16.v" 2
 `line 1 "versatile_mem_ctrl_wb.v" 1
 `timescale 1ns/1ns
 module versatile_mem_ctrl_wb (
@@ -1365,7 +1441,7 @@ module versatile_mem_ctrl_wb (
     wb_clk, wb_rst,
     // SDRAM controller interface
     sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd_adr, sdram_fifo_rd_data, sdram_fifo_re,
-    sdram_dat_i, sdram_fifo_wr, sdram_fifo_we,
+    sdram_dat_i, sdram_fifo_wr, sdram_fifo_we, sdram_burst_reading,
     sdram_clk, sdram_rst
 
 );
@@ -1388,6 +1464,7 @@ input  [0:nr_of_wb_ports-1] sdram_fifo_re;
 input  [31:0]               sdram_dat_i;
 input                       sdram_fifo_wr;
 input  [0:nr_of_wb_ports-1] sdram_fifo_we;
+input   		    sdram_burst_reading;
 input                       sdram_clk;
 input                       sdram_rst;
 
@@ -1448,6 +1525,7 @@ generate
             .ingress_fifo_re(ingress_fifo_re[i]),
             .ingress_fifo_empty(ingress_fifo_empty[i]),
             .state_idle(state_idle[i]),
+	    .sdram_burst_reading(sdram_burst_reading),
             .wb_clk(wb_clk),
             .wb_rst(wb_rst)
         );
@@ -1481,7 +1559,7 @@ egress_fifo # (
 assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
 
 endmodule
-`line 124 "versatile_mem_ctrl_wb.v" 2
+`line 126 "versatile_mem_ctrl_wb.v" 2
 `line 1 "versatile_mem_ctrl_top.v" 1
 `timescale 1ns/1ns
  
@@ -1506,6 +1584,11 @@ endmodule
  // 32MB part
 //`define MT48LC4M16  //  8MB part
 
+// Define this to allow indication that a burst read is still going
+// to the wishbone state machine, so it doesn't start emptying the
+// ingress fifo after a aborted burst before the burst read is
+// actually finished.
+//`define SDRAM_WB_SAME_CLOCKS
 
  
 // using 1 of MT48LC16M16
@@ -1528,7 +1611,7 @@ endmodule
  
 
 
-`line 35 "sdr_16_defines.v" 0
+`line 40 "sdr_16_defines.v" 0
  //  `ifdef MT48LC4M16
 
 // LMR
@@ -1542,7 +1625,7 @@ endmodule
  
  
  
-`line 48 "sdr_16_defines.v" 2
+`line 53 "sdr_16_defines.v" 2
 `line 6 "versatile_mem_ctrl_top.v" 0
 
 
@@ -1617,9 +1700,9 @@ module versatile_mem_ctrl_top
    output 			       ras_pad_o;
    output 			       cas_pad_o;
    output 			       we_pad_o;
-   output reg [(16)-1:0] 		       dq_o /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
+   output reg [(16)-1:0] dq_o /*synthesis syn_useioff=1 syn_allow_retiming=0 */;
    output [1:0] 		       dqm_pad_o;
-   input [(16)-1:0] 		       dq_i ;
+   input [(16)-1:0]     dq_i ;
    output 			       dq_oe;
    output 			       cke_pad_o;
 
@@ -1664,6 +1747,11 @@ module versatile_mem_ctrl_top
    
    wire [35:0] 			       tx_fifo_dat_o;
 
+   wire 			       burst_reading;
+   reg 				       sdram_fifo_wr_r;
+   
+   
+
    generate   
       if (nr_of_wb_clk_domains > 0) begin    
          versatile_mem_ctrl_wb
@@ -1688,6 +1776,7 @@ module versatile_mem_ctrl_top
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
             .sdram_fifo_we(fifo_we[0][0:nr_of_wb_ports_clk0-1]),
+	    .sdram_burst_reading(burst_reading),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
       end
@@ -1720,6 +1809,7 @@ module versatile_mem_ctrl_top
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
             .sdram_fifo_we(fifo_we[1][0:nr_of_wb_ports_clk1-1]),
+	    .sdram_burst_reading(burst_reading),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk1 < 16) begin
@@ -1755,6 +1845,7 @@ module versatile_mem_ctrl_top
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
             .sdram_fifo_we(fifo_we[2][0:nr_of_wb_ports_clk2-1]),
+	    .sdram_burst_reading(burst_reading),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk2 < 16) begin
@@ -1790,6 +1881,7 @@ module versatile_mem_ctrl_top
             .sdram_dat_i(fifo_dat_i),
             .sdram_fifo_wr(fifo_wr),
             .sdram_fifo_we(fifo_we[3][0:nr_of_wb_ports_clk3-1]),
+	    .sdram_burst_reading(burst_reading),
             .sdram_clk(sdram_clk),
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk3 < 16) begin
@@ -1855,6 +1947,11 @@ module versatile_mem_ctrl_top
    always @(posedge sdram_clk)
      current_fifo_empty_r <= current_fifo_empty;
    
+   always @(posedge sdram_clk)
+     sdram_fifo_wr_r <= fifo_wr;
+   
+   
+   
    // SDR SDRAM 16 FSM
    fsm_sdr_16 fsm_sdr_16_0 
      (
@@ -1874,6 +1971,8 @@ module versatile_mem_ctrl_top
       .cmd({ras_pad_o, cas_pad_o, we_pad_o}), 
       .dq_oe(dq_oe), 
       .dqm(dqm_pad_o),
+      .sdram_fifo_wr(sdram_fifo_wr_r),
+      .sdram_burst_reading(burst_reading),
       .sdram_clk(sdram_clk), 
       .sdram_rst(sdram_rst)
       );
@@ -2250,8 +2349,8 @@ module versatile_mem_ctrl_top
       
 
 
-`line 717 "versatile_mem_ctrl_top.v" 0
+`line 733 "versatile_mem_ctrl_top.v" 0
  //  `ifdef DDR_16
    
 endmodule // wb_sdram_ctrl_top
-`line 720 "versatile_mem_ctrl_top.v" 2
+`line 736 "versatile_mem_ctrl_top.v" 2
