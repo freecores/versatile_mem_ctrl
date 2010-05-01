@@ -18,6 +18,13 @@
 // actually finished.
 //`define SDRAM_WB_SAME_CLOCKS
 
+// If intending to burst write, and the wishbone clock is about 1/4 the speed
+// of the SDRAM clock, then the data may come late, and this triggers a bug
+// during write. To avoid this we can just wait a little longer for data when
+// burst reading (there's no almost_empty signal from the FIFO)
+//`define SLOW_WB_CLOCK
+
+
  
 // using 1 of MT48LC16M16
 // SDRAM data width is 16
@@ -39,7 +46,7 @@
  
 
 
-`line 40 "sdr_16_defines.v" 0
+`line 47 "sdr_16_defines.v" 0
  //  `ifdef MT48LC4M16
 
 // LMR
@@ -53,7 +60,7 @@
  
  
  
-`line 53 "sdr_16_defines.v" 2
+`line 60 "sdr_16_defines.v" 2
 `line 1 "fsm_wb.v" 1
 module fsm_wb (
 	       stall_i, stall_o,
@@ -1030,6 +1037,13 @@ endmodule
 // actually finished.
 //`define SDRAM_WB_SAME_CLOCKS
 
+// If intending to burst write, and the wishbone clock is about 1/4 the speed
+// of the SDRAM clock, then the data may come late, and this triggers a bug
+// during write. To avoid this we can just wait a little longer for data when
+// burst reading (there's no almost_empty signal from the FIFO)
+//`define SLOW_WB_CLOCK
+
+
  
 // using 1 of MT48LC16M16
 // SDRAM data width is 16
@@ -1051,7 +1065,7 @@ endmodule
  
 
 
-`line 40 "sdr_16_defines.v" 0
+`line 47 "sdr_16_defines.v" 0
  //  `ifdef MT48LC4M16
 
 // LMR
@@ -1065,7 +1079,7 @@ endmodule
  
  
  
-`line 53 "sdr_16_defines.v" 2
+`line 60 "sdr_16_defines.v" 2
 `line 2 "fsm_sdr_16.v" 0
 
 module fsm_sdr_16 (
@@ -1223,11 +1237,27 @@ module fsm_sdr_16 (
 	  3'b101:
 	    if (shreg[2])
 	      begin
+ 
+		 
+		       
+		        
+
+`line 162 "fsm_sdr_16.v" 0
+
 		 if ((!fifo_empty | !we_reg)) next = 3'b111;
+
 		 else if (fifo_empty)         next = 3'b110;
 	      end
             else                                    next = 3'b101;
+ 
+	  
+	           
+					    
+
+`line 172 "fsm_sdr_16.v" 0
+
 	  3'b110:    if (!fifo_empty) next = 3'b111;
+	  
           else             next = 3'b110;
 	  3'b111:     if (bte_reg==linear & shreg[1])
             next = 3'b001;
@@ -1237,13 +1267,13 @@ module fsm_sdr_16 (
               
               
           
-`line 171 "fsm_sdr_16.v" 0
+`line 183 "fsm_sdr_16.v" 0
 
            
               
               
           
-`line 175 "fsm_sdr_16.v" 0
+`line 187 "fsm_sdr_16.v" 0
 
           else
             next = 3'b111;
@@ -1349,13 +1379,13 @@ module fsm_sdr_16 (
                           
 				     
                       
-`line 279 "fsm_sdr_16.v" 0
+`line 291 "fsm_sdr_16.v" 0
 
                        
                          
 				     
                       
-`line 283 "fsm_sdr_16.v" 0
+`line 295 "fsm_sdr_16.v" 0
 
                     endcase
                end
@@ -1424,14 +1454,14 @@ module fsm_sdr_16 (
     
       
 
-`line 350 "fsm_sdr_16.v" 0
+`line 362 "fsm_sdr_16.v" 0
    
    assign sdram_burst_reading = 0;
 
    
 
 endmodule
-`line 356 "fsm_sdr_16.v" 2
+`line 368 "fsm_sdr_16.v" 2
 `line 1 "versatile_mem_ctrl_wb.v" 1
 `timescale 1ns/1ns
 module versatile_mem_ctrl_wb (
@@ -1536,12 +1566,18 @@ egress_fifo # (
 	       .a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),
 	       .data_width(36))
    egress_FIFO(
-	       .d(egress_fifo_di), .fifo_full(egress_fifo_full), 
-	       .write(|(egress_fifo_we)), .write_enable(egress_fifo_we),
-	       .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), 
-	       .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), 
+	       .d(egress_fifo_di), 
+	       .fifo_full(egress_fifo_full), 
+	       .write(|(egress_fifo_we)), 
+	       .write_enable(egress_fifo_we),
+	       .q(sdram_dat_o), 
+	       .fifo_empty(sdram_fifo_empty), 
+	       .read_adr(sdram_fifo_rd_adr), 
+	       .read_data(sdram_fifo_rd_data), 
 	       .read_enable(sdram_fifo_re),
-	       .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), 
+	       .clk1(wb_clk), 
+	       .rst1(wb_rst), 
+	       .clk2(sdram_clk), 
 	       .rst2(sdram_rst)
 	       );
    
@@ -1559,7 +1595,7 @@ egress_fifo # (
 assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
 
 endmodule
-`line 126 "versatile_mem_ctrl_wb.v" 2
+`line 132 "versatile_mem_ctrl_wb.v" 2
 `line 1 "versatile_mem_ctrl_top.v" 1
 `timescale 1ns/1ns
  
@@ -1590,6 +1626,13 @@ endmodule
 // actually finished.
 //`define SDRAM_WB_SAME_CLOCKS
 
+// If intending to burst write, and the wishbone clock is about 1/4 the speed
+// of the SDRAM clock, then the data may come late, and this triggers a bug
+// during write. To avoid this we can just wait a little longer for data when
+// burst reading (there's no almost_empty signal from the FIFO)
+//`define SLOW_WB_CLOCK
+
+
  
 // using 1 of MT48LC16M16
 // SDRAM data width is 16
@@ -1611,7 +1654,7 @@ endmodule
  
 
 
-`line 40 "sdr_16_defines.v" 0
+`line 47 "sdr_16_defines.v" 0
  //  `ifdef MT48LC4M16
 
 // LMR
@@ -1625,7 +1668,7 @@ endmodule
  
  
  
-`line 53 "sdr_16_defines.v" 2
+`line 60 "sdr_16_defines.v" 2
 `line 6 "versatile_mem_ctrl_top.v" 0
 
 

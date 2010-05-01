@@ -155,11 +155,23 @@ module fsm_sdr_16 (
 	  `FSM_ACT:
 	    if (shreg[2])
 	      begin
+`ifdef SLOW_WB_CLOCK
+		 // Automatiacally go to wait for data if burst writing
+		 if ((|bte_reg) & we_reg) next = `FSM_W4D;
+		 else if ((!fifo_empty | !we_reg)) next = `FSM_RW;
+`else
 		 if ((!fifo_empty | !we_reg)) next = `FSM_RW;
+`endif
 		 else if (fifo_empty)         next = `FSM_W4D;
 	      end
             else                                    next = `FSM_ACT;
+`ifdef SLOW_WB_CLOCK
+	  // Add some wait here if bursting and the wishbone clock is slow
+	  `FSM_W4D:    if (!fifo_empty & ((bte_reg==linear)|((|bte_reg) & shreg[9])))
+					  next = `FSM_RW;
+`else
 	  `FSM_W4D:    if (!fifo_empty) next = `FSM_RW;
+`endif	  
           else             next = `FSM_W4D;
 	  `FSM_RW:     if (bte_reg==linear & shreg[1])
             next = `FSM_IDLE;

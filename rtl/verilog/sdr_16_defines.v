@@ -17,6 +17,13 @@
 // actually finished.
 //`define SDRAM_WB_SAME_CLOCKS
 
+// If intending to burst write, and the wishbone clock is about 1/4 the speed
+// of the SDRAM clock, then the data may come late, and this triggers a bug
+// during write. To avoid this we can just wait a little longer for data when
+// burst reading (there's no almost_empty signal from the FIFO)
+//`define SLOW_WB_CLOCK
+
+
 `ifdef MT48LC16M16
 // using 1 of MT48LC16M16
 // SDRAM data width is 16

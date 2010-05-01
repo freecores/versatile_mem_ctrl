@@ -101,12 +101,18 @@ egress_fifo # (
 	       .a_hi_size(4),.a_lo_size(4),.nr_of_queues(nr_of_wb_ports),
 	       .data_width(36))
    egress_FIFO(
-	       .d(egress_fifo_di), .fifo_full(egress_fifo_full), 
-	       .write(|(egress_fifo_we)), .write_enable(egress_fifo_we),
-	       .q(sdram_dat_o), .fifo_empty(sdram_fifo_empty), 
-	       .read_adr(sdram_fifo_rd_adr), .read_data(sdram_fifo_rd_data), 
+	       .d(egress_fifo_di), 
+	       .fifo_full(egress_fifo_full), 
+	       .write(|(egress_fifo_we)), 
+	       .write_enable(egress_fifo_we),
+	       .q(sdram_dat_o), 
+	       .fifo_empty(sdram_fifo_empty), 
+	       .read_adr(sdram_fifo_rd_adr), 
+	       .read_data(sdram_fifo_rd_data), 
 	       .read_enable(sdram_fifo_re),
-	       .clk1(wb_clk), .rst1(wb_rst), .clk2(sdram_clk), 
+	       .clk1(wb_clk), 
+	       .rst1(wb_rst), 
+	       .clk2(sdram_clk), 
 	       .rst2(sdram_rst)
 	       );
    
