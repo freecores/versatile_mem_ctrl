@@ -464,7 +464,7 @@ module versatile_mem_ctrl_top
 
 `ifdef DDR_16
    wire        read, write;
-   wire        sdram_clk_90, sdram_clk_180, sdram_clk_270;
+   wire        sdram_clk_0, sdram_clk_90, sdram_clk_180, sdram_clk_270;
    wire        ck_fb;
    reg         cke, ras, cas, we, cs_n;
    wire        cke_d, ras_d, cas_d, we_d, cs_n_d;
@@ -507,6 +507,7 @@ module versatile_mem_ctrl_top
    reg   [3:0] open_ba;
    wire        next_row_open, current_bank_closed, current_row_open;
    reg 	       current_bank_closed_reg, current_row_open_reg;
+   wire        adr_init;
    
       
    // refresh counter
@@ -514,10 +515,10 @@ module versatile_mem_ctrl_top
      ( 
       .zq(ref_cnt_zero),
       .rst(sdram_rst),
-      .clk(sdram_clk)
+      .clk(sdram_clk_0)
       );
 
-   always @ (posedge sdram_clk or posedge sdram_rst)
+   always @ (posedge sdram_clk_0 or posedge sdram_rst)
      if (sdram_rst)
        refresh_req <= 1'b0;
      else
@@ -588,7 +589,7 @@ module versatile_mem_ctrl_top
    assign burst_reading = 1'b0;
 
    // Keep track of open row in banks
-   always @ (posedge sdram_clk or posedge sdram_rst)
+   always @ (posedge sdram_clk_0 or posedge sdram_rst)
      if (sdram_rst) begin
 	open_row[0] <= 13'b0;
 	open_row[1] <= 13'b0;
@@ -616,7 +617,7 @@ module versatile_mem_ctrl_top
       .init(adr_init),
       .inc(),
       .adr_o(burst_adr),
-      .done(done),
+      .done(),
       .clk(sdram_clk_0),
       .rst(sdram_rst)
       );
@@ -743,7 +744,7 @@ module versatile_mem_ctrl_top
 	 (
           .d(fifo_sel_reg[i]),
           .q(fifo_sel_dly[i]),
-          .clk(sdram_clk),
+          .clk(sdram_clk_0),
           .rst(sdram_rst)
 	  );
      end
@@ -754,7 +755,7 @@ module versatile_mem_ctrl_top
        (
 	.d(fifo_sel_domain_reg),
 	.q(fifo_sel_domain_dly),
-	.clk(sdram_clk),
+	.clk(sdram_clk_0),
 	.rst(sdram_rst)
 	);
    endgenerate  
@@ -766,7 +767,7 @@ module versatile_mem_ctrl_top
    delay delay6 
      (
       .d({write|read}),
-      .q({adr_inc}),
+      .q(),
       .clk(sdram_clk_0),
       .rst(sdram_rst)
       );

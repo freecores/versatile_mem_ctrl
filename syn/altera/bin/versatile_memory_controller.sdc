@@ -4,7 +4,7 @@
 # Timing specifications from Micron Data Sheet (DDR2 SDRAM MT47H32M16-5E)
 
 # Clock cycle time: min=5.00ns, max=8.00ns
-set tCK 5.000
+set tCK 8.000
 
 # Data Strobe Out
 # DQS output access time from CK/CK#
@@ -66,7 +66,7 @@ set wb_clk_period 20.000
 set sdram_clk_period $tCK
 
 # Clocks
-create_clock -name {wb_clk}    -period $wb_clk_period    [get_ports {wb_clk}]
+create_clock -name {wb_clk[*]} -period $wb_clk_period    [get_ports {wb_clk[*]}]
 create_clock -name {sdram_clk} -period $sdram_clk_period [get_ports {sdram_clk}]
 
 # Virtual clocks
@@ -194,7 +194,7 @@ set_output_delay -clock {ck_pad_o} -min -$tIHa [get_ports {cke_pad_o}] -add_dela
 #**************************************************************
 
 # Reset
-set_false_path -from [get_ports {wb_rst}]
+set_false_path -from [get_ports {wb_rst[*]}]
 
 # Input Timing Exceptions
 # False path exceptions for opposite-edge transfer

@@ -110,7 +110,6 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, fifo_flag, 
    reg  fifo_empty2;
    reg [N:0] wptr1, wptr2, wptr_bin, rptr_bin;
    reg [N:0] ptr_diff;
-
    
    integer   i;
    
@@ -192,11 +191,11 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, fifo_flag, 
      if (wptr_bin > rptr_bin)
        ptr_diff <= wptr_bin - rptr_bin;
      else if (wptr_bin < rptr_bin)
-	ptr_diff <= ((4'd16 - rptr_bin) + wptr_bin);
+	ptr_diff <= ((5'd16 - rptr_bin) + wptr_bin);
      else
        ptr_diff <= 4'd0;
 
-
+   // Flag
    assign fifo_flag = (ptr_diff >= fifo_flag_value);   
    
    
@@ -2959,7 +2958,7 @@ module versatile_mem_ctrl_ddr (
     .CE(1'b1),
     .D0(1'b0),
     .D1(1'b1),
-    .R(wb_rst),
+    .R(rst),
     .S(1'b0));
 
   // Generate strobe with equal delay as data
@@ -2986,7 +2985,7 @@ module versatile_mem_ctrl_ddr (
         .CE(1'b1),
         .D0(1'b0),
         .D1(1'b1),
-        .R(wb_rst),
+        .R(rst),
         .S(1'b0));
     end
   endgenerate
@@ -3040,8 +3039,8 @@ module versatile_mem_ctrl_ddr (
 
 
   // Data from Tx FIFO
-  always @ (posedge clk_270 or posedge wb_rst)
-    if (wb_rst)
+  always @ (posedge clk_270 or posedge rst)
+    if (rst)
       dq_tx_reg[15:0] <= 16'h0;
     else
       if (dqm_en)
@@ -3061,14 +3060,14 @@ module versatile_mem_ctrl_ddr (
         .CE(dq_en),
         .D0(dq_tx[i]),
         .D1(dq_tx_reg[i]),
-        .R(wb_rst),
+        .R(rst),
         .S(1'b0));
     end
   endgenerate
 
   // Data mask from Tx FIFO
-  always @ (posedge clk_270 or posedge wb_rst)
-    if (wb_rst)
+  always @ (posedge clk_270 or posedge rst)
+    if (rst)
       dqm_tx_reg[1:0] <= 2'b00;
     else
       if (dqm_en)
@@ -3076,8 +3075,8 @@ module versatile_mem_ctrl_ddr (
       else
         dqm_tx_reg[1:0] <= tx_dat_i[1:0];
 
-  always @ (posedge clk_180 or posedge wb_rst)
-    if (wb_rst)
+  always @ (posedge clk_180 or posedge rst)
+    if (rst)
       dqm_tx_reg[3:2] <= 2'b00;
     else
       if (dqm_en)
@@ -3097,7 +3096,7 @@ module versatile_mem_ctrl_ddr (
         .CE(dq_en),
         .D0(!dqm_tx[i]),
         .D1(!dqm_tx_reg[i]),
-        .R(wb_rst),
+        .R(rst),
         .S(1'b0));
     end
   endgenerate
@@ -3126,20 +3125,20 @@ module versatile_mem_ctrl_ddr (
         .C1(clk_90),
         .CE(1'b1), 
         .D(dq_io[i]),   
-        .R(wb_rst),  
+        .R(rst),  
         .S(1'b0));
     end
   endgenerate
 
   // Data to Rx FIFO
-  always @ (posedge clk_0 or posedge wb_rst)
-    if (wb_rst)
+  always @ (posedge clk_0 or posedge rst)
+    if (rst)
       dq_rx_reg[31:16] <= 16'h0;
     else
       dq_rx_reg[31:16] <= dq_rx[31:16];
 
-  always @ (posedge clk_180 or posedge wb_rst)
-    if (wb_rst)
+  always @ (posedge clk_180 or posedge rst)
+    if (rst)
       dq_rx_reg[15:0] <= 16'h0;
     else
       dq_rx_reg[15:0] <= dq_rx[15:0];
@@ -3166,20 +3165,20 @@ module versatile_mem_ctrl_ddr (
         .C1(dqs_n_iodelay[0]), 
         .CE(1'b1), 
         .D(dq_iobuf[i]),
-        .R(wb_rst),  
+        .R(rst),  
         .S(1'b0));
     end
   endgenerate
 
   // Data to Rx FIFO
-  always @ (posedge clk_0 or posedge wb_rst)
-    if (wb_rst)
+  always @ (posedge clk_0 or posedge rst)
+    if (rst)
       dq_rx_reg[31:16] <= 16'h0;
     else
       dq_rx_reg[31:16] <= dq_rx[31:16];
 
-  always @ (posedge clk_0 or posedge wb_rst)
-    if (wb_rst)
+  always @ (posedge clk_0 or posedge rst)
+    if (rst)
       dq_rx_reg[15:0] <= 16'h0;
     else
       dq_rx_reg[15:0] <= dq_rx[15:0];
@@ -3234,14 +3233,14 @@ module versatile_mem_ctrl_ddr (
         .C1(dqs_n_iodelay[0]),
         .CE(1'b1), 
         .D(dq_iobuf[i]),
-        .R(wb_rst),  
+        .R(rst),  
         .S(1'b0));
     end
   endgenerate
    
   // Rise & fall clocked FF
-  always @ (posedge clk_0 or posedge wb_rst)
-    if (wb_rst) begin
+  always @ (posedge clk_0 or posedge rst)
+    if (rst) begin
       dq_fall_1 <= 16'h0;
       dq_rise_1 <= 16'h0;
     end else begin
@@ -3249,8 +3248,8 @@ module versatile_mem_ctrl_ddr (
       dq_rise_1 <= dq_iddr_rise;
     end
 
-  always @ (posedge clk_180 or posedge wb_rst)
-    if (wb_rst) begin
+  always @ (posedge clk_180 or posedge rst)
+    if (rst) begin
       dq_fall_2 <= 16'h0;
       dq_rise_2 <= 16'h0;
     end else begin
@@ -3259,8 +3258,8 @@ module versatile_mem_ctrl_ddr (
     end
    
   // Fall sync FF
-  always @ (posedge clk_0 or posedge wb_rst)
-    if (wb_rst) begin
+  always @ (posedge clk_0 or posedge rst)
+    if (rst) begin
       dq_fall_3 <= 16'h0;
       dq_rise_3 <= 16'h0;
     end else begin
@@ -3322,7 +3321,7 @@ module versatile_mem_ctrl_ddr (
         .CE(dq_en),
         .D0(tx_dat_i[i+16+4]),
         .D1(tx_dat_i[i+4]),
-        .R(wb_rst),
+        .R(rst),
         .S(1'b0));
     end
   endgenerate
@@ -3349,7 +3348,7 @@ module versatile_mem_ctrl_ddr (
         .CE(dq_en),
         .D0(!dqm_tx[i+2]),
         .D1(!dqm_tx[i]),
-        .R(wb_rst),
+        .R(rst),
         .S(1'b0));
     end
   endgenerate
@@ -3370,14 +3369,14 @@ module versatile_mem_ctrl_ddr (
         .C1(clk_90),
         .CE(1'b1), 
         .D(dq_io[i]),   
-        .R(wb_rst),  
+        .R(rst),  
         .S(1'b0));
     end
   endgenerate
 
   // Data to Rx FIFO
-  always @ (posedge clk_180 or posedge wb_rst)
-    if (wb_rst)
+  always @ (posedge clk_180 or posedge rst)
+    if (rst)
       dq_rx_reg <= 32'h0;
     else
       dq_rx_reg <= dq_rx;
@@ -3921,7 +3920,7 @@ always @*
        radr = fifo_radr_bin[0];
 end
    
-/* -----\/----- EXCLUDED -----\/-----
+/* 
 always @*
 begin
     radr = {a_lo_size{1'b0}};
@@ -3929,7 +3928,7 @@ begin
         radr = (fifo_radr_bin[k] & {a_lo_size{read_enable_reg[k]}}) | radr;
     end
 end
- -----/\----- EXCLUDED -----/\----- */
+ */
 
 // and-or mux write data
 generate
@@ -4961,7 +4960,7 @@ module versatile_mem_ctrl_top
 
 `ifdef DDR_16
    wire        read, write;
-   wire        sdram_clk_90, sdram_clk_180, sdram_clk_270;
+   wire        sdram_clk_0, sdram_clk_90, sdram_clk_180, sdram_clk_270;
    wire        ck_fb;
    reg         cke, ras, cas, we, cs_n;
    wire        cke_d, ras_d, cas_d, we_d, cs_n_d;
@@ -5004,6 +5003,7 @@ module versatile_mem_ctrl_top
    reg   [3:0] open_ba;
    wire        next_row_open, current_bank_closed, current_row_open;
    reg 	       current_bank_closed_reg, current_row_open_reg;
+   wire        adr_init;
    
       
    // refresh counter
@@ -5011,10 +5011,10 @@ module versatile_mem_ctrl_top
      ( 
       .zq(ref_cnt_zero),
       .rst(sdram_rst),
-      .clk(sdram_clk)
+      .clk(sdram_clk_0)
       );
 
-   always @ (posedge sdram_clk or posedge sdram_rst)
+   always @ (posedge sdram_clk_0 or posedge sdram_rst)
      if (sdram_rst)
        refresh_req <= 1'b0;
      else
@@ -5085,7 +5085,7 @@ module versatile_mem_ctrl_top
    assign burst_reading = 1'b0;
 
    // Keep track of open row in banks
-   always @ (posedge sdram_clk or posedge sdram_rst)
+   always @ (posedge sdram_clk_0 or posedge sdram_rst)
      if (sdram_rst) begin
 	open_row[0] <= 13'b0;
 	open_row[1] <= 13'b0;
@@ -5113,7 +5113,7 @@ module versatile_mem_ctrl_top
       .init(adr_init),
       .inc(),
       .adr_o(burst_adr),
-      .done(done),
+      .done(),
       .clk(sdram_clk_0),
       .rst(sdram_rst)
       );
@@ -5240,7 +5240,7 @@ module versatile_mem_ctrl_top
 	 (
           .d(fifo_sel_reg[i]),
           .q(fifo_sel_dly[i]),
-          .clk(sdram_clk),
+          .clk(sdram_clk_0),
           .rst(sdram_rst)
 	  );
      end
@@ -5251,7 +5251,7 @@ module versatile_mem_ctrl_top
        (
 	.d(fifo_sel_domain_reg),
 	.q(fifo_sel_domain_dly),
-	.clk(sdram_clk),
+	.clk(sdram_clk_0),
 	.rst(sdram_rst)
 	);
    endgenerate  
@@ -5263,7 +5263,7 @@ module versatile_mem_ctrl_top
    delay delay6 
      (
       .d({write|read}),
-      .q({adr_inc}),
+      .q(),
       .clk(sdram_clk_0),
       .rst(sdram_rst)
       );

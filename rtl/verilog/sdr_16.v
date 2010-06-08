@@ -245,7 +245,6 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, fifo_flag, 
    reg  fifo_empty2;
    reg [N:0] wptr1, wptr2, wptr_bin, rptr_bin;
    reg [N:0] ptr_diff;
-
    
    integer   i;
    
@@ -283,7 +282,7 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, fifo_flag, 
      
          
 
-`line 109 "versatile_fifo_async_cmp.v" 0
+`line 108 "versatile_fifo_async_cmp.v" 0
 
 
    assign async_empty = (wptr == rptr) && (direction==going_empty);
@@ -329,16 +328,16 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, fifo_flag, 
      if (wptr_bin > rptr_bin)
        ptr_diff <= wptr_bin - rptr_bin;
      else if (wptr_bin < rptr_bin)
-	ptr_diff <= ((4'd16 - rptr_bin) + wptr_bin);
+	ptr_diff <= ((5'd16 - rptr_bin) + wptr_bin);
      else
        ptr_diff <= 4'd0;
 
-
+   // Flag
    assign fifo_flag = (ptr_diff >= fifo_flag_value);   
    
    
 endmodule // async_comp
-`line 163 "versatile_fifo_async_cmp.v" 2
+`line 162 "versatile_fifo_async_cmp.v" 2
 `line 1 "async_fifo_mq.v" 1
 // async FIFO with multiple queues
 
@@ -817,7 +816,7 @@ always @*
        radr = fifo_radr_bin[0];
 end
    
-/* -----\/----- EXCLUDED -----\/-----
+/* 
 always @*
 begin
     radr = {a_lo_size{1'b0}};
@@ -825,7 +824,7 @@ begin
         radr = (fifo_radr_bin[k] & {a_lo_size{read_enable_reg[k]}}) | radr;
     end
 end
- -----/\----- EXCLUDED -----/\----- */
+ */
 
 // and-or mux write data
 generate
@@ -2199,7 +2198,7 @@ module versatile_mem_ctrl_top
 
  
             
-             
+              
            
                 
                
@@ -2242,6 +2241,7 @@ module versatile_mem_ctrl_top
        
              
     	        
+           
    
       
    
@@ -2544,8 +2544,8 @@ module versatile_mem_ctrl_top
       
 
 
-`line 811 "versatile_mem_ctrl_top.v" 0
+`line 812 "versatile_mem_ctrl_top.v" 0
  //  `ifdef DDR_16
    
 endmodule // wb_sdram_ctrl_top
-`line 814 "versatile_mem_ctrl_top.v" 2
+`line 815 "versatile_mem_ctrl_top.v" 2
