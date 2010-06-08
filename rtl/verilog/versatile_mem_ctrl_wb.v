@@ -5,13 +5,15 @@ module versatile_mem_ctrl_wb (
     wb_stb_i, wb_cyc_i, wb_ack_o,
     wb_clk, wb_rst,
     // SDRAM controller interface
-    sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd_adr, sdram_fifo_rd_data, sdram_fifo_re,
+    sdram_dat_o, sdram_fifo_empty, sdram_fifo_flag, sdram_fifo_rd_adr, 
+    sdram_fifo_rd_data, sdram_fifo_re,
     sdram_dat_i, sdram_fifo_wr, sdram_fifo_we, sdram_burst_reading,
     sdram_clk, sdram_rst
 
 );
 
 parameter nr_of_wb_ports = 3;
+parameter nr_of_queues = 16;
     
 input  [36*nr_of_wb_ports-1:0]  wb_adr_i_v;
 input  [36*nr_of_wb_ports-1:0]  wb_dat_i_v;
@@ -24,6 +26,7 @@ input                           wb_rst;
 
 output [35:0]               sdram_dat_o;
 output [0:nr_of_wb_ports-1] sdram_fifo_empty;
+output [0:nr_of_wb_ports-1] sdram_fifo_flag;
 input                       sdram_fifo_rd_adr, sdram_fifo_rd_data;
 input  [0:nr_of_wb_ports-1] sdram_fifo_re;
 input  [31:0]               sdram_dat_i;
@@ -60,6 +63,8 @@ wire [0:nr_of_wb_ports] stall;
 wire [0:nr_of_wb_ports-1] state_idle;
 wire [0:nr_of_wb_ports-1] egress_fifo_we,  egress_fifo_full;
 wire [0:nr_of_wb_ports-1] ingress_fifo_re, ingress_fifo_empty;
+
+//wire [4*nr_of_queues-1:0] sdram_fifo_fill;
 
 genvar i;
 
@@ -106,7 +111,8 @@ egress_fifo # (
 	       .write(|(egress_fifo_we)), 
 	       .write_enable(egress_fifo_we),
 	       .q(sdram_dat_o), 
-	       .fifo_empty(sdram_fifo_empty), 
+	       .fifo_empty(sdram_fifo_empty),
+	       .fifo_flag(sdram_fifo_flag),
 	       .read_adr(sdram_fifo_rd_adr), 
 	       .read_data(sdram_fifo_rd_data), 
 	       .read_enable(sdram_fifo_re),

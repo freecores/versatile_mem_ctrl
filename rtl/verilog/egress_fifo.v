@@ -2,7 +2,7 @@
 
 module egress_fifo (
     d, fifo_full, write, write_enable, clk1, rst1,
-    q, fifo_empty, read_adr, read_data, read_enable, clk2, rst2
+    q, fifo_empty, fifo_flag, read_adr, read_data, read_enable, clk2, rst2
 );
 
 parameter a_hi_size = 4;
@@ -18,7 +18,9 @@ input clk1;
 input rst1;
 
 output reg [data_width-1:0] q;
-output [0:nr_of_queues-1] fifo_empty;
+output [0:nr_of_queues-1]   fifo_empty;
+output [0:nr_of_queues-1]   fifo_flag;
+  
 input                     read_adr, read_data;
 input  [0:nr_of_queues-1] read_enable;
 input clk2;
@@ -34,6 +36,8 @@ reg [a_lo_size-1:0] wadr;
 reg [a_lo_size-1:0] radr;
 reg [data_width-1:0] wdata;
 wire [data_width-1:0] wdataa[0:nr_of_queues-1];
+
+wire [a_hi_size-1:0]      fifo_fill_i[0:nr_of_queues-1];
 
 reg read_adr_reg;
 reg [0:nr_of_queues-1] read_enable_reg;
@@ -91,7 +95,8 @@ generate
                 .wptr(fifo_wadr_gray[i]), 
 		.rptr(fifo_radr_gray[i]), 
 		.fifo_empty(fifo_empty[i]), 
-		.fifo_full(fifo_full[i]), 
+		.fifo_full(fifo_full[i]),
+		.fifo_flag(fifo_flag[i]),
 		.wclk(clk1), 
 		.rclk(clk2), 
 		.rst(rst1));
@@ -110,12 +115,26 @@ end
 
 // and-or mux read address
 always @*
+  begin
+     if (nr_of_queues > 1) begin
+	radr = {a_lo_size{1'b0}};
+	for (k=0;k<nr_of_queues;k=k+1) begin
+           radr = (fifo_radr_bin[k] & {a_lo_size{read_enable_reg[k]}}) | radr;
+	end
+     end
+     else
+       radr = fifo_radr_bin[0];
+end
+   
+/* 
+always @*
 begin
     radr = {a_lo_size{1'b0}};
     for (k=0;k<nr_of_queues;k=k+1) begin
         radr = (fifo_radr_bin[k] & {a_lo_size{read_enable_reg[k]}}) | radr;
     end
 end
+ */
 
 // and-or mux write data
 generate
@@ -147,6 +166,6 @@ vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_l
    // Added registering of FIFO output to break a timing path
    always@(posedge clk2)
      q <= fifo_q;
-   
+
 
 endmodule

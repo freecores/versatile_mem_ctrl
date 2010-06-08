@@ -5,7 +5,9 @@ module versatile_mem_ctrl_tb
    output OK
    );
 
-   reg 	  sdram_clk, wb_clk, wb_rst;
+   reg 	       wb_clk, wb_rst;
+   reg 	       sdram_clk, sdram_rst;
+   reg         tb_rst;
 
    wire [31:0] wb0_dat_i;
    wire [3:0]  wb0_sel_i;
@@ -110,7 +112,7 @@ module versatile_mem_ctrl_tb
       .ack(wb0_ack_o),
       .clk(wb_clk),
       .dat_i(wb0_dat_o),
-      .reset(wb_rst) 
+      .reset(tb_rst) 
       );
    wb1_ddr wb1i
      (
@@ -125,7 +127,7 @@ module versatile_mem_ctrl_tb
       .ack(wb1_ack_o),
       .clk(wb_clk),
       .dat_i(wb1_dat_o),
-      .reset(wb_rst) 
+      .reset(tb_rst) 
       );
    wb4_ddr wb4i
      (
@@ -140,13 +142,13 @@ module versatile_mem_ctrl_tb
       .ack(wb4_ack_o),
       .clk(wb_clk),
       .dat_i(wb4_dat_o),
-      .reset(wb_rst) 
+      .reset(tb_rst) 
       );
 `endif
 
    versatile_mem_ctrl_top # (
     .nr_of_wb_clk_domains(2), 
-    .nr_of_wb_ports_clk0(2),
+    .nr_of_wb_ports_clk0(1),
     .nr_of_wb_ports_clk1(1),
     .nr_of_wb_ports_clk2(0),
     .nr_of_wb_ports_clk3(0))
@@ -279,26 +281,48 @@ ddr2 ddr2_sdram
    .odt()
    );
 `endif
-   
+
+   // Wishbone reset
    initial
      begin
-	#0 wb_rst = 1'b1;
-	#200 wb_rst = 1'b1;	
+	#0      wb_rst = 1'b1;
+	#200    wb_rst = 1'b1;	
 	#200000 wb_rst = 1'b0;	
      end
+
+   // SDRAM reset
+   initial
+     begin
+	#0      sdram_rst = 1'b1;
+	#200    sdram_rst = 1'b1;	
+	#200000 sdram_rst = 1'b0;	
+     end
    
+   // Test bench reset
+   initial
+     begin
+	#0      tb_rst = 1'b1;
+	#200    tb_rst = 1'b1;	
+	//#200000 tb_rst = 1'b0;
+	#300000 tb_rst = 1'b0;   // hold reset to let initialization complete
+     end
+
+   // Wishbone clock
    initial
      begin
 	#0 wb_clk = 1'b0;
 	forever
-	  #200 wb_clk = !wb_clk;   // 25MHz
+	  //#200 wb_clk = !wb_clk;   // 2.5 MHz
+	  #20 wb_clk = !wb_clk;   // 25 MHz
      end
-   
+
+   // SDRAM clock
    initial
      begin
 	#0 sdram_clk = 1'b0;
 	forever
-	  #4 sdram_clk = !sdram_clk;   // 125MHz
+	  //#4 sdram_clk = !sdram_clk;   // 125 MHz
+	  #5 sdram_clk = !sdram_clk;   // 100 MHz
      end
    
 endmodule // versatile_mem_ctrl_tb

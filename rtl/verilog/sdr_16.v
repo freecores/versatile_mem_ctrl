@@ -216,7 +216,7 @@ endmodule
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
 
-module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk, rst );
+module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, fifo_flag, wclk, rclk, rst );
 
    parameter ADDR_WIDTH = 4;   
    parameter N = ADDR_WIDTH-1;
@@ -228,10 +228,13 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk,
 
    parameter going_empty = 1'b0;
    parameter going_full  = 1'b1;
+
+   parameter fifo_flag_value = 4'd4;
    
    input [N:0]  wptr, rptr;   
    output reg	fifo_empty;
    output       fifo_full;
+   output 	fifo_flag;
    input 	wclk, rclk, rst;   
    
    wire direction;
@@ -239,7 +242,12 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk,
    
    wire async_empty, async_full;
    wire fifo_full2;
-   reg  fifo_empty2;   
+   reg  fifo_empty2;
+   reg [N:0] wptr1, wptr2, wptr_bin, rptr_bin;
+   reg [N:0] ptr_diff;
+
+   
+   integer   i;
    
    // direction_set
    always @ (wptr[N:N-1] or rptr[N:N-1])
@@ -275,7 +283,7 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk,
      
          
 
-`line 101 "versatile_fifo_async_cmp.v" 0
+`line 109 "versatile_fifo_async_cmp.v" 0
 
 
    assign async_empty = (wptr == rptr) && (direction==going_empty);
@@ -299,8 +307,38 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, wclk, rclk,
      else
        {fifo_empty,fifo_empty2} <= {fifo_empty2,async_empty};   
 
+
+   // Write-domain to read-domain synchronizer
+   always @ (posedge wclk or posedge rst)
+     if (rst)
+       {wptr2,wptr1} <= {4'b0000,4'b0000};
+     else
+       {wptr2,wptr1} <= {wptr1,wptr};
+
+   // Gray-to-bin conversion
+   always @(wptr2)
+     for (i=0;i<4; i=i+1)
+       wptr_bin[i] = ^(wptr2>>i);
+
+   always @(rptr)
+     for (i=0;i<4; i=i+1)
+       rptr_bin[i] = ^(rptr>>i);
+
+   // Pointer difference
+   always @ (wptr_bin or rptr_bin)
+     if (wptr_bin > rptr_bin)
+       ptr_diff <= wptr_bin - rptr_bin;
+     else if (wptr_bin < rptr_bin)
+	ptr_diff <= ((4'd16 - rptr_bin) + wptr_bin);
+     else
+       ptr_diff <= 4'd0;
+
+
+   assign fifo_flag = (ptr_diff >= fifo_flag_value);   
+   
+   
 endmodule // async_comp
-`line 125 "versatile_fifo_async_cmp.v" 2
+`line 163 "versatile_fifo_async_cmp.v" 2
 `line 1 "async_fifo_mq.v" 1
 // async FIFO with multiple queues
 
@@ -375,7 +413,8 @@ generate
                 .wptr(fifo_wadr_gray[i]), 
 		.rptr(fifo_radr_gray[i]), 
 		.fifo_empty(fifo_empty[i]), 
-		.fifo_full(fifo_full[i]), 
+		.fifo_full(fifo_full[i]),
+		.fifo_flag(),
 		.wclk(clk1), 
 		.rclk(clk2), 
 		.rst(rst1));
@@ -412,7 +451,7 @@ vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_l
     .clk_b(clk2) );
 
 endmodule
-`line 111 "async_fifo_mq.v" 2
+`line 112 "async_fifo_mq.v" 2
 `line 1 "delay.v" 1
 `timescale 1ns/1ns
 module delay (d, q, clk, rst);
@@ -654,7 +693,7 @@ endmodule
 
 module egress_fifo (
     d, fifo_full, write, write_enable, clk1, rst1,
-    q, fifo_empty, read_adr, read_data, read_enable, clk2, rst2
+    q, fifo_empty, fifo_flag, read_adr, read_data, read_enable, clk2, rst2
 );
 
 parameter a_hi_size = 4;
@@ -670,7 +709,9 @@ input clk1;
 input rst1;
 
 output reg [data_width-1:0] q;
-output [0:nr_of_queues-1] fifo_empty;
+output [0:nr_of_queues-1]   fifo_empty;
+output [0:nr_of_queues-1]   fifo_flag;
+  
 input                     read_adr, read_data;
 input  [0:nr_of_queues-1] read_enable;
 input clk2;
@@ -686,6 +727,8 @@ reg [a_lo_size-1:0] wadr;
 reg [a_lo_size-1:0] radr;
 reg [data_width-1:0] wdata;
 wire [data_width-1:0] wdataa[0:nr_of_queues-1];
+
+wire [a_hi_size-1:0]      fifo_fill_i[0:nr_of_queues-1];
 
 reg read_adr_reg;
 reg [0:nr_of_queues-1] read_enable_reg;
@@ -743,7 +786,8 @@ generate
                 .wptr(fifo_wadr_gray[i]), 
 		.rptr(fifo_radr_gray[i]), 
 		.fifo_empty(fifo_empty[i]), 
-		.fifo_full(fifo_full[i]), 
+		.fifo_full(fifo_full[i]),
+		.fifo_flag(fifo_flag[i]),
 		.wclk(clk1), 
 		.rclk(clk2), 
 		.rst(rst1));
@@ -762,12 +806,26 @@ end
 
 // and-or mux read address
 always @*
+  begin
+     if (nr_of_queues > 1) begin
+	radr = {a_lo_size{1'b0}};
+	for (k=0;k<nr_of_queues;k=k+1) begin
+           radr = (fifo_radr_bin[k] & {a_lo_size{read_enable_reg[k]}}) | radr;
+	end
+     end
+     else
+       radr = fifo_radr_bin[0];
+end
+   
+/* -----\/----- EXCLUDED -----\/-----
+always @*
 begin
     radr = {a_lo_size{1'b0}};
     for (k=0;k<nr_of_queues;k=k+1) begin
         radr = (fifo_radr_bin[k] & {a_lo_size{read_enable_reg[k]}}) | radr;
     end
 end
+ -----/\----- EXCLUDED -----/\----- */
 
 // and-or mux write data
 generate
@@ -799,10 +857,10 @@ vfifo_dual_port_ram_dc_sw # ( .DATA_WIDTH(data_width), .ADDR_WIDTH(a_hi_size+a_l
    // Added registering of FIFO output to break a timing path
    always@(posedge clk2)
      q <= fifo_q;
-   
+
 
 endmodule
-`line 153 "egress_fifo.v" 2
+`line 172 "egress_fifo.v" 2
 `line 1 "versatile_fifo_dual_port_ram_dc_sw.v" 1
 module vfifo_dual_port_ram_dc_sw
   (
@@ -1470,13 +1528,15 @@ module versatile_mem_ctrl_wb (
     wb_stb_i, wb_cyc_i, wb_ack_o,
     wb_clk, wb_rst,
     // SDRAM controller interface
-    sdram_dat_o, sdram_fifo_empty, sdram_fifo_rd_adr, sdram_fifo_rd_data, sdram_fifo_re,
+    sdram_dat_o, sdram_fifo_empty, sdram_fifo_flag, sdram_fifo_rd_adr, 
+    sdram_fifo_rd_data, sdram_fifo_re,
     sdram_dat_i, sdram_fifo_wr, sdram_fifo_we, sdram_burst_reading,
     sdram_clk, sdram_rst
 
 );
 
 parameter nr_of_wb_ports = 3;
+parameter nr_of_queues = 16;
     
 input  [36*nr_of_wb_ports-1:0]  wb_adr_i_v;
 input  [36*nr_of_wb_ports-1:0]  wb_dat_i_v;
@@ -1489,6 +1549,7 @@ input                           wb_rst;
 
 output [35:0]               sdram_dat_o;
 output [0:nr_of_wb_ports-1] sdram_fifo_empty;
+output [0:nr_of_wb_ports-1] sdram_fifo_flag;
 input                       sdram_fifo_rd_adr, sdram_fifo_rd_data;
 input  [0:nr_of_wb_ports-1] sdram_fifo_re;
 input  [31:0]               sdram_dat_i;
@@ -1525,6 +1586,8 @@ wire [0:nr_of_wb_ports] stall;
 wire [0:nr_of_wb_ports-1] state_idle;
 wire [0:nr_of_wb_ports-1] egress_fifo_we,  egress_fifo_full;
 wire [0:nr_of_wb_ports-1] ingress_fifo_re, ingress_fifo_empty;
+
+//wire [4*nr_of_queues-1:0] sdram_fifo_fill;
 
 genvar i;
 
@@ -1571,7 +1634,8 @@ egress_fifo # (
 	       .write(|(egress_fifo_we)), 
 	       .write_enable(egress_fifo_we),
 	       .q(sdram_dat_o), 
-	       .fifo_empty(sdram_fifo_empty), 
+	       .fifo_empty(sdram_fifo_empty),
+	       .fifo_flag(sdram_fifo_flag),
 	       .read_adr(sdram_fifo_rd_adr), 
 	       .read_data(sdram_fifo_rd_data), 
 	       .read_enable(sdram_fifo_re),
@@ -1595,7 +1659,7 @@ egress_fifo # (
 assign wb_dat_o_v = {nr_of_wb_ports{wb_dat_o}};
 
 endmodule
-`line 132 "versatile_mem_ctrl_wb.v" 2
+`line 138 "versatile_mem_ctrl_wb.v" 2
 `line 1 "versatile_mem_ctrl_top.v" 1
 `timescale 1ns/1ns
  
@@ -1774,6 +1838,7 @@ module versatile_mem_ctrl_top
    input 			       sdram_clk, sdram_rst;
 
    wire [0:15] 			       fifo_empty[0:3];
+   wire [0:15] 			       fifo_flag[0:3];
    wire 			       current_fifo_empty;
    wire [0:15] 			       fifo_re[0:3];
    wire [35:0] 			       fifo_dat_o[0:3];
@@ -1813,6 +1878,7 @@ module versatile_mem_ctrl_top
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[0]),
             .sdram_fifo_empty(fifo_empty[0][0:nr_of_wb_ports_clk0-1]),
+	    .sdram_fifo_flag(fifo_flag[0][0:nr_of_wb_ports_clk0-1]),
             .sdram_fifo_rd_adr(fifo_rd_adr),
             .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[0][0:nr_of_wb_ports_clk0-1]),
@@ -1825,6 +1891,7 @@ module versatile_mem_ctrl_top
       end
       if (nr_of_wb_ports_clk0 < 16) begin
          assign fifo_empty[0][nr_of_wb_ports_clk0:15] = {(16-nr_of_wb_ports_clk0){1'b1}};
+	 assign fifo_flag[0][nr_of_wb_ports_clk0:15] = {(16-nr_of_wb_ports_clk0){1'b0}};
       end
    endgenerate
 
@@ -1846,6 +1913,7 @@ module versatile_mem_ctrl_top
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[1]),
             .sdram_fifo_empty(fifo_empty[1][0:nr_of_wb_ports_clk1-1]),
+	    .sdram_fifo_flag(fifo_flag[1][0:nr_of_wb_ports_clk1-1]),
             .sdram_fifo_rd_adr(fifo_rd_adr),
             .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[1][0:nr_of_wb_ports_clk1-1]),
@@ -1857,9 +1925,11 @@ module versatile_mem_ctrl_top
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk1 < 16) begin
             assign fifo_empty[1][nr_of_wb_ports_clk1:15] = {(16-nr_of_wb_ports_clk1){1'b1}};
+	    assign fifo_flag[1][nr_of_wb_ports_clk1:15] = {(16-nr_of_wb_ports_clk1){1'b0}};
          end
       end else begin
          assign fifo_empty[1] = {16{1'b1}};
+         assign fifo_flag[1]  = {16{1'b0}};
          assign fifo_dat_o[1] = {36{1'b0}};
       end
    endgenerate
@@ -1882,6 +1952,7 @@ module versatile_mem_ctrl_top
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[2]),
             .sdram_fifo_empty(fifo_empty[2][0:nr_of_wb_ports_clk2-1]),
+	    .sdram_fifo_flag(fifo_flag[2][0:nr_of_wb_ports_clk2-1]),
             .sdram_fifo_rd_adr(fifo_rd_adr),
             .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[2][0:nr_of_wb_ports_clk2-1]),
@@ -1893,9 +1964,11 @@ module versatile_mem_ctrl_top
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk2 < 16) begin
             assign fifo_empty[2][nr_of_wb_ports_clk2:15] = {(16-nr_of_wb_ports_clk2){1'b1}};
+	    assign fifo_flag[2][nr_of_wb_ports_clk2:15] = {(16-nr_of_wb_ports_clk2){1'b0}};
          end
       end else begin
          assign fifo_empty[2] = {16{1'b1}};
+         assign fifo_flag[2]  = {16{1'b0}};
          assign fifo_dat_o[2] = {36{1'b0}};
       end
    endgenerate
@@ -1918,6 +1991,7 @@ module versatile_mem_ctrl_top
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[3]),
             .sdram_fifo_empty(fifo_empty[3][0:nr_of_wb_ports_clk3-1]),
+	    .sdram_fifo_flag(fifo_flag[3][0:nr_of_wb_ports_clk3-1]),
             .sdram_fifo_rd_adr(fifo_rd_adr),
             .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[3][0:nr_of_wb_ports_clk3-1]),
@@ -1929,9 +2003,11 @@ module versatile_mem_ctrl_top
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk3 < 16) begin
             assign fifo_empty[3][nr_of_wb_ports_clk3:15] = {(16-nr_of_wb_ports_clk3){1'b1}};
+	    assign fifo_flag[3][nr_of_wb_ports_clk3:15] = {(16-nr_of_wb_ports_clk3){1'b0}};
          end
       end else begin
          assign fifo_empty[3] = {16{1'b1}};
+         assign fifo_flag[3 ] = {16{1'b0}};
          assign fifo_dat_o[3] = {36{1'b0}};
       end
    endgenerate
@@ -2146,35 +2222,44 @@ module versatile_mem_ctrl_top
             
             
             
-   
-   
        
        
-   
             
-     
       
-   
       
-   
            
-
-    
-    
-      
-   
-     
-     
-     
-     
-         
-    
+           
+           
        
+      
+            
+       
+             
+            
+      
+       
+      
+       
+             
+    	        
    
       
+   
+    
+      
+      
+      
+      
+      
+
          
-       
+      
          
+     
+        
+	   
+         
+	   
 
    
     
@@ -2202,7 +2287,62 @@ module versatile_mem_ctrl_top
       
       
       
+      
+      
+      
+      
 
+   
+         
+   
+   
+          
+	    
+	      
+      
+   
+	
+      
+      
+             
+        
+
+         
+      
+        
+	  
+	        
+	 
+	        
+       
+	        
+     
+                
+
+   
+      
+
+   
+         
+       
+	  
+	  
+	  
+	  
+       
+	 
+	    
+	  
+	    
+     
+   
+   
+          
+           
+   
+        
+   
+   
     
      
       
@@ -2248,8 +2388,6 @@ module versatile_mem_ctrl_top
      
         
            
-   
-   
 
    
          
@@ -2262,6 +2400,8 @@ module versatile_mem_ctrl_top
      
     
      
+     
+      
       
       
       
@@ -2311,6 +2451,16 @@ module versatile_mem_ctrl_top
       
       
       
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2322,26 +2472,27 @@ module versatile_mem_ctrl_top
     
    
              
-
            
         
          
-         
-         
-         
-         
-       
+	 
+          
+          
+          
+          
+	  
      
     
          
       
        
        
-       
-       
-       
+	
+	
+	
+	
+	
      
-  
 
 
    
@@ -2390,10 +2541,11 @@ module versatile_mem_ctrl_top
       
       
       
+      
 
 
-`line 733 "versatile_mem_ctrl_top.v" 0
+`line 811 "versatile_mem_ctrl_top.v" 0
  //  `ifdef DDR_16
    
 endmodule // wb_sdram_ctrl_top
-`line 736 "versatile_mem_ctrl_top.v" 2
+`line 814 "versatile_mem_ctrl_top.v" 2

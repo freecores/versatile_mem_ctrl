@@ -432,6 +432,11 @@ module versatile_mem_ctrl_ddr (
   // Assign outport
   assign dq_io = dq_en ? dq_o : {16{1'bz}};
 
+  // DQS strobe
+  assign dqs_io   = dq_en ? dqs_o   : {2{1'bz}};
+  assign dqs_n_io = dq_en ? dqs_n_o : {2{1'bz}};
+  
+
   // Data mask
   // Data mask from Tx FIFO
   assign dqm_tx = dqm_en ? {4{1'b0}} : tx_dat_i[3:0];

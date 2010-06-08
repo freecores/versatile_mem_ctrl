@@ -103,6 +103,7 @@ module versatile_mem_ctrl_top
    input 			       sdram_clk, sdram_rst;
 
    wire [0:15] 			       fifo_empty[0:3];
+   wire [0:15] 			       fifo_flag[0:3];
    wire 			       current_fifo_empty;
    wire [0:15] 			       fifo_re[0:3];
    wire [35:0] 			       fifo_dat_o[0:3];
@@ -142,6 +143,7 @@ module versatile_mem_ctrl_top
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[0]),
             .sdram_fifo_empty(fifo_empty[0][0:nr_of_wb_ports_clk0-1]),
+	    .sdram_fifo_flag(fifo_flag[0][0:nr_of_wb_ports_clk0-1]),
             .sdram_fifo_rd_adr(fifo_rd_adr),
             .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[0][0:nr_of_wb_ports_clk0-1]),
@@ -154,6 +156,7 @@ module versatile_mem_ctrl_top
       end
       if (nr_of_wb_ports_clk0 < 16) begin
          assign fifo_empty[0][nr_of_wb_ports_clk0:15] = {(16-nr_of_wb_ports_clk0){1'b1}};
+	 assign fifo_flag[0][nr_of_wb_ports_clk0:15] = {(16-nr_of_wb_ports_clk0){1'b0}};
       end
    endgenerate
 
@@ -175,6 +178,7 @@ module versatile_mem_ctrl_top
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[1]),
             .sdram_fifo_empty(fifo_empty[1][0:nr_of_wb_ports_clk1-1]),
+	    .sdram_fifo_flag(fifo_flag[1][0:nr_of_wb_ports_clk1-1]),
             .sdram_fifo_rd_adr(fifo_rd_adr),
             .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[1][0:nr_of_wb_ports_clk1-1]),
@@ -186,9 +190,11 @@ module versatile_mem_ctrl_top
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk1 < 16) begin
             assign fifo_empty[1][nr_of_wb_ports_clk1:15] = {(16-nr_of_wb_ports_clk1){1'b1}};
+	    assign fifo_flag[1][nr_of_wb_ports_clk1:15] = {(16-nr_of_wb_ports_clk1){1'b0}};
          end
       end else begin
          assign fifo_empty[1] = {16{1'b1}};
+         assign fifo_flag[1]  = {16{1'b0}};
          assign fifo_dat_o[1] = {36{1'b0}};
       end
    endgenerate
@@ -211,6 +217,7 @@ module versatile_mem_ctrl_top
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[2]),
             .sdram_fifo_empty(fifo_empty[2][0:nr_of_wb_ports_clk2-1]),
+	    .sdram_fifo_flag(fifo_flag[2][0:nr_of_wb_ports_clk2-1]),
             .sdram_fifo_rd_adr(fifo_rd_adr),
             .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[2][0:nr_of_wb_ports_clk2-1]),
@@ -222,9 +229,11 @@ module versatile_mem_ctrl_top
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk2 < 16) begin
             assign fifo_empty[2][nr_of_wb_ports_clk2:15] = {(16-nr_of_wb_ports_clk2){1'b1}};
+	    assign fifo_flag[2][nr_of_wb_ports_clk2:15] = {(16-nr_of_wb_ports_clk2){1'b0}};
          end
       end else begin
          assign fifo_empty[2] = {16{1'b1}};
+         assign fifo_flag[2]  = {16{1'b0}};
          assign fifo_dat_o[2] = {36{1'b0}};
       end
    endgenerate
@@ -247,6 +256,7 @@ module versatile_mem_ctrl_top
             // SDRAM controller interface
             .sdram_dat_o(fifo_dat_o[3]),
             .sdram_fifo_empty(fifo_empty[3][0:nr_of_wb_ports_clk3-1]),
+	    .sdram_fifo_flag(fifo_flag[3][0:nr_of_wb_ports_clk3-1]),
             .sdram_fifo_rd_adr(fifo_rd_adr),
             .sdram_fifo_rd_data(fifo_rd_data),
             .sdram_fifo_re(fifo_re[3][0:nr_of_wb_ports_clk3-1]),
@@ -258,9 +268,11 @@ module versatile_mem_ctrl_top
             .sdram_rst(sdram_rst) );
          if (nr_of_wb_ports_clk3 < 16) begin
             assign fifo_empty[3][nr_of_wb_ports_clk3:15] = {(16-nr_of_wb_ports_clk3){1'b1}};
+	    assign fifo_flag[3][nr_of_wb_ports_clk3:15] = {(16-nr_of_wb_ports_clk3){1'b0}};
          end
       end else begin
          assign fifo_empty[3] = {16{1'b1}};
+         assign fifo_flag[3 ] = {16{1'b0}};
          assign fifo_dat_o[3] = {36{1'b0}};
       end
    endgenerate
@@ -457,53 +469,62 @@ module versatile_mem_ctrl_top
    reg         cke, ras, cas, we, cs_n;
    wire        cke_d, ras_d, cas_d, we_d, cs_n_d;
    wire        ras_o, cas_o, we_o, cs_n_o;
-   wire [1:0]  ba_o;
+   wire  [1:0] ba_o;
    wire [12:0] addr_o;
-   reg  [1:0]  ba;
-   wire [1:0]  ba_d;
-   reg [12:0]  addr;
+   reg   [1:0] ba;
+   wire  [1:0] ba_d;
+   reg  [12:0] addr;
    wire [12:0] addr_d;
    wire        dq_en, dqm_en;
-   reg [15:0]  dq_tx_reg;
+   reg  [15:0] dq_tx_reg;
    wire [15:0] dq_tx;
-   reg [31:0]  dq_rx_reg;
+   reg  [31:0] dq_rx_reg;
    wire [31:0] dq_rx;
    wire [15:0] dq_o;
-   reg [3:0]   dqm_tx_reg;
-   wire [3:0]  dqm_tx;
-   wire [1:0]  dqm_o, dqs_o, dqs_n_o;
+   reg   [3:0] dqm_tx_reg;
+   wire  [3:0] dqm_tx;
+   wire  [1:0] dqm_o, dqs_o, dqs_n_o;
    wire        ref_delay, ref_delay_ack;
    wire        bl_en, bl_ack;
    wire        tx_fifo_re, tx_fifo_re_i;
-   //wire        adr_init_delay;
-   //reg         adr_init_delay_i;
-   reg [3:0]   burst_cnt;
-   wire [3:0]  burst_next_cnt, burst_length;
-   //wire        burst_mask;
+   reg   [3:0] burst_cnt;
+   wire  [3:0] burst_next_cnt, burst_length;
    reg         burst_mask;
-   wire [12:0] cur_row;
    wire  [3:0] burst_adr;
-   //wire  [2:0] tx_fifo_b_sel_i_cur;
    wire  [2:0] rx_fifo_a_sel_i;
-   //wire  [7:0] tx_fifo_empty;
    wire        rx_fifo_we;
-
-   wire ref_cnt_zero;
-   wire cmd_aref;
+   wire        ref_cnt_zero;
+   wire        cmd_aref;
+   reg   [4:0] fill_0;
+   wire  [1:0] bte_i;
+   reg         stall;
+   wire [0:63] fifo_re_vec, fifo_flag_vec, stall_vec;
+   wire        write_i, burst_avail, burst;
+   wire        open_cur_row, close_cur_row;
+   wire [12:0] open_row_i, next_row;
+   wire  [1:0] open_bank_i, next_bank;
+   reg  [12:0] open_row[0:3];
+   reg   [3:0] open_ba;
+   wire        next_row_open, current_bank_closed, current_row_open;
+   reg 	       current_bank_closed_reg, current_row_open_reg;
+   
       
    // refresh counter
-   ref_counter ref_counter0( 
-     .zq(ref_cnt_zero),
-     .rst(sdram_rst),
-     .clk(sdram_clk));
+   ref_counter ref_counter0
+     ( 
+      .zq(ref_cnt_zero),
+      .rst(sdram_rst),
+      .clk(sdram_clk)
+      );
+
    always @ (posedge sdram_clk or posedge sdram_rst)
-   if (sdram_rst)
-     refresh_req <= 1'b0;
-   else
-     if (ref_cnt_zero)
-       refresh_req <= 1'b1;
-     else if (cmd_aref)
+     if (sdram_rst)
        refresh_req <= 1'b0;
+     else
+       if (ref_cnt_zero)
+	 refresh_req <= 1'b1;
+       else if (cmd_aref)
+	 refresh_req <= 1'b0;
 
    // DDR SDRAM 16 FSM
    ddr_16 ddr_16_0
@@ -514,7 +535,7 @@ module versatile_mem_ctrl_top
       .tx_fifo_dat_o(fifo_dat_o[fifo_sel_domain_reg]),
       .burst_adr(burst_adr),
       .fifo_empty(current_fifo_empty),
-      .fifo_sel(),
+      .stall(stall),
       .read(read),
       .write(write),
       .ref_req(refresh_req),
@@ -527,11 +548,66 @@ module versatile_mem_ctrl_top
       .a({ba_o,addr_o}),
       .cmd({ras_o,cas_o,we_o}),
       .cs_n(cs_n_o),
-      .cur_row(cur_row),
+      .open_ba(open_bank_i),
+      .open_row(open_row_i),
+      .open_cur_row(open_cur_row),
+      .close_cur_row(close_cur_row),
+      .next_row_open(next_row_open),
       .clk(sdram_clk_0),
       .rst(sdram_rst)
       );
 
+   // Check if a burst is available in FIFO
+   genvar      j;
+   
+   generate
+      for (j=0;j<4;j=j+1) begin : array_to_vector
+	 assign fifo_flag_vec[(j*16):(j*16+15)] = fifo_flag[j];
+	 assign fifo_re_vec[(j*16):(j*16+15)]   = fifo_re[j];
+      end
+   endgenerate
+	
+   assign write_i = fifo_dat_o[fifo_sel_domain_reg][5];
+   assign bte_i = fifo_dat_o[fifo_sel_domain_reg][4:3];
+   assign burst = (bte_i == 2'b01) ? 1'b1 : 1'b0; 
+   assign burst_avail = |(fifo_flag_vec & fifo_re_vec);
+
+   always @ (write_i or burst or burst_avail)
+     if (write_i)
+       if (burst)
+	 if (burst_avail)
+	   stall <= 1'b0;   // burst write, with burst in FIFO
+	 else
+	   stall <= 1'b1;   // burst write, no burst in FIFO
+       else
+	 stall <= 1'b0;     // single wite
+     else
+       stall <= 1'b0;       // read (single or burst)
+
+   // sdram_clock is faster than wb_clk
+   assign burst_reading = 1'b0;
+
+   // Keep track of open row in banks
+   always @ (posedge sdram_clk or posedge sdram_rst)
+     if (sdram_rst) begin
+	open_row[0] <= 13'b0;
+	open_row[1] <= 13'b0;
+	open_row[2] <= 13'b0;
+	open_row[3] <= 13'b0;
+     end else begin
+	if (open_cur_row)
+	  open_row[open_bank_i] <= open_row_i;
+	else if (close_cur_row)
+	  open_row[open_bank_i] <= 13'b0;
+     end
+   
+   // Bank and row of next read/write operation
+   assign next_bank     = fifo_dat_o[fifo_sel_domain_reg][28:27];
+   assign next_row      = fifo_dat_o[fifo_sel_domain_reg][26:14];
+   // Check if next row is open
+   assign next_row_open = (next_row == open_row[next_bank]);
+   
+   // Calculate the address
    inc_adr inc_adr0
      (
       .adr_i(fifo_dat_o[fifo_sel_domain_reg][9:6]),
@@ -577,8 +653,6 @@ module versatile_mem_ctrl_top
      else
        if (bl_en)
          burst_cnt <= burst_next_cnt;
-   // Burst Mask
-   //assign burst_mask = (burst_cnt >= burst_length) ? 1'b1 : 1'b0;
 
    // Burst Mask
    always @ (posedge sdram_clk_0 or posedge sdram_rst)
@@ -587,14 +661,16 @@ module versatile_mem_ctrl_top
      else
        burst_mask <= (burst_cnt >= burst_length) ? 1'b1 : 1'b0;
 
-   // Delay address and control to compensate for delay in Tx FIOFs
+   // Delay address and control to compensate for delay in TxFIOFs
    defparam delay0.depth=3; 
    defparam delay0.width=20;
-   delay delay0 (
+   delay delay0 
+     (
       .d({cs_n_o,1'b1,ras_o,cas_o,we_o,ba_o,addr_o}),
       .q({cs_n_d,cke_d,ras_d,cas_d,we_d,ba_d,addr_d}),
       .clk(sdram_clk_180),
-      .rst(sdram_rst));
+      .rst(sdram_rst)
+      );
 
    // Assing outputs
    // Non-DDR outputs
@@ -661,26 +737,27 @@ module versatile_mem_ctrl_top
    genvar i;
    generate
      for (i=0; i < 16; i=i+1) begin : dly
-
        defparam delay4.depth=`CL+2;   
        defparam delay4.width=1;
-       delay delay4 (
-         .d(fifo_sel_reg[i]),
-         .q(fifo_sel_dly[i]),
-         .clk(sdram_clk),
-         .rst(sdram_rst)
-       );
+       delay delay4 
+	 (
+          .d(fifo_sel_reg[i]),
+          .q(fifo_sel_dly[i]),
+          .clk(sdram_clk),
+          .rst(sdram_rst)
+	  );
      end
     
      defparam delay5.depth=`CL+2;   
      defparam delay5.width=2;
-     delay delay5 (
-       .d(fifo_sel_domain_reg),
-       .q(fifo_sel_domain_dly),
-       .clk(sdram_clk),
-       .rst(sdram_rst)
-     );
-endgenerate  
+     delay delay5 
+       (
+	.d(fifo_sel_domain_reg),
+	.q(fifo_sel_domain_dly),
+	.clk(sdram_clk),
+	.rst(sdram_rst)
+	);
+   endgenerate  
 
 
    // Increment address
@@ -728,7 +805,8 @@ endgenerate
       .clk_0(sdram_clk_0),
       .clk_90(sdram_clk_90),
       .clk_180(sdram_clk_180),
-      .clk_270(sdram_clk_270));
+      .clk_270(sdram_clk_270)
+      );
 
 `endif //  `ifdef DDR_16
    
