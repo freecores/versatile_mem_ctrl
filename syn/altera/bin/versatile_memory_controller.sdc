@@ -69,6 +69,9 @@ set sdram_clk_period $tCK
 create_clock -name {wb_clk[*]} -period $wb_clk_period    [get_ports {wb_clk[*]}]
 create_clock -name {sdram_clk} -period $sdram_clk_period [get_ports {sdram_clk}]
 
+# DQS used as clock
+#create_clock -name {dqs_n_pad_io[0]} -period $sdram_clk_period [get_ports {dqs_n_pad_io[0]}]
+
 # Virtual clocks
 #create_clock -name {v_wb_clk_in}     -period $wb_clk_period 
 #create_clock -name {v_wb_clk_out}    -period $wb_clk_period 
