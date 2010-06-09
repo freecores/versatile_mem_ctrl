@@ -250,7 +250,7 @@ module versatile_mem_ctrl_ddr (
 `endif   // INT_CLOCKED_DATA_CAPTURE
 
 
-`ifdef DEL_DQS_DATA_CAPTURE_1
+`ifdef DQS_DATA_CAPTURE
 
   wire  [1:0] dqs_iodelay, dqs_n_iodelay;
 
@@ -288,119 +288,7 @@ module versatile_mem_ctrl_ddr (
 
   assign rx_dat_o = dq_rx_reg;
   
-`endif   // DEL_DQS_DATA_CAPTURE_1
-
-
-`ifdef DEL_DQS_DATA_CAPTURE_2
-
-  wire [15:0] dq_iodelay;
-  wire  [1:0] dqs_iodelay, dqs_n_iodelay;
-  wire [15:0] dq_iddr_fall, dq_iddr_rise;
-  reg  [15:0] dq_fall_1, dq_rise_1;
-  reg  [15:0] dq_fall_2, dq_rise_2;
-  reg  [15:0] dq_fall_3, dq_rise_3;
-
-
-  // Delay data
-  // IODELAY is available in the Xilinx Virtex FPGAs
-  /*IODELAY # (
-    .DELAY_SRC(),
-    .IDELAY_TYPE(),
-    .HIGH_PERFORMANCE_MODE(),
-    .IDELAY_VALUE(),
-    .ODELAY_VALUE())
-   u_idelay_dq (
-      .DATAOUT(),
-      .C(),
-      .CE(),
-      .DATAIN(),
-      .IDATAIN(),
-      .INC(),
-      .ODATAIN(),
-      .RST(),
-      .T());*/
-  // IODELAY is NOT available in the Xilinx Spartan FPGAs, 
-  // equivalent delay can be implemented using a chain of LUT
-  /*lut_delay lut_delay_dq (
-    .clk_i(),
-    .d_i(dq_iobuf),
-    .d_o(dq_iodelay));*/
-
-  // IDDR FF
-  generate
-    for (i=0; i<16; i=i+1) begin:iddr_dq
-      ddr_ff_in ddr_ff_in_inst_0 (
-        .Q0(dq_iddr_fall[i]), 
-        .Q1(dq_iddr_rise[i]), 
-        .C0(dqs_iodelay[0]), 
-        .C1(dqs_n_iodelay[0]),
-        .CE(1'b1), 
-        .D(dq_iobuf[i]),
-        .R(rst),  
-        .S(1'b0));
-    end
-  endgenerate
-   
-  // Rise & fall clocked FF
-  always @ (posedge clk_0 or posedge rst)
-    if (rst) begin
-      dq_fall_1 <= 16'h0;
-      dq_rise_1 <= 16'h0;
-    end else begin
-      dq_fall_1 <= dq_iddr_fall;
-      dq_rise_1 <= dq_iddr_rise;
-    end
-
-  always @ (posedge clk_180 or posedge rst)
-    if (rst) begin
-      dq_fall_2 <= 16'h0;
-      dq_rise_2 <= 16'h0;
-    end else begin
-      dq_fall_2 <= dq_iddr_fall;
-      dq_rise_2 <= dq_iddr_rise;
-    end
-   
-  // Fall sync FF
-  always @ (posedge clk_0 or posedge rst)
-    if (rst) begin
-      dq_fall_3 <= 16'h0;
-      dq_rise_3 <= 16'h0;
-    end else begin
-      dq_fall_3 <= dq_fall_2;
-      dq_rise_3 <= dq_rise_2;
-    end
-  
-  // Mux
-  assign rx_dat_o[31:16] = dq_fall_1;
-  assign rx_dat_o[15:0]  = dq_rise_1;
-
-  // DDR DQS to IODUFDS
-  // Delay DQS
-  // IODELAY is NOT available in the Xilinx Spartan FPGAs, 
-  // equivalent delay can be implemented using a chain of LUTs
-/*
-  generate
-    for (i=0; i<2; i=i+1) begin:lut_delay_dqs
-      lut_delay lut_delay_dqs (
-        .d_i(dqs_iobuf[i]),
-        .d_o(dqs_iodelay[i]));
-    end
-  endgenerate
-  generate
-    for (i=0; i<2; i=i+1) begin:lut_delay_dqs_n
-      lut_delay lut_delay_dqs_n (
-        .d_i(dqs_n_iobuf[i]),
-        .d_o(dqs_n_iodelay[i]));
-    end
-  endgenerate
-*/
-
-  assign # 2 dqs_iodelay   = dqs_iobuf;
-  assign # 2 dqs_n_iodelay = dqs_n_iobuf;
-  
-
-  // BUFIO (?)
-`endif   // DEL_DQS_DATA_CAPTURE_2
+`endif   // DQS_DATA_CAPTURE
 
 `endif   // XILINX
 
@@ -487,25 +375,42 @@ module versatile_mem_ctrl_ddr (
   assign rx_dat_o = dq_rx_reg;
 `endif   // INT_CLOCKED_DATA_CAPTURE
 
-`ifdef DEL_DQS_DATA_CAPTURE_1
-   // Delay DQS
-   // DDR FF
-`endif   // DEL_DQS_DATA_CAPTURE_1
+   
+`ifdef DQS_DATA_CAPTURE
 
-`ifdef DEL_DQS_DATA_CAPTURE_2
-   // DDR data to IOBUFFER
-   // Delay data (?)
-   // DDR FF
-   // Rise & fall clocked FF
-   // Fall sync FF
-   // Mux
-   // DDR DQS to IODUFDS
-   // Delay DQS
-   // BUFIO (?)
-`endif   // DEL_DQS_DATA_CAPTURE_2
+  wire  [1:0] dqs_iodelay, dqs_n_iodelay;
+
+  // Delay DQS
+  assign # 2 dqs_iodelay   = dqs_io;
+  assign # 2 dqs_n_iodelay = dqs_n_io;
+
+  // IDDR FF
+  generate
+    for (i=0; i<16; i=i+1) begin:iddr_dq
+      ddr_ff_in ddr_ff_in_inst_0 (
+        .Q0(dq_rx[i]), 
+        .Q1(dq_rx[i+16]), 
+        .C0(dqs_n_iodelay[0]), 
+        .C1(dqs_iodelay[0]), 
+        .CE(1'b1), 
+        .D(dq_io[i]),
+        .R(rst),  
+        .S(1'b0));
+    end
+  endgenerate
+
+  // Data to Rx FIFO
+  always @ (posedge clk_180 or posedge rst)
+    if (rst)
+      dq_rx_reg <= 32'h0;
+    else
+      dq_rx_reg <= dq_rx;
+
+  assign rx_dat_o = dq_rx_reg;
+
+`endif   // DQS_DATA_CAPTURE
 
 `endif   // ALTERA
-
 
 endmodule   // versatile_mem_ctrl_ddr
 

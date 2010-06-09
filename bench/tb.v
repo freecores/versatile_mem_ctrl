@@ -321,8 +321,8 @@ ddr2 ddr2_sdram
      begin
 	#0 sdram_clk = 1'b0;
 	forever
-	  //#4 sdram_clk = !sdram_clk;   // 125 MHz
-	  #5 sdram_clk = !sdram_clk;   // 100 MHz
+	  #4 sdram_clk = !sdram_clk;   // 125 MHz
+	  //#5 sdram_clk = !sdram_clk;   // 100 MHz
      end
    
 endmodule // versatile_mem_ctrl_tb

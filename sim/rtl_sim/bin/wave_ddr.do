@@ -133,45 +133,44 @@ add wave -noupdate -group {TX FIFO (Egress FIFO)} -expand -group {Tx FIFO 1} -ex
 add wave -noupdate -group {TX FIFO (Egress FIFO)} -expand -group {Tx FIFO 1} -expand -group FIFO_1_0 -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/dpram/ram[2]}
 add wave -noupdate -group {TX FIFO (Egress FIFO)} -expand -group {Tx FIFO 1} -expand -group FIFO_1_0 -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/dpram/ram[1]}
 add wave -noupdate -group {TX FIFO (Egress FIFO)} -expand -group {Tx FIFO 1} -expand -group FIFO_1_0 -format Literal -radix hexadecimal {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/dpram/ram[0]}
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/rst
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/clk
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -divider State
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal -radix ascii /versatile_mem_ctrl_tb/dut/ddr_16_0/statename
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -divider Input
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/bl_ack
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/ddr_16_0/burst_adr
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/fifo_empty
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/fifo_re_d
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/ddr_16_0/fifo_sel
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/next_row_open
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/ref_delay_ack
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/ref_req
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/stall
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic -radix hexadecimal {/versatile_mem_ctrl_tb/dut/ddr_16_0/tx_fifo_dat_o[5]}
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/ddr_16_0/tx_fifo_dat_o
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -divider Output
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/ddr_16_0/a
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/adr_init
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/bl_en
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/close_cur_row
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/ddr_16_0/cmd
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/cs_n
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/fifo_re
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/ddr_16_0/open_ba
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/open_cur_row
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/ddr_16_0/open_row
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/read
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/ref_ack
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/ref_delay
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/state_idle
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/write
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -divider {Other usefull signals (Non-FSM)}
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/fifo_sel_domain_reg
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/fifo_dat_o
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/state_idle
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/tx_fifo_re_i
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/tx_fifo_re
-add wave -noupdate -expand -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/burst_mask
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/rst
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/clk
+add wave -noupdate -group {MAIN STATE MACHINE} -divider State
+add wave -noupdate -group {MAIN STATE MACHINE} -format Literal -radix ascii /versatile_mem_ctrl_tb/dut/ddr_16_0/statename
+add wave -noupdate -group {MAIN STATE MACHINE} -divider Input
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/bl_ack
+add wave -noupdate -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/ddr_16_0/burst_adr
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/fifo_empty
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/fifo_re_d
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/next_row_open
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/ref_delay_ack
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/ref_req
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/stall
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic -radix hexadecimal {/versatile_mem_ctrl_tb/dut/ddr_16_0/tx_fifo_dat_o[5]}
+add wave -noupdate -group {MAIN STATE MACHINE} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/ddr_16_0/tx_fifo_dat_o
+add wave -noupdate -group {MAIN STATE MACHINE} -divider Output
+add wave -noupdate -group {MAIN STATE MACHINE} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/ddr_16_0/a
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/adr_init
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/bl_en
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/close_cur_row
+add wave -noupdate -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/ddr_16_0/cmd
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/cs_n
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/fifo_re
+add wave -noupdate -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/ddr_16_0/open_ba
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/open_cur_row
+add wave -noupdate -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/ddr_16_0/open_row
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/read
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/ref_ack
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/ref_delay
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/state_idle
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/write
+add wave -noupdate -group {MAIN STATE MACHINE} -divider {Other usefull signals (Non-FSM)}
+add wave -noupdate -group {MAIN STATE MACHINE} -format Literal /versatile_mem_ctrl_tb/dut/fifo_sel_domain_reg
+add wave -noupdate -group {MAIN STATE MACHINE} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/fifo_dat_o
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/ddr_16_0/state_idle
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/tx_fifo_re_i
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/tx_fifo_re
+add wave -noupdate -group {MAIN STATE MACHINE} -format Logic /versatile_mem_ctrl_tb/dut/burst_mask
 add wave -noupdate -group {BURST ADDRESS} -divider State
 add wave -noupdate -group {BURST ADDRESS} -format Literal -radix ascii /versatile_mem_ctrl_tb/dut/ddr_16_0/statename
 add wave -noupdate -group {BURST ADDRESS} -divider {Burst Address}
@@ -298,7 +297,6 @@ add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/ras
 add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/cas_pad_o
 add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/we_pad_o
 add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/odt_pad_o
-add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/wb_rst
 add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/dq_en
 add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/dqm_en
 add wave -noupdate -group {DDR2 IF} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/tx_dat_i
@@ -314,27 +312,27 @@ add wave -noupdate -group {OPEN BANKS & ROWS} -format Literal /versatile_mem_ctr
 add wave -noupdate -group {OPEN BANKS & ROWS} -format Literal /versatile_mem_ctrl_tb/dut/next_row
 add wave -noupdate -group {OPEN BANKS & ROWS} -format Literal /versatile_mem_ctrl_tb/dut/next_bank
 add wave -noupdate -group {OPEN BANKS & ROWS} -format Logic /versatile_mem_ctrl_tb/dut/next_row_open
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -divider FIFO_0_1
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -divider FIFO_0_0
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/wptr_bin}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/rptr_bin}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/ptr_diff}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/fifo_empty}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/fifo_full}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/fifo_flag}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -divider FIFO_1_1
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -divider FIFO_1_0
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/wptr_bin}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/rptr_bin}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/ptr_diff}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/fifo_empty}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/fifo_full}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/fifo_flag}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -divider {FIFO Flags on top-level}
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/fifo_empty
-add wave -noupdate -expand -group {FIFO Pointers & Flags} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/fifo_flag
+add wave -noupdate -group {FIFO Pointers & Flags} -divider FIFO_0_1
+add wave -noupdate -group {FIFO Pointers & Flags} -divider FIFO_0_0
+add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/wptr_bin}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/rptr_bin}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/ptr_diff}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/fifo_empty}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/fifo_full}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk1/wb0/egress_FIFO/fifo_adr[0]/egresscmp/fifo_flag}
+add wave -noupdate -group {FIFO Pointers & Flags} -divider FIFO_1_1
+add wave -noupdate -group {FIFO Pointers & Flags} -divider FIFO_1_0
+add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/wptr_bin}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/rptr_bin}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix unsigned {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/ptr_diff}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/fifo_empty}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/fifo_full}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_ctrl_tb/dut/genblk3/wb1/egress_FIFO/fifo_adr[0]/egresscmp/fifo_flag}
+add wave -noupdate -group {FIFO Pointers & Flags} -divider {FIFO Flags on top-level}
+add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/fifo_empty
+add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/fifo_flag
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {300596000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {301340000 ps} 0}
 configure wave -namecolwidth 441
 configure wave -valuecolwidth 151
 configure wave -justifyvalue left
@@ -349,4 +347,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {300581153 ps} {300790631 ps}
+WaveRestoreZoom {300901312 ps} {301778688 ps}

@@ -308,7 +308,7 @@ module versatile_fifo_async_cmp ( wptr, rptr, fifo_empty, fifo_full, fifo_flag, 
 
 
    // Write-domain to read-domain synchronizer
-   always @ (posedge wclk or posedge rst)
+   always @ (posedge rclk or posedge rst)
      if (rst)
        {wptr2,wptr1} <= {4'b0000,4'b0000};
      else
