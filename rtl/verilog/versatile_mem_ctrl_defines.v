@@ -4,8 +4,8 @@
 //`define GENERIC_PRIMITIVES
 //`define SDR_16
 `define DDR_16
-//`define INT_CLOCKED_DATA_CAPTURE
-`define DQS_DATA_CAPTURE
+`define INT_CLOCKED_DATA_CAPTURE
+//`define DQS_DATA_CAPTURE
 
 `define PORT0
 `define PORT1
