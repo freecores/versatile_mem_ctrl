@@ -2713,6 +2713,7 @@ module dcm_pll
    wire [0:0] sub_wire1 = sub_wire0[0:0];
    wire       sub_wire6 = clk_in;
    wire [1:0] sub_wire7 = {sub_wire8, sub_wire6};
+   wire       clk_fb;
 
    assign clk0_out   = sub_wire1;	
    assign clk90_out  = sub_wire2;	
@@ -2744,7 +2745,6 @@ module dcm_pll
      .lpm_hint("UNUSED"),
      .lpm_type("altpll"),
      .operation_mode("NORMAL"),
-//   .operation_mode("SOURCE_SYNCHRONOUS"),
      .pll_type("AUTO"),
      .port_activeclock("PORT_UNUSED"),
      .port_areset("PORT_USED"),
@@ -2791,11 +2791,11 @@ module dcm_pll
      .using_fbmimicbidir_port("OFF"),
      .width_clock(10))
    altpll_internal (
-     .fbin (),//(clkfb_in),
+     .fbin (clkfb),
      .inclk (sub_wire7),
      .areset (rst),
      .clk (sub_wire0),
-     .fbout (),//(clkfb_out),
+     .fbout (clkfb),
      .activeclock (),
      .clkbad (),
      .clkena ({6{1'b1}}),

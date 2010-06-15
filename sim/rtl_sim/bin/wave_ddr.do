@@ -264,6 +264,7 @@ add wave -noupdate -group {BURST LENGTH} -format Literal -radix unsigned /versat
 add wave -noupdate -group {BURST LENGTH} -format Logic /versatile_mem_ctrl_tb/dut/burst_length_counter0/zq
 add wave -noupdate -group {DDR2 IF} -divider FSM
 add wave -noupdate -group {DDR2 IF} -format Literal -radix ascii /versatile_mem_ctrl_tb/dut/ddr_16_0/statename
+add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/sdram_clk_270
 add wave -noupdate -group {DDR2 IF} -divider {Controller side}
 add wave -noupdate -group {DDR2 IF} -divider {Clock & reset}
 add wave -noupdate -group {DDR2 IF} -format Logic /versatile_mem_ctrl_tb/dut/sdram_rst
@@ -331,8 +332,17 @@ add wave -noupdate -group {FIFO Pointers & Flags} -format Logic {/versatile_mem_
 add wave -noupdate -group {FIFO Pointers & Flags} -divider {FIFO Flags on top-level}
 add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/fifo_empty
 add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/fifo_flag
+add wave -noupdate -group {FIFO Pointers & Flags} -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/dq_rx
+add wave -noupdate -divider tmp
+add wave -noupdate -format Logic /versatile_mem_ctrl_tb/dut/ck_pad_o
+add wave -noupdate -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/dq_pad_io
+add wave -noupdate -format Logic /versatile_mem_ctrl_tb/dut/sdram_clk_270
+add wave -noupdate -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/dq_rx
+add wave -noupdate -format Logic /versatile_mem_ctrl_tb/dut/sdram_clk_180
+add wave -noupdate -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/versatile_mem_ctrl_ddr_0/dq_rx_reg
+add wave -noupdate -format Literal -radix hexadecimal /versatile_mem_ctrl_tb/dut/fifo_dat_i
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {301340000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {222981669 ps} 0}
 configure wave -namecolwidth 441
 configure wave -valuecolwidth 151
 configure wave -justifyvalue left
@@ -347,4 +357,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {300901312 ps} {301778688 ps}
+WaveRestoreZoom {0 ps} {346500 ns}

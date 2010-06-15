@@ -199,15 +199,15 @@ set_false_path -from [get_ports {wb_rst[*]}]
 # Input Timing Exceptions
 # False path exceptions for opposite-edge transfer
 # Data
-set_false_path -setup -fall_from [get_clocks ck_pad_o] -rise_to [get_clocks sdram_clk_270]
-set_false_path -setup -rise_from [get_clocks ck_pad_o] -fall_to [get_clocks sdram_clk_270]
-set_false_path -hold  -rise_from [get_clocks ck_pad_o] -fall_to [get_clocks sdram_clk_270]
-set_false_path -hold  -fall_from [get_clocks ck_pad_o] -rise_to [get_clocks sdram_clk_270]
+set_false_path -setup -fall_from [get_clocks ck_pad_o] -fall_to [get_clocks sdram_clk_270]
+set_false_path -setup -rise_from [get_clocks ck_pad_o] -rise_to [get_clocks sdram_clk_270]
+set_false_path -hold  -rise_from [get_clocks ck_pad_o] -rise_to [get_clocks sdram_clk_270]
+set_false_path -hold  -fall_from [get_clocks ck_pad_o] -fall_to [get_clocks sdram_clk_270]
 # Data Strobe
-#set_false_path -setup -fall_from [get_clocks ck_pad_o] -rise_to [get_clocks sdram_clk_0]
-#set_false_path -setup -rise_from [get_clocks ck_pad_o] -fall_to [get_clocks sdram_clk_0]
-#set_false_path -hold  -rise_from [get_clocks ck_pad_o] -fall_to [get_clocks sdram_clk_0]
-#set_false_path -hold  -fall_from [get_clocks ck_pad_o] -rise_to [get_clocks sdram_clk_0]
+#set_false_path -setup -fall_from [get_clocks ck_pad_o] -fall_to [get_clocks sdram_clk_0]
+#set_false_path -setup -rise_from [get_clocks ck_pad_o] -rise_to [get_clocks sdram_clk_0]
+#set_false_path -hold  -rise_from [get_clocks ck_pad_o] -rise_to [get_clocks sdram_clk_0]
+#set_false_path -hold  -fall_from [get_clocks ck_pad_o] -fall_to [get_clocks sdram_clk_0]
 
 # Output Timing Exceptions
 # False path exceptions for opposite-edge transfer
