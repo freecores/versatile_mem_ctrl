@@ -9,35 +9,28 @@ module versatile_mem_ctrl_tb
    reg 	       sdram_clk, sdram_rst;
    reg         tb_rst;
 
-   wire [31:0] wb0_dat_i;
-   wire [3:0]  wb0_sel_i;
-   wire [31:0] wb0_adr_i;
-   wire [2:0]  wb0_cti_i;
-   wire [1:0]  wb0_bte_i;
-   wire        wb0_cyc_i;
-   wire        wb0_stb_i;
-   wire [31:0] wb0_dat_o;
-   wire        wb0_ack_o;
+   wire [31:0] wbm_dat_i [1:nr_of_wbm];
+   wire [3:0]  wbm_sel_i [1:nr_of_wbm];
+   wire [31:0] wbm_adr_i [1:nr_of_wbm];
+   wire [2:0]  wbm_cti_i [1:nr_of_wbm];
+   wire [1:0]  wbm_bte_i [1:nr_of_wbm];
+   wire        wbm_cyc_i [1:nr_of_wbm];
+   wire        wbm_stb_i [1:nr_of_wbm];
+   wire [31:0] wbm_dat_o [1:nr_of_wbm];
+   wire        wbm_ack_o [1:nr_of_wbm];
+   wire        wbm_clk   [1:nr_of_wbm];
+   wire        wbm_rst;
+
+   wire [31:0] wb_sdram_dat_i;
+   wire [3:0]  wb_sdram_sel_i;
+   wire [31:0] wb_sdram_adr_i;
+   wire [2:0]  wb_sdram_cti_i;
+   wire [1:0]  wb_sdram_bte_i;
+   wire        wb_sdram_cyc_i;
+   wire        wb_sdram_stb_i;
+   wire [31:0] wb_sdram_dat_o;
+   wire        wb_sdram_ack_o;
    
-   wire [31:0] wb1_dat_i;
-   wire [3:0]  wb1_sel_i;
-   wire [31:0] wb1_adr_i;
-   wire [2:0]  wb1_cti_i;
-   wire [1:0]  wb1_bte_i;
-   wire        wb1_cyc_i;
-   wire        wb1_stb_i;
-   wire [31:0] wb1_dat_o;
-   wire        wb1_ack_o;
-   
-   wire [31:0] wb4_dat_i;
-   wire [3:0]  wb4_sel_i;
-   wire [31:0] wb4_adr_i;
-   wire [2:0]  wb4_cti_i;
-   wire [1:0]  wb4_bte_i;
-   wire        wb4_cyc_i;
-   wire        wb4_stb_i;
-   wire [31:0] wb4_dat_o;
-   wire        wb4_ack_o;
 
    wire [1:0]  ba, bad;
    wire [12:0] a, ad;
@@ -312,8 +305,7 @@ ddr2 ddr2_sdram
      begin
 	#0 wb_clk = 1'b0;
 	forever
-	  //#200 wb_clk = !wb_clk;   // 2.5 MHz
-	  #20 wb_clk = !wb_clk;   // 25 MHz
+	  #(wb0_clk_period/2) wb_clk = !wb_clk;
      end
 
    // SDRAM clock
@@ -321,8 +313,7 @@ ddr2 ddr2_sdram
      begin
 	#0 sdram_clk = 1'b0;
 	forever
-	  #4 sdram_clk = !sdram_clk;   // 125 MHz
-	  //#5 sdram_clk = !sdram_clk;   // 100 MHz
+	  #(sdram_clk_period/2) sdram_clk = !sdram_clk;
      end
    
 endmodule // versatile_mem_ctrl_tb
