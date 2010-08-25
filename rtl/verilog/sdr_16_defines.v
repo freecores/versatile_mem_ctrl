@@ -11,6 +11,15 @@
 `define MT48LC16M16 // 32MB part
 //`define MT48LC4M16  //  8MB part
 
+
+// SDRAM clock frequency
+// set refresh counter timeout
+// all rows should be refreshed every 64 ms
+`define SDRAM_CLK_64
+//`define SDRAM_CLK_125
+//`define SDRAM_CLK_133
+//`define SDRAM_CLK_154
+
 // Define this to allow indication that a burst read is still going
 // to the wishbone state machine, so it doesn't start emptying the
 // ingress fifo after a aborted burst before the burst read is
