@@ -1,4 +1,5 @@
-module wbwb_bridge (
+`timescale 1ns/1ns
+module wbwb_bridge ( 
 	// wishbone slave side
 	wbs_dat_i, wbs_adr_i, wbs_sel_i, wbs_bte_i, wbs_cti_i, wbs_we_i, wbs_cyc_i, wbs_stb_i, wbs_dat_o, wbs_ack_o, wbs_clk, wbs_rst,
 	// wishbone master side
@@ -37,114 +38,168 @@ parameter classic      = 3'b000;
 parameter incburst     = 3'b010;
 parameter endofburst   = 3'b111;
 
-parameter adr  = 1'b0;
-parameter data = 1'b1;
+parameter wbs_adr  = 1'b0;
+parameter wbs_data = 1'b1;
 
-reg wbs_we_reg, wbs_bte_reg, wbs, wbm;
+parameter wbm_adr0 = 2'b00;
+parameter wbm_adr1 = 2'b01;
+parameter wbm_data = 2'b10;
+parameter wbm_wait = 2'b11;
+
+reg wbs_we_reg;
+reg [1:0] wbs_bte_reg;
+reg wbs;
+wire wbs_eoc_alert, wbm_eoc_alert;
+reg wbs_eoc, wbm_eoc;
+reg [1:0] wbm;
+
+reg [1:16] wbs_count, wbm_count;
+
 reg wbs_ack_o_rd;
 wire wbs_ack_o_wr;
 
 wire [35:0] a_d, a_q, b_d, b_q;
 wire a_wr, a_rd, a_fifo_full, a_fifo_empty, b_wr, b_rd, b_fifo_full, b_fifo_empty;
+reg a_rd_reg;
+wire b_rd_adr, b_rd_data;
+reg b_rd_data_reg;
+reg [35:0] temp;
 
-reg [1:16] count;
-reg count_zero;
+`define WE 5
+`define BTE 4:3
+`define CTI 2:0  
 
-`define WBS_EOC (wbs_bte_i==linear | wbs_cti_i==endofburst) & wbs_cyc_i & wbs_stb_i
+assign wbs_eoc_alert = (wbs_bte_reg==wrap4 & wbs_count[3]) | (wbs_bte_reg==wrap8 & wbs_count[7]) | (wbs_bte_reg==wrap16 & wbs_count[15]);
 always @ (posedge wbs_clk or posedge wbs_rst)
 if (wbs_rst)
-	wbs <= adr;
+	wbs_eoc <= 1'b0;
 else
-	if (wbs_cyc_i & wbs_stb_i & (wbs==adr) & !a_fifo_full)
-		wbs <= data;
-	else if ((`WBS_EOC & !a_fifo_full) & (a_rd | (wbs_stb_i & wbs_we_i)))
-		wbs <= adr;
+	if (wbs==wbs_adr & wbs_stb_i & !a_fifo_full)
+		wbs_eoc <= wbs_bte_i==linear;
+	else if (wbs_eoc_alert & (a_rd | a_wr))
+		wbs_eoc <= 1'b1;
+
+cnt_shreg_ce_clear # ( .length(16))
+    cnt0 (
+        .cke(wbs_ack_o),
+        .clear(wbs_eoc),
+        .q(wbs_count),
+        .rst(wbs_rst),
+        .clk(wbs_clk));
+
+always @ (posedge wbs_clk or posedge wbs_rst)
+if (wbs_rst)
+	wbs <= wbs_adr;
+else
+	if ((wbs==wbs_adr) & wbs_cyc_i & wbs_stb_i & !a_fifo_full)
+		wbs <= wbs_data;
+	else if (wbs_eoc & wbs_ack_o)
+		wbs <= wbs_adr;
 
 // wbs FIFO
-assign a_d = (wbs==adr) ? {wbs_adr_i[31:2],wbs_we_i,wbs_bte_i,wbs_cti_i} : {wbs_dat_i,wbs_sel_i};
-assign a_wr = ((wbs== adr) & wbs_cyc_i & wbs_stb_i & !a_fifo_full) ? 1'b1 :
-              ((wbs==data) & wbs_cyc_i & wbs_stb_i & !a_fifo_full & wbs_we_i) ? 1'b1 :
+assign a_d = (wbs==wbs_adr) ? {wbs_adr_i[31:2],wbs_we_i,wbs_bte_i,wbs_cti_i} : {wbs_dat_i,wbs_sel_i};
+assign a_wr = (wbs==wbs_adr)  ? wbs_cyc_i & wbs_stb_i & !a_fifo_full :
+              (wbs==wbs_data) ? wbs_we_i  & wbs_stb_i & !a_fifo_full :
               1'b0;
-assign wbs_dat_o = a_q[35:4];
 assign a_rd = !a_fifo_empty;
 always @ (posedge wbs_clk or posedge wbs_rst)
 if (wbs_rst)
-	wbs_ack_o_rd <= 1'b0;
+	a_rd_reg <= 1'b0;
 else
-	wbs_ack_o_rd <= a_rd;
+	a_rd_reg <= a_rd;
+assign wbs_ack_o = a_rd_reg | (a_wr & wbs==wbs_data);
+
+assign wbs_dat_o = a_q[35:4];
 	
 always @ (posedge wbs_clk or posedge wbs_rst)
 if (wbs_rst)
-	{wbs_we_reg,wbs_bte_reg} <= 2'b00;
+	{wbs_we_reg,wbs_bte_reg} <= {1'b0,2'b00};
 else
-	{wbs_we_reg,wbs_bte_reg} <= {wbs_we_i,|wbs_bte_i};
+	{wbs_we_reg,wbs_bte_reg} <= {wbs_we_i,wbs_bte_i};
 
-assign wbs_ack_o_wr = wbs==data & wbs_we_reg & wbs_stb_i;
-
-assign wbs_ack_o = wbs_ack_o_rd | wbs_ack_o_wr;	
 			
 // wbm FIFO
+assign wbm_eoc_alert = (wbm_bte_o==wrap4 & wbm_count[3]) | (wbm_bte_o==wrap8 & wbm_count[7]) | (wbm_bte_o==wrap16 & wbm_count[15]);
 always @ (posedge wbm_clk or posedge wbm_rst)
 if (wbm_rst)
-	wbm <= adr;
+	wbm_eoc <= 1'b0;
 else
-	if (!b_fifo_empty)
-		wbm <= data;
-	else if (wbm_ack_i & ((b_q[4:3]==wrap4 & count[3]) | (b_q[4:3]==wrap8 & count[7]) | (b_q[4:3]==wrap16 & count[15])))
-		wbm <= adr;
+	if (wbm==wbm_adr0 & !b_fifo_empty)
+		wbm_eoc <= b_q[`BTE] == linear;
+	else if (wbm_eoc_alert & wbm_ack_i)
+		wbm_eoc <= 1'b1;
+	
+always @ (posedge wbm_clk or posedge wbm_rst)
+if (wbm_rst)
+	wbm <= wbm_adr0;
+else
+	casex ({wbm,b_fifo_empty,wbm_we_o,wbm_ack_i,wbm_eoc}) //  ,b_q[`WE]
+	{wbm_adr0,1'b0,1'bx,1'bx,1'bx} : wbm <= wbm_adr1; // if write wait for !fifo_empty
+	{wbm_adr1,1'b0,1'b1,1'bx,1'bx} : wbm <= wbm_data; // if write wait for !fifo_empty
+	{wbm_adr1,1'bx,1'b0,1'bx,1'bx} : wbm <= wbm_data; // if read go ahead
+	{wbm_data,1'bx,1'bx,1'b1,1'b1} : wbm <= wbm_adr0; //
+	{wbm_wait,1'bx,1'bx,1'bx,1'bx} : wbm <= wbm_adr0;	
+	default : wbm <= wbm;
+	endcase
 assign b_d = {wbm_dat_i,4'b1111};
 assign b_wr = !wbm_we_o & wbm_ack_i;
-assign b_rd = (wbm==adr & !b_fifo_empty) ? 1'b1 :
-              (wbm==data & wbm_ack_i) ? 1'b1 :
-              1'b0;
+assign b_rd_adr  = (wbm==wbm_adr0 & !b_fifo_empty);
+assign b_rd_data = (wbm==wbm_adr1 & !b_fifo_empty & wbm_we_o) ? 1'b1 : // b_q[`WE]
+                   (wbm==wbm_data & !b_fifo_empty & wbm_we_o & wbm_ack_i & !wbm_eoc) ? 1'b1 :
+                   1'b0;
+assign b_rd = b_rd_adr | b_rd_data;
+
+dff dff1 ( .d(b_rd_data), .q(b_rd_data_reg), .clk(wbm_clk), .rst(wbm_rst));
+dff_ce # ( .width(36)) dff2 ( .d(b_q), .ce(b_rd_data_reg), .q(temp), .clk(wbm_clk), .rst(wbm_rst));
+
+assign {wbm_dat_o,wbm_sel_o} = (b_rd_data_reg) ? b_q : temp;
+
+cnt_shreg_ce_clear # ( .length(16))
+    cnt1 (
+        .cke(wbm_ack_i),
+        .clear(wbm_eoc),
+        .q(wbm_count),
+        .rst(wbm_rst),
+        .clk(wbm_clk));
+
+assign wbm_cyc_o = wbm==wbm_data;
+assign wbm_stb_o = (wbm==wbm_data & wbm_we_o) ? !b_fifo_empty : 
+                   (wbm==wbm_data) ? 1'b1 :
+                   1'b0;
+
 always @ (posedge wbm_clk or posedge wbm_rst)
 if (wbm_rst)
-	{count,count_zero} <= {16'h8000,1'b1};
-else
-	casex ({b_fifo_empty,wbm_bte_o,count,count_zero,wbm_ack_i})
-	{1'b0,linear,16'b1xxxxxxxxxxxxxxx,1'bx,1'b1}: {count, count_zero} <= {16'h8000,1'b1};
-	{1'b0,wrap4 ,16'bxxx1xxxxxxxxxxxx,1'bx,1'b1}: {count, count_zero} <= {16'h8000,1'b1};
-	{1'b0,wrap8 ,16'bxxxxxxx1xxxxxxxx,1'bx,1'b1}: {count, count_zero} <= {16'h8000,1'b1};
-	{1'b0,wrap16,16'bxxxxxxxxxxxxxxx1,1'bx,1'b1}: {count, count_zero} <= {16'h8000,1'b1};
-	{1'b0,2'bxx,{16{1'bx}},1'b0,1'b1} 			: {count, count_zero} <= {count >> 1,1'b0};
-	default : ;
-	endcase
-assign wbm_cyc_o = wbm;
-assign wbm_stb_o = (wbm==adr) ? 1'b0 :
-                   (wbm==data & wbm_we_o) ? !b_fifo_empty :
-                   1'b1;
-always @ (posedge wbm_clk or posedge wbm_rst)
-if (wbm_rst)
-	{wbm_adr_o,wbm_we_o,wbm_bte_o,wbm_cti_o} <= {32'h0,1'b0,linear,classic};
+	{wbm_adr_o,wbm_we_o,wbm_bte_o,wbm_cti_o} <= {30'h0,1'b0,linear,classic};
 else begin
-	if (wbm==adr & !b_fifo_empty)
+	if (wbm==wbm_adr0 & !b_fifo_empty)
 		{wbm_adr_o,wbm_we_o,wbm_bte_o,wbm_cti_o} <= b_q;
-	else if ((b_q[4:3]==wrap4 & count[3]) | (b_q[4:3]==wrap8 & count[7]) | (b_q[4:3]==wrap16 & count[15]))
+	else if (wbm_eoc_alert & wbm_ack_i)
 		wbm_cti_o <= endofburst;
 end	
-assign {wbm_dat_o,wbm_sel_o} = b_q;
+//assign {wbm_dat_o,wbm_sel_o} = b_q;
 
-async_fifo_dw_simplex_top
+//async_fifo_dw_simplex_top
+vl_fifo_2r2w_async_simplex
 # ( .data_width(36), .addr_width(addr_width))
 fifo (
-	// a side
+    // a side
     .a_d(a_d), 
     .a_wr(a_wr), 
     .a_fifo_full(a_fifo_full),
     .a_q(a_q),
     .a_rd(a_rd),
     .a_fifo_empty(a_fifo_empty), 
-	.a_clk(wbs_clk), 
-	.a_rst(wbs_rst),
-	// b side
+    .a_clk(wbs_clk), 
+    .a_rst(wbs_rst),
+    // b side
     .b_d(b_d), 
     .b_wr(b_wr), 
     .b_fifo_full(b_fifo_full),
     .b_q(b_q), 
     .b_rd(b_rd), 
     .b_fifo_empty(b_fifo_empty), 
-	.b_clk(wbm_clk), 
-	.b_rst(wbm_rst)	
+    .b_clk(wbm_clk), 
+    .b_rst(wbm_rst)	
     );
     
 endmodule
