@@ -44,7 +44,6 @@ parameter wbs_data = 1'b1;
 parameter wbm_adr0 = 2'b00;
 parameter wbm_adr1 = 2'b01;
 parameter wbm_data = 2'b10;
-parameter wbm_wait = 2'b11;
 
 reg wbs_we_reg;
 reg [1:0] wbs_bte_reg;
@@ -117,7 +116,6 @@ if (wbs_rst)
 else
 	{wbs_we_reg,wbs_bte_reg} <= {wbs_we_i,wbs_bte_i};
 
-			
 // wbm FIFO
 assign wbm_eoc_alert = (wbm_bte_o==wrap4 & wbm_count[3]) | (wbm_bte_o==wrap8 & wbm_count[7]) | (wbm_bte_o==wrap16 & wbm_count[15]);
 always @ (posedge wbm_clk or posedge wbm_rst)
@@ -133,14 +131,12 @@ always @ (posedge wbm_clk or posedge wbm_rst)
 if (wbm_rst)
 	wbm <= wbm_adr0;
 else
-	casex ({wbm,b_fifo_empty,wbm_we_o,wbm_ack_i,wbm_eoc}) //  ,b_q[`WE]
-	{wbm_adr0,1'b0,1'bx,1'bx,1'bx} : wbm <= wbm_adr1; // if write wait for !fifo_empty
-	{wbm_adr1,1'b0,1'b1,1'bx,1'bx} : wbm <= wbm_data; // if write wait for !fifo_empty
-	{wbm_adr1,1'bx,1'b0,1'bx,1'bx} : wbm <= wbm_data; // if read go ahead
-	{wbm_data,1'bx,1'bx,1'b1,1'b1} : wbm <= wbm_adr0; //
-	{wbm_wait,1'bx,1'bx,1'bx,1'bx} : wbm <= wbm_adr0;	
-	default : wbm <= wbm;
-	endcase
+    if ((wbm==wbm_adr0 & !b_fifo_empty) |
+        (wbm==wbm_adr1 & !b_fifo_empty & wbm_we_o) |
+        (wbm==wbm_adr1 & !wbm_we_o) |
+        (wbm==wbm_data & wbm_ack_i & wbm_eoc))
+        wbm <= {wbm[0],!(wbm[1] ^ wbm[0])};  // count sequence 00,01,10
+
 assign b_d = {wbm_dat_i,4'b1111};
 assign b_wr = !wbm_we_o & wbm_ack_i;
 assign b_rd_adr  = (wbm==wbm_adr0 & !b_fifo_empty);
@@ -176,7 +172,6 @@ else begin
 	else if (wbm_eoc_alert & wbm_ack_i)
 		wbm_cti_o <= endofburst;
 end	
-//assign {wbm_dat_o,wbm_sel_o} = b_q;
 
 //async_fifo_dw_simplex_top
 vl_fifo_2r2w_async_simplex

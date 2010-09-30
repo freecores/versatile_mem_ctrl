@@ -1,18 +1,3 @@
-versatile_library.v:
-    
-async_fifo_dw_simplex_actel.v:
-	svn export http://opencores.org/ocsvn/versatile_fifo/versatile_fifo/trunk/rtl/verilog/async_fifo_dw_simplex_actel.v
-
-VERSATILE_COUNTER_PROJECT_FILES =versatile_counter_generator.php
-VERSATILE_COUNTER_PROJECT_FILES +=CSV.class.php
-
-versatile_counter_generator.php:
-	svn export http://opencores.org/ocsvn/versatile_counter/versatile_counter/trunk/rtl/verilog/ $(VERSATILE_COUNTER_PROJECT_FILES)
-
-ref_counter.v: versatile_counter_generator.php
-	excel2csv ref_counter.xls -S ,
-	./versatile_counter_generator.php ref_counter.csv > ref_counter.v
-
 sdr_sdram_16_ctrl_actel.v:
 	vppreproc --noline --noblank +define+RFR_LENGTH+10 +define+RFR_WRAP_VALUE+1001 +define+ACTEL sdr_sdram_16_ctrl.v > sdr_sdram_16_ctrl_actel.v
 
