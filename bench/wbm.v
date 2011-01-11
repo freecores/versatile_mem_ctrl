@@ -1,3 +1,4 @@
+`timescale 1ns/1ns
 module wbm (
   output [31:0] adr_o,
   output [1:0] bte_o,
@@ -24,30 +25,39 @@ module wbm (
                     eob		= 3'b111;
 
 	parameter instructions = 32; 
-	
+
+	// {adr_o,bte_o,cti_o,dat_o,sel_o,we_o,cyc_o,stb_o}	
 	parameter [32+2+3+32+4+1+1+1:1] inst_rom [0:instructions-1]= {
 		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
+		
+		{32'h100,linear,classic,32'h12345678,4'b1111,1'b1,1'b1,1'b1},
+		{32'h100,linear,classic,32'h0,4'b1111,1'b0,1'b1,1'b1},
+		
 		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
-		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
+		
+		{32'hA000,beat4,inc,32'h00010002,4'b1111,1'b1,1'b1,1'b1}, // write burst
+		{32'hA004,beat4,inc,32'h00030004,4'b1111,1'b1,1'b1,1'b1},
+		{32'hA008,beat4,inc,32'h00050006,4'b1111,1'b1,1'b1,1'b1},
+		{32'hA00C,beat4,eob,32'h00070008,4'b1111,1'b1,1'b1,1'b1},
+		
+		{32'hA008,linear,classic,32'hA1FFFFFF,4'b1000,1'b1,1'b1,1'b1},// write byte
+		
+		{32'hA000,beat4,inc,32'h0,4'b1111,1'b0,1'b1,1'b1}, // read burst
+		{32'hA004,beat4,inc,32'h0,4'b1111,1'b0,1'b1,1'b1},
+		{32'hA008,beat4,inc,32'h0,4'b1111,1'b0,1'b1,1'b1},
+		{32'hA00C,beat4,eob,32'h0,4'b1111,1'b0,1'b1,1'b1},
+		
+		{32'h1000,linear,inc,32'hdeaddead,4'b1111,1'b1,1'b1,1'b1}, // write
+		{32'h1004,linear,eob,32'h55555555,4'b1111,1'b1,1'b1,1'b1}, //
+		
+		{32'h1000,linear,inc,32'h0,4'b1111,1'b0,1'b1,1'b1}, // read
+		{32'h1004,linear,eob,32'h0,4'b1111,1'b0,1'b1,1'b1}, // read
+		
+		{32'hA008,beat4,inc,32'h0,4'b1111,1'b0,1'b1,1'b1}, // read burst
+		{32'hA00C,beat4,inc,32'h0,4'b1111,1'b0,1'b1,1'b1},
+		{32'hA000,beat4,inc,32'h0,4'b1111,1'b0,1'b1,1'b1},
+		{32'hA004,beat4,eob,32'h0,4'b1111,1'b0,1'b1,1'b1},
+		
 		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
 		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
 		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
@@ -63,24 +73,25 @@ module wbm (
 		32'h0,
 		32'h0,
 		32'h0,
+		32'h12345678,
 		32'h0,
 		32'h0,
 		32'h0,
 		32'h0,
 		32'h0,
 		32'h0,
+		32'h00010002,
+		32'h00030004,
+		32'ha1050006,
+		32'h00070008,
 		32'h0,
 		32'h0,
-		32'h0,
-		32'h0,
-		32'h0,
-		32'h0,
-		32'h0,
-		32'h0,
-		32'h0,
-		32'h0,
-		32'h0,
-		32'h0,
+		32'hdeaddead,
+		32'h55555555,
+		32'ha1050006,
+		32'h00070008,
+		32'h00010002,
+		32'h00030004,
 		32'h0,
 		32'h0,
 		32'h0,
@@ -106,16 +117,17 @@ module wbm (
 	if (reset)
 		i = 0;
 	else
-		if ((!stb_o | ack_i) & i < instructions)
+		if ((!stb_o | ack_i) & i < instructions - 1)
 			i = i + 1;
 
 	always @ (posedge clk or posedge reset)
 	if (reset)
 		OK <= 1'b1;
 	else
-		if (ack_i & !we_o & (dat_i != dat[i]))
+		if (ack_i & !we_o & (dat_i != dat[i])) begin
 			OK <= 1'b0;
-			//assert "Read error";
+			$display ("wrong read value %h at %t", dat_i, $time);
+		end
 				
 //	always @ (posedge clk or posedge reset)
 //	if (reset)
