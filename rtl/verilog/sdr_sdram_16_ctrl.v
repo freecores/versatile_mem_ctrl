@@ -1,11 +1,5 @@
 `timescale 1ns/1ns
-//`sinclude "type_definitions.struct"
-//`include "sdr_16_defines.v"
-`ifdef ACTEL
-`define SYN /*synthesis syn_useioff=1 syn_allow_retiming=0 */
-`else
-`define SYN
-`endif
+
 module sdr_sdram_16_ctrl (
     // wisbone i/f
     dat_i, adr_i, sel_i, cti_i, bte_i, we_i, cyc_i, stb_i, dat_o, ack_o,
@@ -37,15 +31,15 @@ module sdr_sdram_16_ctrl (
     input [2:0] cti_i;
     input [1:0] bte_i;
     input we_i, cyc_i, stb_i;
-    output reg [31:0] dat_o;
+    output [31:0] dat_o;
     output ack_o;
 
-    output reg [1:0]    ba `SYN;
-    output reg [12:0]   a `SYN;
-    output reg [2:0]    cmd `SYN;
+    output reg [1:0]    ba;
+    output reg [12:0]   a;
+    output reg [2:0]    cmd;
     output cke, cs_n;
-    output reg [1:0]    dqm `SYN;
-    output reg [15:0]   dq_o `SYN;
+    output reg [1:0]    dqm;
+    output reg [15:0]   dq_o;
     output reg          dq_oe;
     input  [15:0]       dq_i;
 
@@ -57,18 +51,19 @@ module sdr_sdram_16_ctrl (
     wire [12:0]         col_a10_fix;
     reg [4:0]		col_reg;
     wire [0:31] 	shreg; 
-    reg			count0;
+    wire		count0;
     wire 		stall; // active if write burst need data
-    reg 		ref_cnt_zero, refresh_req; 
+    wire 		ref_cnt_zero;
+    reg                 refresh_req; 
     reg			wb_flag;
 
-    reg [1:6] ack_rd;
+    wire ack_rd, rd_ack_emptyflag;
     wire ack_wr;
 
-   // to keep track of open rows per bank
-   reg [row_size-1:0] 	open_row[0:3];
-   reg [0:3] 		open_ba;
-   reg 			current_bank_closed, current_row_open;  
+    // to keep track of open rows per bank
+    reg [row_size-1:0] 	open_row[0:3];
+    reg [0:3] 		open_ba;
+    reg 		current_bank_closed, current_row_open;  
    
 `ifndef RFR_WRAP_VALUE
     parameter rfr_length = 10;
@@ -77,7 +72,12 @@ module sdr_sdram_16_ctrl (
     parameter rfr_length = `RFR_LENGTH;
     parameter rfr_wrap_value = `RFR_WRAP_VALUE;	
 `endif
-	
+
+    // cti
+    parameter [2:0] classic = 3'b000,
+                    endofburst = 3'b111;
+
+    // bte	
     parameter [1:0] linear = 2'b00,
                     beat4  = 2'b01,
                     beat8  = 2'b10,
@@ -98,7 +98,7 @@ module sdr_sdram_16_ctrl (
 `define FSM_ADR  3'b011
 `define FSM_PCH  3'b100
 `define FSM_ACT  3'b101
-//`define FSM_W4D  3'b110
+//`define FSM_WAIT 3'b110
 `define FSM_RW   3'b111
 
     assign cke = 1'b1;
@@ -137,29 +137,24 @@ module sdr_sdram_16_ctrl (
    
     always @*
     begin
-	next = 3'bx;
+	next = state;
 	case (state)
 	`FSM_INIT:
             if (shreg[31]) next = `FSM_IDLE;
-            else next = `FSM_INIT;
         `FSM_IDLE:   
 	    if (refresh_req) next = `FSM_RFR;
-            else if (cyc_i & stb_i & !(|ack_rd)) next = `FSM_ADR;
-            else next = `FSM_IDLE;
+            else if (cyc_i & stb_i & rd_ack_emptyflag) next = `FSM_ADR;
         `FSM_RFR: 
             if (shreg[8]) next = `FSM_IDLE; // tRFC=60ns, AREF@2
-            else  next = `FSM_RFR;
 	`FSM_ADR:
             if (current_bank_closed) next = `FSM_ACT;
 	    else if (current_row_open) next = `FSM_RW;
 	    else next = `FSM_PCH;
 	`FSM_PCH: 
             if (shreg[1]) next = `FSM_ACT;
-            else next = `FSM_PCH;
 	`FSM_ACT:
             if (shreg[2]) next = `FSM_RW;
-            else next = `FSM_ACT;
-	`FSM_RW:     
+	`FSM_RW:
             if (bte_i==linear & shreg[1]) next = `FSM_IDLE;
             else if (bte_i==beat4 & shreg[7]) next = `FSM_IDLE;
 `ifdef BEAT8
@@ -168,23 +163,12 @@ module sdr_sdram_16_ctrl (
 `ifdef BEAT16
             else if (bte_i==beat16 & shreg[31]) next = `FSM_IDLE;
 `endif
-            else next = `FSM_RW;
 	endcase
     end
 
     // active if write burst need data
     assign stall = state==`FSM_RW & next==`FSM_RW & ~stb_i & count0 & we_i;
    
-    // flag indicates active wb cycle
-    always @ (posedge clk or posedge rst)
-    if (rst)
-        wb_flag <= 1'b0;
-    else
-        if (state==`FSM_ADR)
-            wb_flag <= 1'b1;
-   	else if ((cti_i==3'b000 | cti_i==3'b111) & ack_o)
-            wb_flag <= 1'b0;
-
     // counter    
     cnt_shreg_ce_clear # ( .length(32))
         cnt0 (
@@ -284,7 +268,6 @@ module sdr_sdram_16_ctrl (
     if (rst)
        {current_bank_closed, current_row_open} <= {1'b1, 1'b0};
     else
-       //if (state==adr & counter[1:0]==2'b10)
        {current_bank_closed, current_row_open} <= {!(open_ba[bank]), open_row[bank]==row};
 
     // refresh counter
@@ -304,15 +287,9 @@ module sdr_sdram_16_ctrl (
     
     assign ack_wr = (state==`FSM_RW & count0 & we_i);
     
-    always @ (posedge clk or posedge rst)
-    if (rst)
-        ack_rd <= {6{1'b0}};
-    else
-        ack_rd <= {state==`FSM_RW & count0 & !we_i,ack_rd[2:5]};
-	
-    assign ack_o = (cl==2) ? ack_rd[5] | ack_wr :
-                   (cl==3) ? ack_rd[6] | ack_wr :
-                   1'b0;
+    delay_emptyflag # ( .depth(cl+2)) delay0 ( .d(state==`FSM_RW & count0 & !we_i), .q(ack_rd), .emptyflag(rd_ack_emptyflag), .clk(clk), .rst(rst));
+
+    assign ack_o = ack_rd | ack_wr;
 
     // output dq_o mux and dffs
     always @ (posedge clk or posedge rst)
