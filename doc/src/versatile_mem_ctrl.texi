@@ -1,0 +1,337 @@
+\input texinfo
+@c -*-texinfo-*-
+@c %**start of header
+@setfilename versatile_mem_ctrl
+@include version.texi
+@settitle Versatile memory controller @value{VERSION}
+
+@c %**end of header
+
+@set DESIGN Versatile memory controller
+@copying
+This file documents the @value{DESIGN}.
+
+Copyright @copyright{} 2011 ORSoC
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled ``GNU
+Free Documentation License''.
+@end quotation
+@end copying
+
+@afourpaper
+
+@titlepage
+@title @value{DESIGN} User Guide
+@c @subtitle subtitle-if-any
+@c @subtitle second-subtitle
+@author Michael Unneback
+@author ORSoC
+
+@c  The following two commands
+@c  start the copyright page.
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+
+Published by ORSoC
+@end titlepage
+
+@c So the toc is printed at the start.
+@contents
+
+@ifnottex
+@node Top
+@top Scope of this Document
+
+This document is the user guide for @value{DESIGN}.
+
+@end ifnottex
+
+@node Document Introduction
+@chapter Introduction
+
+@cindex Introduction to this @value{DESIGN}
+
+This design implements a versatile memory controller. If used in combination with the versitale library, available from OpenCores, 
+different types of system can easily be designed, including use cases where the system bus is in one clock domain and the memory
+ controller in an other.
+@node Block diagram
+@chapter Block Diagram
+@cindex Block diagram
+
+@section Clock domains
+@value{DESIGN} contains the following clock domains
+@itemize
+@item Wishbone slave clock domain
+@item Wishbone master clock domain
+@item RX GMII clock domain
+@item TX GMII clock domain
+@end itemize
+
+@node Configuration registers
+@chapter Configuration registers
+
+@section Register memory map
+@multitable @columnfractions .2 .1 .1 .1 .5
+@headitem Name @tab Address @tab Width @tab Access @tab Description
+@item MODER @tab @value{MODER} @tab 32 @tab RW @tab Mode register
+@item INT_SOURCE @tab @value{INT_SOURCE} @tab 32 @tab RW @tab Interrupt source register
+@item INT_MASK @tab @value{INT_MASK} @tab 32 @tab RW @tab Interrupt mask register
+@item TX_BD_NUM @tab @value{TX_BD_NUM} @tab 32 @tab RW @tab Transmit Buffer Descriptor number
+@item MIIMODER @tab @value{MIIMODER} @tab 32 @tab RW @tab MII Mode Register
+@item MIICOMMAND @tab @value{MIICOMMAND} @tab 32 @tab RW @tab MII Command Register
+@item MIIADDRESS @tab @value{MIIADDRESS} @tab 32 @tab RW @tab MII Address Register
+@item MIITX_DATA @tab @value{MIITX_DATA} @tab 32 @tab RW @tab MII Transmit Data
+@item MIIRX_DATA @tab @value{MIIRX_DATA} @tab 32 @tab RW @tab MII Receive Data
+@item MIISTATUS @tab @value{MIISTATUS} @tab 32 @tab RW @tab MII Status Register
+@item MAC_ADDR0 @tab @value{MAC_ADDR0} @tab 32 @tab RW @tab MAC address, LSB four bytes
+@item MAC_ADDR1 @tab @value{MAC_ADDR1} @tab 32 @tab RW @tab MAC address, MSB two bytes
+@end multitable
+
+@page
+
+@subsection MODER
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-17 @tab @tab Reserved
+@item 16 @tab RW @tab RECSMALL @tab Receive small packets
+@item 15 @tab RW @tab PAD @tab Padding enabled
+@item 14 @tab RW @tab HUGEN @tab Huge Packets Enable
+@item 13 @tab RW @tab CRCEN @tab CRC enable 
+@item 12-8 @tab  @tab Reserved
+@item 7 @tab RW @tab LOOPBCK @tab Loopback
+@item 6 @tab RW @tab Resrved
+@item 5 @tab RW @tab PRO @tab Promiscuous
+@item 4 @tab @tab Reserved
+@item 3 @tab RW @tab BRO @tab Broadcast Address
+@item 2 @tab @tab Reserved
+@item 1 @tab RW @tab TXEN @tab Transmit Enable
+@item 0 @tab RW @tab RXEN @tab Receive Enable  
+@end multitable
+@example
+Reset value:
+MODER: 0x0000A000
+@end example
+
+@page
+
+@subsection INT_SOURCE
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-7 @tab @tab Reserved
+@item 4 @tab RW @tab BUSY @tab Busy@* This bit indicates that a buffer was received and discarded due to a lack of buffers. It is cleared by writing 1 to it. This bit appears regardless to the IRQ bits in the Receive or Transmit Buffer Descriptors.
+@item 3 @tab RW @tab RXE @tab Receive error@* This bit indicates that an error occurred while receiving data. It is cleared by writing 1 to it. This bit appears only when IRQ bit is set in the Receive Buffer Descriptor.
+@item 2 @tab RW @tab RXB @tab Receive buffer@* This bit indicates that a frame was received. It is cleared by writing 1 to it. This bit appears only when IRQ bit is set in the Receive Buffer Descriptor. If a control frame is received, then RXC bit is set instead of the RXB bit.
+@item 1 @tab RW @tab TXE @tab Transmit error@* This bit indicates that a buffer was not transmitted due to a transmit error. It is cleared by writing 1 to it. This bit appears only when IRQ bit is set in the Receive Buffer Descriptor. This bit appears only when IRQ bit is set in the Transmit Buffer Descriptor.
+@item 0 @tab RW @tab TXB @tab Transmit buffer@* This bit indicates that a buffer has been transmitted. It is cleared by writing 1 to it. This bit appears only when IRQ bit is set in the Transmit Buffer Descriptor.
+@end multitable
+@example
+Reset value:
+INT_SOURCE: 0x00000000
+@end example
+
+@page
+@subsection INT_MASK
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-7 @tab @tab Reserved
+@item 4 @tab RW @tab BUSY_M @tab Busy mask@* 
+@item 3 @tab RW @tab RXE_M @tab Receive error@* Receive error mask
+@item 2 @tab RW @tab RXB_M @tab Receive buffer@* Receive buffer mask
+@item 1 @tab RW @tab TXE_M @tab Transmit error@* Transmit error mask
+@item 0 @tab RW @tab TXB_M @tab Transmit buffer@* Transmit buffer mask
+@end multitable
+@example
+Reset value:
+INT_MASK: 0x00000000
+@*@*
+0 -> event masked
+1 -> event causes an interrupt
+@end example
+
+@page
+@subsection TX_BD_NUM
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-8 @tab @tab Reserved
+@item 7-0 @tab RW @tab TX_BD_NUM @tab Transmit Buffer Descriptor Number@* Number of the Tx BD. Number of the Rx BD equals to the (0x80 – Tx BD number). Maximum number of the Tx BD is 0x80. Values greater then 0x80 cannot be written to this register (ignored).
+@end multitable
+@example
+Reset value:
+TX_BD_NUM: 0x00000040
+@end example
+
+@page
+@subsection MIIMODER
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-9 @tab @tab Reserved
+@item 8 @tab RW @tab MIINOPRE @tab No Preamble@* 0 = 32 bit preamble sent@* 1 = No preamble sent
+@item 7-0 @tab RW @tab CLKDIV @tab Clock divider The field is a host clock divider factor. The host clock can be divided by an even number, greater then 1. The default value is 0x64 (100).
+@end multitable
+@example
+Reset value:
+MIIMODER: 0x00000064
+@end example
+
+@subsection MIICOMMAND
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-3 @tab @tab Reserved
+@item 2 @tab RW @tab WCTRLDATA @tab Write control data
+@item 1 @tab RW @tab RSTAT @tab Read status
+@item 0 @tab RW @tab SCANSTAT @tab Scan status
+@end multitable
+@example
+Reset value:
+MIICOMMAND: 0x00000000
+@end example
+
+@subsection MIIADDRESS
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-13 @tab @tab Reserved
+@item 12-8 @tab RW @tab RGAD @tab Register address
+@item 7-5 @tab RW @tab Reserved @tab
+@item 4-0 @tab RW @tab FIAD @tab PHY address
+@end multitable
+@example
+Reset value:
+MIIADDRESS: 0x00000000
+@end example
+
+@subsection MIITX_DATA
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-16 @tab @tab Reserved
+@item 15-0 @tab RW @tab CTRLDATA @tab Data to be written to the PHY
+@end multitable
+@example
+Reset value:
+MIITX_DATA: 0x00000000
+@end example
+
+@subsection MIIRX_DATA
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-16 @tab @tab Reserved
+@item 15-0 @tab R @tab PRSD @tab Data read from the PHY
+@end multitable
+@example
+Reset value:
+MIIRX_DATA: 0x00000000
+@end example
+
+@subsection MIISTATUS
+@multitable @columnfractions .1 .1 .2 .6
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-3 @tab @tab Reserved
+@item 2 @tab R @tab NVALID @tab Invalid@* 0 = The data in the MSTATUS register is valid.@* 1 = The data in the MSTATUS register is invalid.@* This bit is only valid when the scan status operation is active.
+@item 1 @tab R @tab BUSY @tab 0 = The MII is ready.@* 1 = The MII is busy (operation in progress).
+@item 0 @tab R @tab LINKFAIL @tab 0 = The link is OK.@*1 = The link failed.@*The Link fail condition occurred (now the link might be OK). Another status read gets a new status.
+@end multitable
+@example
+Reset value:
+MIISTATUS: 0x00000000
+@end example
+
+@page
+@subsection MAC_ADDR0
+@multitable @columnfractions .1 .1 .8
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-24 @tab RW @tab Byte 2 of the Ethernet MAC address
+@item 23-16 @tab RW @tab Byte 3 of the Ethernet MAC address
+@item 15-8 @tab RW @tab Byte 4 of the Ethernet MAC address
+@item 7-0 @tab RW @tab Byte 5 of the Ethernet MAC address
+@end multitable
+@example
+Reset value:
+MAC_ADDR0: 0x00000000
+@end example
+
+@subsection MAC_ADDR1
+@multitable @columnfractions .1 .1 .8
+@headitem Bit @tab Access @tab Description @tab  
+@item 31-16 @tab @tab Reserved
+@item 15-8 @tab RW @tab Byte 0 of the Ethernet MAC address
+@item 7-0 @tab RW @tab Byte 1 of the Ethernet MAC address
+@end multitable
+@example
+Reset value:
+MAC_ADDR1: 0x00000000
+@end example
+
+@node MDIO
+@chapter Management Data Input/Output
+
+The MDIO interface is implemented by two lines:
+@itemize
+@item a MDC clock line
+@item an MDIO data line
+@end itemize
+
+The clock line is driven by the MAC device. The data line is bidirectional: the PHY drives it to provide register data at the end of a read operation.
+@*@*
+The bus has a single MAC master, but can have up to 32 PHY slaves.
+@*@*
+The MDC clock can be aperiodic, with a minimum period of 400 ns, which corresponds to a maximal frequency of 2.5 MHz. Newer chips, however, allow faster acesses.
+@*@*
+The MDIO data line has a pull-up of 1.5 kOhm in the PHY, allowing the MAC to determine if one or more PHYs are attached. The MAC should have a 2 kOhm pull-down on that same line.
+
+@section Bus timing
+@subsection Read operation
+A read operation has the following phases
+@itemize
+@item Preamble with 32 ones
+@item Start sequence, 01
+@item Opcode read, 10
+@item PHY adress
+@item REG adress
+@item Bus turnaround
+@item Register data
+@end itemize
+@image{MDIO_rd,15cm,2.54cm}
+
+@subsection Write operation
+A write operation has the following phases
+@itemize
+@item Preamble with 32 ones
+@item Start sequence, 01
+@item Opcode read, 01
+@item PHY adress
+@item REG adress
+@item Bus turnaround
+@item Register data
+@end itemize
+@image{MDIO_wr,15cm,2.54cm}
+
+@node Ingress and Egress FIFO
+@chapter Ingress and Egress FIFO
+
+@section FIFO implementation
+Both ingress and egress FIFO implementation uses a generic asynchronous FIFO design 
+available from OpenCores.@*@*
+@uref{http://opencores.org/project,versatile_library}
+
+@c ****************************************************************************
+@c End bits
+@c **************************************************************************** 
+
+@node  GNU Free Documentation License
+@chapter GNU Free Documentation License
+@cindex license for @value{DESIGN}
+
+@include fdl.texi
+
+@node Index
+
+@unnumbered Index
+
+@printindex cp
+
+@bye
