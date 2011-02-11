@@ -1,4 +1,19 @@
-`timescale 1ns/1ns
+module delay_emptyflag ( d, q, emptyflag, clk, rst);
+parameter depth = 10;
+input d;
+output q, emptyflag;
+input clk, rst;
+
+reg [1:depth] dffs;
+
+always @ (posedge clk or posedge rst)
+if (rst)
+    dffs <= {depth{1'b0}};
+else
+    dffs <= {d,dffs[1:depth-1]};
+assign q = dffs[depth];
+assign emptyflag = !(|dffs);
+endmodule
 
 module sdr_sdram_16_ctrl (
     // wisbone i/f
@@ -34,7 +49,7 @@ module sdr_sdram_16_ctrl (
     output [31:0] dat_o;
     output ack_o;
 
-    output reg [1:0]    ba;
+    output reg [ba_size-1:0]    ba;
     output reg [12:0]   a;
     output reg [2:0]    cmd;
     output cke, cs_n;
@@ -90,6 +105,18 @@ module sdr_sdram_16_ctrl (
                     cmd_pch = 3'b010,
                     cmd_rfr = 3'b001,
                     cmd_lmr = 3'b000;
+
+// LMR
+// [12:10] reserved
+// [9]     WB, write burst; 0 - programmed burst length, 1 - single location
+// [8:7]   OP Mode, 2'b00
+// [6:4]   CAS Latency; 3'b010 - 2, 3'b011 - 3
+// [3]     BT, Burst Type; 1'b0 - sequential, 1'b1 - interleaved
+// [2:0]   Burst length; 3'b000 - 1, 3'b001 - 2, 3'b010 - 4, 3'b011 - 8, 3'b111 - full page
+`define INIT_WB 1'b0
+`define INIT_CL 3'b010
+`define INIT_BT 1'b0
+`define INIT_BL 3'b001
 
 // ctrl FSM
 `define FSM_INIT 3'b000
@@ -170,7 +197,7 @@ module sdr_sdram_16_ctrl (
     assign stall = state==`FSM_RW & next==`FSM_RW & ~stb_i & count0 & we_i;
    
     // counter    
-    cnt_shreg_ce_clear # ( .length(32))
+    vl_cnt_shreg_ce_clear # ( .length(32))
         cnt0 (
             .cke(!stall),
             .clear(!(state==next)),
@@ -178,7 +205,7 @@ module sdr_sdram_16_ctrl (
             .rst(rst),
             .clk(clk));
     
-    dff_ce_clear
+    vl_dff_ce_clear
         dff_count0 (
             .d(!count0),
             .ce(!stall),
@@ -271,7 +298,7 @@ module sdr_sdram_16_ctrl (
        {current_bank_closed, current_row_open} <= {!(open_ba[bank]), open_row[bank]==row};
 
     // refresh counter
-    cnt_lfsr_zq # ( .length(rfr_length), .wrap_value (rfr_wrap_value)) ref_counter0( .zq(ref_cnt_zero), .rst(rst), .clk(clk));
+    vl_cnt_lfsr_zq # ( .length(rfr_length), .wrap_value (rfr_wrap_value)) ref_counter0( .zq(ref_cnt_zero), .rst(rst), .clk(clk));
         
     always @ (posedge clk or posedge rst)
     if (rst)
@@ -283,7 +310,7 @@ module sdr_sdram_16_ctrl (
             refresh_req <= 1'b0;
 	
 
-    dff # ( .width(32)) wb_dat_dff ( .d({dat_o[15:0],dq_i}), .q(dat_o), .clk(clk), .rst(rst));
+    vl_dff # ( .width(32)) wb_dat_dff ( .d({dat_o[15:0],dq_i}), .q(dat_o), .clk(clk), .rst(rst));
     
     assign ack_wr = (state==`FSM_RW & count0 & we_i);
     
