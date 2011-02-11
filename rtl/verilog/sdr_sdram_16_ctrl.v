@@ -1,20 +1,3 @@
-module delay_emptyflag ( d, q, emptyflag, clk, rst);
-parameter depth = 10;
-input d;
-output q, emptyflag;
-input clk, rst;
-
-reg [1:depth] dffs;
-
-always @ (posedge clk or posedge rst)
-if (rst)
-    dffs <= {depth{1'b0}};
-else
-    dffs <= {d,dffs[1:depth-1]};
-assign q = dffs[depth];
-assign emptyflag = !(|dffs);
-endmodule
-
 module sdr_sdram_16_ctrl (
     // wisbone i/f
     dat_i, adr_i, sel_i, cti_i, bte_i, we_i, cyc_i, stb_i, dat_o, ack_o,
@@ -314,7 +297,7 @@ module sdr_sdram_16_ctrl (
     
     assign ack_wr = (state==`FSM_RW & count0 & we_i);
     
-    delay_emptyflag # ( .depth(cl+2)) delay0 ( .d(state==`FSM_RW & count0 & !we_i), .q(ack_rd), .emptyflag(rd_ack_emptyflag), .clk(clk), .rst(rst));
+    vl_delay_emptyflag # ( .depth(cl+2)) delay0 ( .d(state==`FSM_RW & count0 & !we_i), .q(ack_rd), .emptyflag(rd_ack_emptyflag), .clk(clk), .rst(rst));
 
     assign ack_o = ack_rd | ack_wr;
 
