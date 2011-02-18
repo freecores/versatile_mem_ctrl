@@ -24,29 +24,29 @@ module versatile_mem_ctrl_tb
 `endif
 	parameter wb_clk_period = 20;
 	
-   wire [31:0] wbm_a_dat_o [1:nr_of_wbm];
-   wire [3:0]  wbm_a_sel_o [1:nr_of_wbm];
-   wire [31:0] wbm_a_adr_o [1:nr_of_wbm];
-   wire [2:0]  wbm_a_cti_o [1:nr_of_wbm];
-   wire [1:0]  wbm_a_bte_o [1:nr_of_wbm];
-   wire        wbm_a_we_o  [1:nr_of_wbm];
-   wire        wbm_a_cyc_o [1:nr_of_wbm];
-   wire        wbm_a_stb_o [1:nr_of_wbm];
-   wire [31:0] wbm_a_dat_i [1:nr_of_wbm];
-   wire        wbm_a_ack_i [1:nr_of_wbm];
-   reg         wbm_a_clk   [1:nr_of_wbm];
-   reg         wbm_a_rst   [1:nr_of_wbm];
+   wire [31:0] wbm_a_dat_o;
+   wire [3:0]  wbm_a_sel_o;
+   wire [31:0] wbm_a_adr_o;
+   wire [2:0]  wbm_a_cti_o;
+   wire [1:0]  wbm_a_bte_o;
+   wire        wbm_a_we_o ;
+   wire        wbm_a_cyc_o;
+   wire        wbm_a_stb_o;
+   wire [31:0] wbm_a_dat_i;
+   wire        wbm_a_ack_i;
+   reg         wbm_a_clk  ;
+   reg         wbm_a_rst  ;
 
-   wire [31:0] wbm_b_dat_o [1:nr_of_wbm];
-   wire [3:0]  wbm_b_sel_o [1:nr_of_wbm];
-   wire [31:2] wbm_b_adr_o [1:nr_of_wbm];
-   wire [2:0]  wbm_b_cti_o [1:nr_of_wbm];
-   wire [1:0]  wbm_b_bte_o [1:nr_of_wbm];
-   wire        wbm_b_we_o  [1:nr_of_wbm];
-   wire        wbm_b_cyc_o [1:nr_of_wbm];
-   wire        wbm_b_stb_o [1:nr_of_wbm];
-   wire [31:0] wbm_b_dat_i [1:nr_of_wbm];
-   wire        wbm_b_ack_i [1:nr_of_wbm];
+   wire [31:0] wbm_b_dat_o;
+   wire [3:0]  wbm_b_sel_o;
+   wire [31:2] wbm_b_adr_o;
+   wire [2:0]  wbm_b_cti_o;
+   wire [1:0]  wbm_b_bte_o;
+   wire        wbm_b_we_o ;
+   wire        wbm_b_cyc_o;
+   wire        wbm_b_stb_o;
+   wire [31:0] wbm_b_dat_i;
+   wire        wbm_b_ack_i;
 
    wire [31:0] wb_sdram_dat_i;
    wire [3:0]  wb_sdram_sel_i;
@@ -61,7 +61,7 @@ module versatile_mem_ctrl_tb
    reg         wb_sdram_clk;
    reg         wb_sdram_rst;
                              
-	wire [1:nr_of_wbm] wbm_OK;
+	wire wbm_OK;
 	
 	genvar i;
               
@@ -74,13 +74,26 @@ module versatile_mem_ctrl_tb
    	wire        dq_oe;
    	wire [1:0]  dqm, dqm_pad;
    	wire        cke, cke_pad, cs_n, cs_n_pad, ras, ras_pad, cas, cas_pad, we, we_pad;
-    
+ 
+    vl_o_dff # ( .width(20), .reset_value({2'b00, 13'h0,3'b111,2'b11})) o0(
+        .d_i({ba,a,ras,cas,we,dqm}),
+        .o_pad({ba_pad,a_pad,ras_pad, cas_pad, we_pad, dqm_pad}),
+        .clk(wb_sdram_clk),
+        .rst(wb_sdram_rst));
+        /*
 	assign #1 {ba_pad,a_pad} = {ba,a};
 	assign #1 {ras_pad, cas_pad, we_pad} = {ras,cas,we};
-	assign #1 dqm_pad = dqm;
+	assign #1 dqm_pad = dqm;*/
 	assign #1 cke_pad = cke;
 	assign cs_n_pad = cs_n;
-	
+    vl_io_dff_oe # ( .width(16)) io0 (
+        .d_i(dq_i),
+        .d_o(dq_o),
+        .oe(dq_oe),
+        .io_pad(dq_pad),
+        .clk(wb_sdram_clk),
+        .rst(wb_sdram_rst));
+        
 	mt48lc16m16a2 mem(
 	 	.Dq(dq_pad), 
 	 	.Addr(a_pad), 
@@ -92,22 +105,22 @@ module versatile_mem_ctrl_tb
 	 	.Cas_n(cas_pad), 
 	 	.We_n(we_pad), 
 	 	.Dqm(dqm_pad));
-	 	
-	 	assign #1 dq_pad = (dq_oe) ? dq_o : {`SDR{1'bz}};
-	 	assign #1 dq_i = dq_pad;
-	 		 	
-	`DUT DUT(
+
+	`DUT
+        # (.tRFC(9), .cl(3))
+        DUT(
 	// wisbone i/f
-	.dat_i(wb_sdram_dat_i), 
-	.adr_i({wb_sdram_adr_i[24:2],1'b0}), 
-	.sel_i(wb_sdram_sel_i),
-        .cti_i(wb_sdram_cti_i),
-	.bte_i(wb_sdram_bte_i), 
-	.we_i (wb_sdram_we_i), 
-	.cyc_i(wb_sdram_cyc_i), 
-	.stb_i(wb_sdram_stb_i), 
-	.dat_o(wb_sdram_dat_o), 
-	.ack_o(wb_sdram_ack_o),
+	.dat_i(wbm_b_dat_o), 
+	.adr_i({wbm_b_adr_o[24:2],1'b0}), 
+	.sel_i(wbm_b_sel_o),
+`ifndef NO_BURST
+	.bte_i(wbm_b_bte_o),
+`endif
+	.we_i (wbm_b_we_o), 
+	.cyc_i(wbm_b_cyc_o), 
+	.stb_i(wbm_b_stb_o), 
+	.dat_o(wbm_b_dat_i), 
+	.ack_o(wbm_b_ack_i),
 	// SDR SDRAM
 	.ba(ba), 
 	.a(a), 
@@ -123,95 +136,73 @@ module versatile_mem_ctrl_tb
 	 	
 `endif        
 
-// wishbone master(s)
-generate
-	for (i=1; i <= nr_of_wbm; i=i+1) begin: wb_master
+// wishbone master
 		
-		wbm wbmi(
-		.adr_o(wbm_a_adr_o[i]),
-		.bte_o(wbm_a_bte_o[i]),
-		.cti_o(wbm_a_cti_o[i]),
-		.dat_o(wbm_a_dat_o[i]),
-		.sel_o(wbm_a_sel_o[i]),
-		.we_o (wbm_a_we_o[i]),
-		.cyc_o(wbm_a_cyc_o[i]),
-		.stb_o(wbm_a_stb_o[i]),
-		.dat_i(wbm_a_dat_i[i]),
-		.ack_i(wbm_a_ack_i[i]),
-		.clk(wbm_a_clk[i]),
-		.reset(wbm_a_rst[i]),
-		.OK(wbm_OK[i])
+        wbm wbmi(
+            .adr_o(wbm_a_adr_o),
+            .bte_o(wbm_a_bte_o),
+            .cti_o(wbm_a_cti_o),
+            .dat_o(wbm_a_dat_o),
+	    .sel_o(wbm_a_sel_o),
+            .we_o (wbm_a_we_o),
+            .cyc_o(wbm_a_cyc_o),
+            .stb_o(wbm_a_stb_o),
+            .dat_i(wbm_a_dat_i),
+            .ack_i(wbm_a_ack_i),
+            .clk(wbm_a_clk),
+            .reset(wbm_a_rst),
+            .OK(wbm_OK)
 );
 
-	wb3wb3_bridge wbwb_bridgei (
+	vl_wb3wb3_bridge wbwb_bridgei (
 	// wishbone slave side
-	.wbs_dat_i(wbm_a_dat_o[i]), 
-	.wbs_adr_i(wbm_a_adr_o[i][31:2]), 
-	.wbs_sel_i(wbm_a_sel_o[i]), 
-	.wbs_bte_i(wbm_a_bte_o[i]), 
-	.wbs_cti_i(wbm_a_cti_o[i]), 
-	.wbs_we_i (wbm_a_we_o[i]), 
-	.wbs_cyc_i(wbm_a_cyc_o[i]), 
-	.wbs_stb_i(wbm_a_stb_o[i]), 
-	.wbs_dat_o(wbm_a_dat_i[i]), 
-	.wbs_ack_o(wbm_a_ack_i[i]), 
-	.wbs_clk(wbm_a_clk[i]), 
-	.wbs_rst(wbm_a_rst[i]),
+	.wbs_dat_i(wbm_a_dat_o), 
+	.wbs_adr_i(wbm_a_adr_o[31:2]), 
+	.wbs_sel_i(wbm_a_sel_o), 
+	.wbs_bte_i(wbm_a_bte_o), 
+	.wbs_cti_i(wbm_a_cti_o), 
+	.wbs_we_i (wbm_a_we_o), 
+	.wbs_cyc_i(wbm_a_cyc_o), 
+	.wbs_stb_i(wbm_a_stb_o), 
+	.wbs_dat_o(wbm_a_dat_i), 
+	.wbs_ack_o(wbm_a_ack_i), 
+	.wbs_clk(wbm_a_clk), 
+	.wbs_rst(wbm_a_rst),
 	// wishbone master side
-	.wbm_dat_o(wbm_b_dat_o[i]), 
-	.wbm_adr_o(wbm_b_adr_o[i]), 
-	.wbm_sel_o(wbm_b_sel_o[i]), 
-	.wbm_bte_o(wbm_b_bte_o[i]), 
-	.wbm_cti_o(wbm_b_cti_o[i]), 
-	.wbm_we_o (wbm_b_we_o[i]), 
-	.wbm_cyc_o(wbm_b_cyc_o[i]), 
-	.wbm_stb_o(wbm_b_stb_o[i]), 
-	.wbm_dat_i(wbm_b_dat_i[i]), 
-	.wbm_ack_i(wbm_b_ack_i[i]), 
+	.wbm_dat_o(wbm_b_dat_o), 
+	.wbm_adr_o(wbm_b_adr_o), 
+	.wbm_sel_o(wbm_b_sel_o), 
+	.wbm_bte_o(wbm_b_bte_o), 
+	.wbm_cti_o(wbm_b_cti_o), 
+	.wbm_we_o (wbm_b_we_o), 
+	.wbm_cyc_o(wbm_b_cyc_o), 
+	.wbm_stb_o(wbm_b_stb_o), 
+	.wbm_dat_i(wbm_b_dat_i), 
+	.wbm_ack_i(wbm_b_ack_i), 
 	.wbm_clk(wb_sdram_clk), 
 	.wbm_rst(wb_sdram_rst));
 		
-    end
-endgenerate
 
-`define SINGLE_WB
-`ifdef SINGLE_WB
-	assign wb_sdram_dat_i=wbm_b_dat_o[1];
-	assign wb_sdram_sel_i=wbm_b_sel_o[1];
-	assign wb_sdram_adr_i=wbm_b_adr_o[1];
-	assign wb_sdram_we_i =wbm_b_we_o[1];
-	assign wb_sdram_bte_i=wbm_b_bte_o[1];
-	assign wb_sdram_cti_i=wbm_b_cti_o[1];
-	assign wb_sdram_cyc_i=wbm_b_cyc_o[1];
-	assign wb_sdram_stb_i=wbm_b_stb_o[1];
-	assign wbm_b_dat_i[1]=wb_sdram_dat_o;
-	assign wbm_b_ack_i[1]=wb_sdram_ack_o;
-`endif
 
-	assign OK = &wbm_OK;
+	assign OK = wbm_OK;
 	
-
-generate 
-	for (i=1; i <= nr_of_wbm; i=i+1) begin: wb_reset
 
    		// Wishbone reset
    		initial
      	begin
-		#0      wbm_a_rst[i] = 1'b1;
-		#200    wbm_a_rst[i] = 1'b0;	
+		#0      wbm_a_rst = 1'b1;
+		#200    wbm_a_rst = 1'b0;	
      	end
 
    		// Wishbone clock
    		initial
      	begin
-		#0 wbm_a_clk[i] = 1'b0;
+		#0 wbm_a_clk = 1'b0;
 		forever
-	  		#(wb_clk_period/2) wbm_a_clk[i] = !wbm_a_clk[i];
+	  		#(wb_clk_period/2) wbm_a_clk = !wbm_a_clk;
      	end
 
 
-     end
-endgenerate
 
    // SDRAM reset
    initial

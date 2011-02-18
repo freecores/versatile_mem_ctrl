@@ -4,5 +4,6 @@ MDIO-timing:
 
 texinfo: 
 	texi2pdf versatile_mem_ctrl.texi
+	mv versatile_mem_ctrl.pdf ../
 
 all: texinfo

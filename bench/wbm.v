@@ -30,8 +30,8 @@ module wbm (
 	parameter [32+2+3+32+4+1+1+1:1] inst_rom [0:instructions-1]= {
 		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
 		
-		{32'h100,linear,classic,32'h12345678,4'b1111,1'b1,1'b1,1'b1},
-		{32'h100,linear,classic,32'h0,4'b1111,1'b0,1'b1,1'b1},
+		{32'h100,linear,classic,32'h12345678,4'b1111,1'b1,1'b1,1'b1}, // write 0x12345678 @ 0x100
+		{32'h100,linear,classic,32'h0,4'b1111,1'b0,1'b1,1'b1},        // read  @ 0x100
 		
 		{32'h0,linear,classic,32'h0,4'b1111,1'b0,1'b0,1'b0},
 		
@@ -126,9 +126,12 @@ module wbm (
 	else
 		if (ack_i & !we_o & (dat_i != dat[i])) begin
 			OK <= 1'b0;
-			$display ("wrong read value %h at %t", dat_i, $time);
-		end
-				
+			$display ("wrong read value %h @ %h at %t", dat_i, adr_o, $time);
+		end else if (ack_i & !we_o & (dat_i == dat[i]))
+			$display ("read value  %h      @ %h at %t", dat_i, adr_o, $time);
+		else if (ack_i)
+			$display ("write value %h %b @ %h at %t", dat_o, sel_o, adr_o, $time);
+			
 //	always @ (posedge clk or posedge reset)
 //	if (reset)
 //		state <= idle;

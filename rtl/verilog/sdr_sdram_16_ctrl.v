@@ -1,16 +1,27 @@
+`timescale 1ns/1ns
 module sdr_sdram_16_ctrl (
     // wisbone i/f
-    dat_i, adr_i, sel_i, cti_i, bte_i, we_i, cyc_i, stb_i, dat_o, ack_o,
+`ifdef NO_BURST
+    dat_i, adr_i, sel_i, we_i, cyc_i, stb_i, dat_o, ack_o,
+`else
+    dat_i, adr_i, sel_i, bte_i, we_i, cyc_i, stb_i, dat_o, ack_o,
+`endif
     // SDR SDRAM
     ba, a, cmd, cke, cs_n, dqm, dq_i, dq_o, dq_oe,
     // system
     clk, rst);
 
+    // memory geometry parameters
     parameter ba_size = 2;   
     parameter row_size = 13;
     parameter col_size = 9;
     parameter cl = 2;   
-
+    // memory timing parameters
+    parameter tRFC = 9;
+    parameter tRP  = 2;
+    parameter tRCD = 2;
+    parameter tMRD  = 2;
+   
     // LMR
     // [12:10] reserved
     // [9]     WB, write burst; 0 - programmed burst length, 1 - single location
@@ -19,25 +30,26 @@ module sdr_sdram_16_ctrl (
     // [3]     BT, Burst Type; 1'b0 - sequential, 1'b1 - interleaved
     // [2:0]   Burst length; 3'b000 - 1, 3'b001 - 2, 3'b010 - 4, 3'b011 - 8, 3'b111 - full page
     parameter init_wb = 1'b0;
-    parameter init_cl = 3'b010;
+    parameter init_cl = (cl==2) ? 3'b010 : 3'b011;
     parameter init_bt = 1'b0;
     parameter init_bl = 3'b001;
 	
     input [31:0] dat_i;
     input [ba_size+col_size+row_size:1] adr_i;
     input [3:0] sel_i;
-    input [2:0] cti_i;
+`ifndef NO_BURST
     input [1:0] bte_i;
+`endif
     input we_i, cyc_i, stb_i;
     output [31:0] dat_o;
     output ack_o;
 
     output reg [ba_size-1:0]    ba;
     output reg [12:0]   a;
-    output reg [2:0]    cmd;
+    output reg [2:0]    cmd; // {ras,cas,we}
     output cke, cs_n;
     output reg [1:0]    dqm;
-    output reg [15:0]   dq_o;
+    output [15:0]       dq_o;
     output reg          dq_oe;
     input  [15:0]       dq_i;
 
@@ -47,13 +59,25 @@ module sdr_sdram_16_ctrl (
     wire [row_size-1:0] row;
     wire [col_size-1:0] col;
     wire [12:0]         col_a10_fix;
+`ifdef BEAT16
+    parameter col_reg_width = 5;
     reg [4:0]		col_reg;
+`else
+`ifdef BEAT8
+    parameter col_reg_width = 4;
+    reg [3:0]		col_reg;
+`else
+`ifdef BEAT4
+    parameter col_reg_width = 3;
+    reg [2:0]		col_reg;
+`endif
+`endif
+`endif
     wire [0:31] 	shreg; 
     wire		count0;
     wire 		stall; // active if write burst need data
     wire 		ref_cnt_zero;
     reg                 refresh_req; 
-    reg			wb_flag;
 
     wire ack_rd, rd_ack_emptyflag;
     wire ack_wr;
@@ -62,7 +86,7 @@ module sdr_sdram_16_ctrl (
     reg [row_size-1:0] 	open_row[0:3];
     reg [0:3] 		open_ba;
     reg 		current_bank_closed, current_row_open;  
-   
+
 `ifndef RFR_WRAP_VALUE
     parameter rfr_length = 10;
     parameter rfr_wrap_value = 1010;
@@ -89,18 +113,6 @@ module sdr_sdram_16_ctrl (
                     cmd_rfr = 3'b001,
                     cmd_lmr = 3'b000;
 
-// LMR
-// [12:10] reserved
-// [9]     WB, write burst; 0 - programmed burst length, 1 - single location
-// [8:7]   OP Mode, 2'b00
-// [6:4]   CAS Latency; 3'b010 - 2, 3'b011 - 3
-// [3]     BT, Burst Type; 1'b0 - sequential, 1'b1 - interleaved
-// [2:0]   Burst length; 3'b000 - 1, 3'b001 - 2, 3'b010 - 4, 3'b011 - 8, 3'b111 - full page
-`define INIT_WB 1'b0
-`define INIT_CL 3'b010
-`define INIT_BT 1'b0
-`define INIT_BL 3'b001
-
 // ctrl FSM
 `define FSM_INIT 3'b000
 `define FSM_IDLE 3'b001
@@ -108,7 +120,6 @@ module sdr_sdram_16_ctrl (
 `define FSM_ADR  3'b011
 `define FSM_PCH  3'b100
 `define FSM_ACT  3'b101
-//`define FSM_WAIT 3'b110
 `define FSM_RW   3'b111
 
     assign cke = 1'b1;
@@ -150,28 +161,34 @@ module sdr_sdram_16_ctrl (
 	next = state;
 	case (state)
 	`FSM_INIT:
-            if (shreg[31]) next = `FSM_IDLE;
+            if (shreg[3+tRP+tRFC+tRFC+tMRD]) next = `FSM_IDLE;
         `FSM_IDLE:   
 	    if (refresh_req) next = `FSM_RFR;
             else if (cyc_i & stb_i & rd_ack_emptyflag) next = `FSM_ADR;
         `FSM_RFR: 
-            if (shreg[8]) next = `FSM_IDLE; // tRFC=60ns, AREF@2
+            if (shreg[tRP+tRFC-2]) next = `FSM_IDLE; // take away two cycles because no cmd will be issued in idle and adr
 	`FSM_ADR:
             if (current_bank_closed) next = `FSM_ACT;
 	    else if (current_row_open) next = `FSM_RW;
 	    else next = `FSM_PCH;
 	`FSM_PCH: 
-            if (shreg[1]) next = `FSM_ACT;
+            if (shreg[tRP]) next = `FSM_ACT;
 	`FSM_ACT:
-            if (shreg[2]) next = `FSM_RW;
+            if (shreg[tRCD]) next = `FSM_RW;
 	`FSM_RW:
+`ifdef NO_BURST
+            if (shreg[1]) next = `FSM_IDLE;
+`else
             if (bte_i==linear & shreg[1]) next = `FSM_IDLE;
+`ifdef BEAT4
             else if (bte_i==beat4 & shreg[7]) next = `FSM_IDLE;
+`endif
 `ifdef BEAT8
             else if (bte_i==beat8 & shreg[15]) next = `FSM_IDLE;
 `endif
 `ifdef BEAT16
             else if (bte_i==beat16 & shreg[31]) next = `FSM_IDLE;
+`endif
 `endif
 	endcase
     end
@@ -183,7 +200,7 @@ module sdr_sdram_16_ctrl (
     vl_cnt_shreg_ce_clear # ( .length(32))
         cnt0 (
             .cke(!stall),
-            .clear(!(state==next)),
+            .clear(state!=next),
             .q(shreg),
             .rst(rst),
             .clk(clk));
@@ -192,86 +209,109 @@ module sdr_sdram_16_ctrl (
         dff_count0 (
             .d(!count0),
             .ce(!stall),
-            .clear(!(state==next)),
+            .clear(state!=next),
             .q(count0),
             .rst(rst),
             .clk(clk));
 
     // ba, a, cmd
     // col_reg_a10 has bit [10] set to zero to disable auto precharge
-    assign col_a10_fix = a10_fix({col[col_size-1:5],col_reg});
+`ifdef NO_BURST
+    assign col_a10_fix = a10_fix(col);
+`else
+    assign col_a10_fix = a10_fix({col[col_size-1:col_reg_width],col_reg});
+`endif
 
     // outputs dependent on state vector
-    always @ (posedge clk or posedge rst)
-    begin
-	if (rst) begin
-           {ba,a,cmd} <= {2'b00,13'd0,cmd_nop};
-           dqm <= 2'b11;
-           dq_oe <= 1'b0;
-           col_reg <= 5'b000;
-           {open_ba,open_row[0],open_row[1],open_row[2],open_row[3]} <= {4'b0000,{row_size*4{1'b0}}};
-	end else begin
-   	    {ba,a,cmd} <= {2'b00,13'd0,cmd_nop};
-            dqm <= 2'b11;
-            dq_oe <= 1'b0;
+    always @ (*)
+        begin
+   	    {a,cmd} = {13'd0,cmd_nop};
+            dqm = 2'b11;
+            dq_oe = 1'b0;
             case (state)
             `FSM_INIT:
                 if (shreg[3]) begin
-                    {ba,a,cmd} <= {2'b00, 13'b0010000000000, cmd_pch};
-                    open_ba[bank] <= 1'b0;
-                end else if (shreg[7] | shreg[19])
-                    {ba,a,cmd} <= {2'b00, 13'd0, cmd_rfr};
-                else if (shreg[31])
-                    {ba,a,cmd} <= {2'b00,3'b000,init_wb,2'b00,init_cl,init_bt,init_bl,cmd_lmr};
+                    {a,cmd} = {13'b0010000000000, cmd_pch};
+                end else if (shreg[3+tRP] | shreg[3+tRP+tRFC])
+                    {a,cmd} = {13'd0, cmd_rfr};
+                else if (shreg[3+tRP+tRFC+tRFC])
+                    {a,cmd} = {3'b000,init_wb,2'b00,init_cl,init_bt,init_bl,cmd_lmr};
             `FSM_RFR:
-        	if (shreg[0]) begin
-            	{ba,a,cmd} <= {2'b00, 13'b0010000000000, cmd_pch};
-            	open_ba <= 4'b0000;
-        	end else if (shreg[2])
-            	{ba,a,cmd} <= {2'b00, 13'd0, cmd_rfr};
-	    `FSM_IDLE:
-		col_reg <= col[4:0];
+        	if (shreg[0])
+                    {a,cmd} = {13'b0010000000000, cmd_pch};
+        	else if (shreg[tRP])
+                    {a,cmd} = {13'd0, cmd_rfr};
 	    `FSM_PCH:
-        	if (shreg[0]) begin
-                    {ba,a,cmd} <= {ba,13'd0,cmd_pch};
-                    open_ba[bank] <= 1'b0;
-                end
+        	if (shreg[0])
+                    {a,cmd} = {13'd0,cmd_pch};
             `FSM_ACT:
-                if (shreg[0]) begin
-                    {ba,a,cmd} <= {bank,(13'd0 | row),cmd_act};
-                    {open_ba[bank],open_row[bank]} <= {1'b1,row};
-                end
+                if (shreg[0])
+                    {a[row_size-1:0],cmd} = {row,cmd_act};
             `FSM_RW:
                 begin
                     if (we_i & !count0)
-                        cmd <= cmd_wr;
+                        cmd = cmd_wr;
                     else if (!count0)
-                        cmd <= cmd_rd;
+                        cmd = cmd_rd;
                     else
-                        cmd <= cmd_nop;
+                        cmd = cmd_nop;
                     if (we_i & !count0)
-                        dqm <= ~sel_i[3:2];
+                        dqm = ~sel_i[3:2];
                     else if (we_i & count0)
-                        dqm <= ~sel_i[1:0];
+                        dqm = ~sel_i[1:0];
                     else
-                        dqm <= 2'b00;
+                        dqm = 2'b00;
                     if (we_i)
-                        dq_oe <= 1'b1;
+                        dq_oe = 1'b1;
                     if (~stall)
-                        case (bte_i)
-                        linear: {ba,a} <= {bank,col_a10_fix};
-                        beat4:  {ba,a,col_reg[2:0]} <= {bank,col_a10_fix, col_reg[2:0] + 3'd1};
-`ifdef BEAT8    
-                        beat8:  {ba,a,col_reg[3:0]} <= {bank,col_a10_fix, col_reg[3:0] + 4'd1};
-`endif
-`ifdef BEAT16   
-                        beat16: {ba,a,col_reg[4:0]} <= {bank,col_a10_fix, col_reg[4:0] + 5'd1};
-`endif
-                        endcase
+                        a = col_a10_fix;
                 end
             endcase
         end
+
+    assign ba = bank;
+    
+    // precharge individual bank A10=0
+    // precharge all bank A10=1
+    genvar i;
+    generate
+    for (i=0;i<2<<ba_size-1;i=i+1) begin
+    
+        always @ (posedge clk or posedge rst)
+        if (rst)
+            {open_ba[i],open_row[i]} <= {1'b0,{row_size{1'b0}}};
+        else
+            if (cmd==cmd_pch & (a[10] | bank==i))
+                open_ba[i] <= 1'b0;
+            else if (cmd==cmd_act & bank==i)
+                {open_ba[i],open_row[i]} <= {1'b1,row};
+
     end
+    endgenerate
+
+`ifndef NO_BURST    
+    always @ (posedge clk or posedge rst)
+	if (rst)
+           col_reg <= {col_reg_width{1'b0}};
+        else
+            case (state)
+	    `FSM_IDLE:
+	       col_reg <= col[col_reg_width-1:0];
+            `FSM_RW:
+               if (~stall)
+                  case (bte_i)
+`ifdef BEAT4
+                        beat4:  col_reg[2:0] <= col_reg[2:0] + 3'd1;
+`endif
+`ifdef BEAT8    
+                        beat8:  col_reg[3:0] <= col_reg[3:0] + 4'd1;
+`endif
+`ifdef BEAT16   
+                        beat16: col_reg[4:0] <= col_reg[4:0] + 5'd1;
+`endif
+                  endcase
+            endcase
+`endif
 
     // bank and row open ?
     always @ (posedge clk or posedge rst)
@@ -293,7 +333,8 @@ module sdr_sdram_16_ctrl (
             refresh_req <= 1'b0;
 	
 
-    vl_dff # ( .width(32)) wb_dat_dff ( .d({dat_o[15:0],dq_i}), .q(dat_o), .clk(clk), .rst(rst));
+    assign dat_o[15:0] = dq_i;
+    vl_dff # ( .width(16)) wb_dat_dff ( .d(dat_o[15:0]), .q(dat_o[31:16]), .clk(clk), .rst(rst));
     
     assign ack_wr = (state==`FSM_RW & count0 & we_i);
     
@@ -301,14 +342,6 @@ module sdr_sdram_16_ctrl (
 
     assign ack_o = ack_rd | ack_wr;
 
-    // output dq_o mux and dffs
-    always @ (posedge clk or posedge rst)
-    if (rst)
-    	dq_o <= 16'h0000;
-    else
-        if (~count0)
-            dq_o <= dat_i[31:16];
-        else
-            dq_o <= dat_i[15:0];
+    assign dq_o = (!count0) ? dat_i[31:16] : dat_i[15:0];
 
 endmodule
