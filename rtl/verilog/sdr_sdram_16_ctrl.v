@@ -44,7 +44,7 @@ module sdr_sdram_16_ctrl (
     output [31:0] dat_o;
     output ack_o;
 
-    output reg [ba_size-1:0]    ba;
+    output [ba_size-1:0]    ba;
     output reg [12:0]   a;
     output reg [2:0]    cmd; // {ras,cas,we}
     output cke, cs_n;
