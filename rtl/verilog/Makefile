@@ -1,17 +1,57 @@
-sdr_sdram_16_ctrl_actel.v:
-	vppreproc --noline --noblank +define+RFR_LENGTH+10 +define+RFR_WRAP_VALUE+1001 +define+ACTEL sdr_sdram_16_ctrl.v > sdr_sdram_16_ctrl_actel.v
+VLIB_BASE = vmemctrl_vl_
+VLIB_DEFINES = +define+BASE+$(VLIB_BASE)
+VLIB_DEFINES += +define+WB3WB3_BRIDGE
+VLIB_DEFINES += +define+WB3_ARBITER_TYPE1
+VLIB_DEFINES += +define+CNT_LFSR_ZQ
+VLIB_DEFINES += +define+DELAY_EMPTYFLAG
+VLIB_DEFINES += +define+DFF_CE_CLEAR
+VLIB_DEFINES += +define+WB_B3_RAM_BE
+#VLIB_DEFINES += +define+SYSTEMVERILOG
+VLIB_ALTERA = vmemctrl_vl_altera.v
+VLIB_ACTEL = vmemctrl_vl_actel.v
+VLIB = versatile_library.v
+VLIB += $(VLIB_ALTERA)
+VLIB += $(VLIB_ACTEL)
+RTL_FILES = versatile_mem_ctrl_defines.v
+RTL_FILES += sdr_sdram_ctrl.v
+RTL_FILES += versatile_mem_ctrl_top.v
+OUT_FILE = vmemctrl.v
 
+VCOUNT_FILES = VersatileCounter.class.php
+VCOUNT_FILES += VersatileCounter.php
+$(VCOUNT_FILES):
+	for file in $(VCOUNT_FILES) ; do \
+	    svn export http://opencores.org/ocsvn/versatile_library/versatile_library/trunk/misc/$$file ; \
+	done
+refresh: $(VCOUNT_FILES)
+	./VersatileCounter.php 10 1000
+	./VersatileCounter.php 9 500
+	./VersatileCounter.php 11 1172
+	./VersatileCounter.php 10 586
+	./VersatileCounter.php 11 1954
+	./VersatileCounter.php 10 977
+	./VersatileCounter.php 12 2079
+	./VersatileCounter.php 11 1040
+	./VersatileCounter.php 12 2407
+	./VersatileCounter.php 11 1204
+	
 export:
 	svn export http://opencores.org/ocsvn/versatile_library/versatile_library/trunk/rtl/verilog/versatile_library.v
-    
+	vppreproc --noline --noblank +define+ALTERA $(VLIB_DEFINES) versatile_library.v | sed -r -e 's/\/\/E2_([a-z]+)/`\1/' > $(VLIB_ALTERA)
+	vppreproc --noline --noblank +define+ACTEL  $(VLIB_DEFINES) versatile_library.v | sed -r -e 's/\/\/E2_([a-z]+)/`\1/' > $(VLIB_ACTEL)
+
+config:
+	configurator versatile_mem_ctrl_defines.v
+
+versatile_mem_ctrl: config
+	vppreproc --simple +define+VLBASE+$(VLIB_BASE) $(RTL_FILES) | cat copyright.v - > $(OUT_FILE)
+
+test: versatile_mem_ctrl
+	iverilog -tnull lpm_ff.v $(VLIB_ALTERA) $(OUT_FILE)
+	iverilog -tnull $(VLIB_ACTEL) $(OUT_FILE)
+
 # the single all rule
-all: sdr_sdram_16_ctrl_actel.v
+all: export versatile_mem_ctrl test
 
 clean:
-	rm -rf $(VERSATILE_FIFO_PROJECT_FILES) $(VERSATILE_COUNTER_PROJECT_FILES)
-	rm -rf fifo_fill.v sdr_16.v ddr_16.v
-	rm -f versatile_fifo_dual_port_ram_dc_dw.v ddr_16_generated.v
-	rm -rf *_counter.v
-	rm -rf *.csv
-	rm -rf *~
-	rm -rf sdr_sdram_16_ctrl_actel.v
+	rm -rf $(VLIB) $(OUT_FILE) $(VCOUNT_FILES)
