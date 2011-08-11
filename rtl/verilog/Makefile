@@ -59,4 +59,4 @@ test: versatile_mem_ctrl
 all: export versatile_mem_ctrl
 
 clean:
-	rm -rf $(VLIB) $(OUT_FILE) $(VCOUNT_FILES)
+	rm -rf $(VLIB) $(OUT_FILE) $(VCOUNT_FILES) lpm_ff.v
