@@ -116,9 +116,9 @@
 // Memory type
 //=select
 //`define RAM // RAM
-`define SDR // SDR
+//`define SDR // SDR
 //`define DDR2 // DDR2
-//`define DDR3 // DDR3
+`define DDR3 // DDR3
 //=end
 
 // Shadow RAM
@@ -147,7 +147,9 @@
 `ifdef RAM
 `define WB_ADR_SIZE `RAM_ADR_SIZE
 `endif
-
+`ifdef SHADOW_RAM
+`define WB_RAM_ADR_SIZE `RAM_ADR_SIZE
+`endif
 //=tab SDR SDRAM
 
 // External data bus size
@@ -305,9 +307,26 @@
         `define WB_ADR_SIZE `SDR_BA_SIZE+`SDR_COL_SIZE+`SDR_ROW_SIZE+1
     `endif
 `endif
+
 //=tab DDR2 SDRAM
 
 // Use existing Avalon compatible IP
 `define DDR2_AVALON
 // IP module name
 `define DDR2_IP_NAME ALTERA_DDR2
+
+`ifdef DDR2
+`define WB_ADR_SIZE 24
+`endif
+
+//=tab DDR3 SDRAM
+
+// Board
+//=select
+`define DDR3_BOARD_2AGX125N // ARRIAII BOARD 2AGX125N
+//=end
+`ifdef DDR3
+`ifdef DDR3_BOARD_2AGX125N
+`define WB_ADR_SIZE 30
+`endif
+`endif

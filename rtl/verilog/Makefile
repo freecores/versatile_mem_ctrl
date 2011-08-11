@@ -15,7 +15,11 @@ VLIB += $(VLIB_ACTEL)
 RTL_FILES = versatile_mem_ctrl_defines.v
 RTL_FILES += sdr_sdram_ctrl.v
 RTL_FILES += versatile_mem_ctrl_top.v
+#RTL_FILES += ddr3_2agx125n_cache_dpram.v
+#RTL_FILES += ddr3_2agx125n_if.v
+#RTL_FILES += ddr3_2agx125n/ddr3_2agx125n_ip.v
 OUT_FILE = vmemctrl.v
+#ALTERA_INCLUDE = /opt/altera/11.0/ip/altera/alt_mem_if/alt_mem_if_controllers/alt_mem_if_nextgen_ddr_controller_110/rtl/alt_mem_ddrx_define
 
 VCOUNT_FILES = VersatileCounter.class.php
 VCOUNT_FILES += VersatileCounter.php
@@ -34,9 +38,10 @@ refresh: $(VCOUNT_FILES)
 	./VersatileCounter.php 11 1040
 	./VersatileCounter.php 12 2407
 	./VersatileCounter.php 11 1204
-	
+
 export:
 	svn export http://opencores.org/ocsvn/versatile_library/versatile_library/trunk/rtl/verilog/versatile_library.v
+	svn export http://opencores.org/ocsvn/versatile_library/versatile_library/trunk/backend/altera/lpm_ff.v
 	vppreproc --noline --noblank +define+ALTERA $(VLIB_DEFINES) versatile_library.v | sed -r -e 's/\/\/E2_([a-z]+)/`\1/' > $(VLIB_ALTERA)
 	vppreproc --noline --noblank +define+ACTEL  $(VLIB_DEFINES) versatile_library.v | sed -r -e 's/\/\/E2_([a-z]+)/`\1/' > $(VLIB_ACTEL)
 
@@ -47,11 +52,11 @@ versatile_mem_ctrl: config
 	vppreproc --simple +define+VLBASE+$(VLIB_BASE) $(RTL_FILES) | cat copyright.v - > $(OUT_FILE)
 
 test: versatile_mem_ctrl
-	iverilog -tnull lpm_ff.v $(VLIB_ALTERA) $(OUT_FILE)
-	iverilog -tnull $(VLIB_ACTEL) $(OUT_FILE)
+	iverilog -y$(ALTERA_INCLUDE) -tnull lpm_ff.v $(VLIB_ALTERA) $(OUT_FILE)
+	iverilog -y$(ALTERA_INCLUDE) -tnull $(VLIB_ACTEL) $(OUT_FILE)
 
 # the single all rule
-all: export versatile_mem_ctrl test
+all: export versatile_mem_ctrl
 
 clean:
 	rm -rf $(VLIB) $(OUT_FILE) $(VCOUNT_FILES)

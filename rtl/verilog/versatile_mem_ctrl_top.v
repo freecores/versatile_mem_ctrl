@@ -142,6 +142,24 @@ module `BASE`MODULE (
     input  [`SDR_SDRAM_DATA_WIDTH-1:0] dq_i,
     output dq_oe,
 `endif
+`ifdef DDR3
+    output [12:0] mem_addr,
+    output [2:0] mem_ba,
+    output mem_cas_n,
+    output mem_cke,
+    inout mem_clk,
+    inout mem_clk_n,
+    output mem_cs_n,
+    output [1:0] mem_dm,
+    inout [15:0] mem_dq,
+    inout [1:0] mem_dqs,
+    inout [1:0] mem_dqsn,
+    output mem_odt,
+    output mem_ras_n,
+    input mem_reset_n,
+    output mem_we_n,
+    input mem_ref_clk, /* 100MHz */		       
+`endif
     input mem_clk_i,
     input mem_rst_i
 );
@@ -890,6 +908,16 @@ assign wbm_dat_o = wbs_dat_o;
 assign wbm_ack_o = wbs_ack_o;
 `endif
 
+`ifdef SHADOW_RAM
+wire [31:0] wbs_ram_dat_o;
+wire        wbs_ram_ack_o;
+wire [31:0] wbs_sdram_dat_o;
+wire        wbs_sdram_ack_o;
+assign select_sdram = wbs_adr_i > (`RAM_MEM_SIZE-1);
+assign wbs_dat_o = select_sdram ? wbs_sdram_dat_o : wbs_ram_dat_o;
+assign wbs_ack_o = select_sdram ? wbs_sdram_ack_o : wbs_ram_ack_o;
+`endif
+
 `ifdef RAM
 `define MODULE wb_b3_ram_be
 `VLBASE`MODULE
@@ -913,7 +941,31 @@ ram0 (
     .wbs_ack_o(wbs_ack_o),
     .wb_clk(mem_clk),
     .wb_rst(mem_rst));
-
+`else
+`ifdef SHADOW_RAM
+`define MODULE wb_b3_ram_be
+`VLBASE`MODULE
+`undef MODULE
+# (
+    .adr_size(`RAM_ADR_SIZE),
+    .mem_size(`RAM_MEM_SIZE),
+    .memory_init(`RAM_MEM_INIT),
+    .memory_file(`RAM_MEM_INIT_FILE)
+)
+ram0 (
+    .wbs_dat_i(wbs_dat_i),
+    .wbs_adr_i(wbs_adr_i[`WB_RAM_ADR_SIZE-2-1:0]),
+    .wbs_cti_i(wbs_cti_i),
+    .wbs_bte_i(wbs_bte_i),
+    .wbs_sel_i(wbs_sel_i),
+    .wbs_we_i(wbs_we_i),
+    .wbs_stb_i(wbs_stb_i),    
+    .wbs_cyc_i(wbs_cyc_i & ~select_sdram), 
+    .wbs_dat_o(wbs_ram_dat_o),
+    .wbs_ack_o(wbs_ram_ack_o),
+    .wb_clk(mem_clk),
+    .wb_rst(mem_rst));
+`endif
 `endif
 
 `ifdef SDR
@@ -928,10 +980,19 @@ ram0 (
     .bte_i(wbs_bte_i),
 `endif
     .we_i(wbs_we_i),
+`ifdef SHADOW_RAM
+    .cyc_i(wbs_cyc_i & select_sdram),
+`else
     .cyc_i(wbs_cyc_i),
+`endif
     .stb_i(wbs_stb_i),
+`ifdef SHADOW_RAM
+    .dat_o(wbs_sdram_dat_o),
+    .ack_o(wbs_sdram_ack_o),
+`else
     .dat_o(wbs_dat_o),
     .ack_o(wbs_ack_o),
+`endif
     // SDR SDRAM
     .ba(ba),
     .a(a),
@@ -951,6 +1012,48 @@ ram0 (
 `endif
 
 `ifdef DDR3
+`ifdef DDR3_BOARD_2AGX125N
+ddr3_2agx125n_if ddr3_0 (
+    .wb_adr_i(wbs_adr_i),
+    .wb_stb_i(wbs_stb_i),
+`ifdef SHADOW_RAM
+    .wb_cyc_i(wbs_cyc_i & select_sdram),
+`else
+    .wb_cyc_i(wbs_cyc_i),
+`endif
+    .wb_cti_i(wbs_cti_i),
+    .wb_bte_i(wbs_bte_i),
+    .wb_we_i (wbs_we_i),
+    .wb_sel_i(wbs_sel_i),
+    .wb_dat_i(wbs_dat_i),
+`ifdef SHADOW_RAM
+    .wb_dat_o(wbs_sdram_dat_o),
+    .wb_ack_o(wbs_sdram_ack_o),
+`else
+    .wb_dat_o(wbs_dat_o),
+    .wb_ack_o(wbs_ack_o),
+`endif
+
+    .mem_addr(mem_addr),
+    .mem_ba(mem_ba),
+    .mem_cas_n(mem_cas_n),
+    .mem_cke(mem_cke),
+    .mem_clk(mem_clk),
+    .mem_clk_n(mem_clk_n),
+    .mem_cs_n(mem_cs_n),
+    .mem_dm(mem_dm),
+    .mem_dq(mem_dq),
+    .mem_dqs(mem_dqs),
+    .mem_dqsn(mem_dqsn),
+    .mem_odt(mem_odt),
+    .mem_ras_n(mem_ras_n),
+    .mem_reset_n(mem_reset_n),
+    .mem_we_n(mem_we_n),
+    .mem_ref_clk(mem_ref_clk), /* 100MHz */		       
+
+    .wb_clk(mem_clk),
+    .wb_rst(mem_rst));
+`endif
 `endif
 
 endmodule
